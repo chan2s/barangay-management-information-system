@@ -1,0 +1,270 @@
+{% extends 'blotter_base.html' %}
+{% load static %}
+
+{% block title %}File a Blotter – BIMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/blotter-form.css' %}">
+{% endblock %}
+
+{% block page_title %}File a Blotter Complaint{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="notice-box">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <strong>Important:</strong> Fill out all required fields accurately.
+        Your blotter number will be given after submission.
+        Provide a valid <strong>phone number or email</strong> so the barangay can contact you.
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+        {% for error in form.non_field_errors %}
+        <div><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <form method="post" novalidate id="blotterForm" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- COMPLAINANT SECTION -->
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-person-fill text-primary"></i> Your Information (Complainant)
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" name="complainant_name" id="id_complainant_name" class="form-control" value="{{ form.complainant_name.value|default:'' }}" required>
+                    {% if form.complainant_name.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.complainant_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Complete Address <span class="text-danger">*</span></label>
+                    <textarea name="complainant_address" id="id_complainant_address" class="form-control" rows="2" required>{{ form.complainant_address.value|default:'' }}</textarea>
+                    {% if form.complainant_address.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.complainant_address.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-12">
+                    <div class="contact-info-box">
+                        <div class="contact-info-title">
+                            Contact Information <span class="text-danger">*</span>
+                            <span class="fw-normal text-muted ms-1">(provide at least one)</span>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number</label>
+                                <input type="tel" name="complainant_phone" id="id_complainant_phone" class="form-control" value="{{ form.complainant_phone.value|default:'' }}">
+                                {% if form.complainant_phone.errors %}
+                                <div class="text-danger mt-1 error-text">{{ form.complainant_phone.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address</label>
+                                <input type="email" name="complainant_email" id="id_complainant_email" class="form-control" value="{{ form.complainant_email.value|default:'' }}">
+                                {% if form.complainant_email.errors %}
+                                <div class="text-danger mt-1 error-text">{{ form.complainant_email.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESPONDENT SECTION -->
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-person-fill text-danger"></i> Person Being Complained (Respondent)
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <input type="text" name="respondent_name" id="id_respondent_name" class="form-control" value="{{ form.respondent_name.value|default:'' }}" required>
+                    {% if form.respondent_name.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.respondent_name.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                    <textarea name="respondent_address" id="id_respondent_address" class="form-control" rows="2" required>{{ form.respondent_address.value|default:'' }}</textarea>
+                    {% if form.respondent_address.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.respondent_address.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Contact (if known)</label>
+                    <input type="text" name="respondent_contact" id="id_respondent_contact" class="form-control" value="{{ form.respondent_contact.value|default:'' }}">
+                    {% if form.respondent_contact.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.respondent_contact.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- INCIDENT DETAILS SECTION -->
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-exclamation-triangle-fill text-warning"></i> Incident Details
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Incident Type <span class="text-danger">*</span></label>
+                    <select name="incident_type" id="id_incident_type" class="form-select" required>
+                        <option value="">Select incident type</option>
+                        <option value="physical_injury" {% if form.incident_type.value == 'physical_injury' %}selected{% endif %}>Physical Injury</option>
+                        <option value="threat" {% if form.incident_type.value == 'threat' %}selected{% endif %}>Threat/Intimidation</option>
+                        <option value="property_damage" {% if form.incident_type.value == 'property_damage' %}selected{% endif %}>Property Damage</option>
+                        <option value="domestic" {% if form.incident_type.value == 'domestic' %}selected{% endif %}>Domestic Violence</option>
+                        <option value="others" {% if form.incident_type.value == 'others' %}selected{% endif %}>Others</option>
+                    </select>
+                    {% if form.incident_type.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.incident_type.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Date of Incident <span class="text-danger">*</span></label>
+                    <input type="date" name="incident_date" id="id_incident_date" class="form-control" value="{{ form.incident_date.value|date:'Y-m-d'|default:'' }}" required>
+                    {% if form.incident_date.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.incident_date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Location of Incident <span class="text-danger">*</span></label>
+                    <input type="text" name="incident_location" id="id_incident_location" class="form-control" value="{{ form.incident_location.value|default:'' }}" placeholder="Specific location/address" required>
+                    {% if form.incident_location.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.incident_location.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Narration / Description <span class="text-danger">*</span>
+                        <span class="fw-normal text-muted ms-1">(describe what happened in detail)</span>
+                    </label>
+                    <textarea name="incident_description" id="id_incident_description" class="form-control" rows="6" placeholder="Provide a detailed account of what happened..." required>{{ form.incident_description.value|default:'' }}</textarea>
+                    {% if form.incident_description.errors %}
+                    <div class="text-danger mt-1 error-text">{{ form.incident_description.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- WITNESSES SECTION -->
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-people-fill text-info"></i> Witnesses (Optional)
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Witness Name</label>
+                    <input type="text" name="witness_name" class="form-control" placeholder="Full name">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Witness Contact</label>
+                    <input type="text" name="witness_contact" class="form-control" placeholder="Phone or email">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Witness Statement</label>
+                    <textarea name="witness_statement" class="form-control" rows="2" placeholder="What did the witness see or hear?"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- EVIDENCE UPLOAD SECTION -->
+        <div class="form-section">
+            <div class="form-section-title">
+                <i class="bi bi-file-earmark-image-fill text-success"></i> Supporting Evidence (Optional)
+            </div>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Upload Documents/Photos</label>
+                    <input type="file" name="evidence" class="form-control" multiple accept="image/*,.pdf,.doc,.docx">
+                    <small class="text-muted evidence-hint">You can upload multiple files (images, PDF, DOC). Max size: 10MB per file.</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- CERTIFICATION & AGREEMENT -->
+        <div class="form-section">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="certify" required>
+                <label class="form-check-label" for="certify">
+                    I hereby certify that all information provided above is true and correct to the best of my knowledge.
+                    I understand that providing false information may lead to legal consequences.
+                </label>
+            </div>
+            <div class="form-check mt-2">
+                <input class="form-check-input" type="checkbox" id="dataConsent" required>
+                <label class="form-check-label" for="dataConsent">
+                    I consent to the collection and processing of my personal data for barangay record purposes
+                    in accordance with the Data Privacy Act of 2012.
+                </label>
+            </div>
+        </div>
+
+        <!-- SUBMIT BUTTONS -->
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-send-fill me-2"></i> Submit Blotter Complaint
+            </button>
+            <button type="reset" class="btn-reset">
+                <i class="bi bi-arrow-counterclockwise me-2"></i> Clear Form
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Contact validation
+        const form = document.getElementById('blotterForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const phone = document.querySelector('[name="complainant_phone"]').value.trim();
+                const email = document.querySelector('[name="complainant_email"]').value.trim();
+                const certify = document.getElementById('certify');
+                const dataConsent = document.getElementById('dataConsent');
+                
+                if (!phone && !email) {
+                    e.preventDefault();
+                    alert('Please provide at least a phone number or email address.');
+                    document.querySelector('[name="complainant_phone"]').focus();
+                    return false;
+                }
+                
+                if (!certify.checked) {
+                    e.preventDefault();
+                    alert('Please certify that the information provided is true and correct.');
+                    certify.focus();
+                    return false;
+                }
+                
+                if (!dataConsent.checked) {
+                    e.preventDefault();
+                    alert('Please consent to the Data Privacy Act agreement.');
+                    dataConsent.focus();
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+        
+        // Reset button confirmation
+        const resetBtn = document.querySelector('.btn-reset');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function(e) {
+                if (!confirm('Are you sure you want to clear all form data?')) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

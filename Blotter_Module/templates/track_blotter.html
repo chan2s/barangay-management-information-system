@@ -1,0 +1,226 @@
+{% extends 'blotter_base.html' %}
+{% load static %}
+
+{% block title %}Track Blotter – BIMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/track-blotter.css' %}">
+{% endblock %}
+
+{% block page_title %}Track Your Blotter{% endblock %}
+
+{% block content %}
+<div class="track-container">
+    <!-- Search Form -->
+    <div class="track-card">
+        <h5 class="mb-3">
+            <i class="bi bi-file-text-fill text-primary me-2"></i>
+            Find Your Blotter
+        </h5>
+        
+        <form method="post" action="{% url 'track_blotter' %}">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <input type="text" 
+                           name="blotter_number" 
+                           class="form-control search-input" 
+                           placeholder="Enter your Blotter Number (e.g., BL-2026-0001)"
+                           value="{{ searched_number|default:'' }}"
+                           required>
+                    <small class="text-muted mt-2 d-block">
+                        <i class="bi bi-info-circle"></i> Enter the blotter number you received after filing
+                    </small>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn-search w-100">
+                        <i class="bi bi-search me-2"></i> Track Blotter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Results -->
+    {% if blotter %}
+    <div class="track-card result-card">
+        <h5 class="mb-3">
+            <i class="bi bi-file-check-fill text-success me-2"></i>
+            Blotter Details
+        </h5>
+        
+        <div class="blotter-details">
+            <!-- Blotter Number & Status -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Blotter Number:</span>
+                        <span class="detail-value fw-bold text-primary">{{ blotter.blotter_number }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Date Filed:</span>
+                        <span class="detail-value">{{ blotter.created_at|date:"F d, Y g:i A" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="detail-row">
+                        <span class="detail-label">Status:</span>
+                        <span class="status-badge status-{{ blotter.status }}">
+                            <i class="bi 
+                                {% if blotter.status == 'pending' %}bi-clock-history
+                                {% elif blotter.status == 'scheduled' %}bi-calendar-check
+                                {% elif blotter.status == 'in_progress' %}bi-arrow-repeat
+                                {% elif blotter.status == 'resolved' %}bi-check-circle
+                                {% elif blotter.status == 'closed' %}bi-archive
+                                {% else %}bi-question-circle{% endif %} me-1"></i>
+                            {{ blotter.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <!-- Complainant Info -->
+            <h6 class="mb-3 mt-2 text-primary">
+                <i class="bi bi-person-fill me-2"></i>Complainant Information
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Full Name:</span>
+                        <span class="detail-value">{{ blotter.complainant_name }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Address:</span>
+                        <span class="detail-value">{{ blotter.complainant_address|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Phone:</span>
+                        <span class="detail-value">{{ blotter.complainant_phone|default:"—" }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">{{ blotter.complainant_email|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Respondent Info -->
+            <h6 class="mb-3 mt-4 text-danger">
+                <i class="bi bi-person-badge-fill me-2"></i>Respondent Information
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Full Name:</span>
+                        <span class="detail-value">{{ blotter.respondent_name|default:"—" }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Address:</span>
+                        <span class="detail-value">{{ blotter.respondent_address|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% if blotter.respondent_contact %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="detail-row">
+                        <span class="detail-label">Contact:</span>
+                        <span class="detail-value">{{ blotter.respondent_contact }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Incident Details -->
+            <h6 class="mb-3 mt-4 text-warning">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>Incident Details
+            </h6>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Incident Type:</span>
+                        <span class="detail-value">{{ blotter.get_incident_type_display }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Date of Incident:</span>
+                        <span class="detail-value">{{ blotter.incident_date|date:"F d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="detail-row">
+                        <span class="detail-label">Location:</span>
+                        <span class="detail-value">{{ blotter.incident_location }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="detail-row">
+                        <span class="detail-label">Description:</span>
+                        <div class="detail-value mt-1">{{ blotter.incident_description|linebreaksbr }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="mt-4 text-center">
+                <button onclick="window.print()" class="btn btn-outline-secondary me-2">
+                    <i class="bi bi-printer me-1"></i> Print Details
+                </button>
+                <a href="{% url 'file_blotter' %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i> File New Complaint
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    });
+</script>
+{% endblock %}

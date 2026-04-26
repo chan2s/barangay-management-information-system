@@ -1,0 +1,117 @@
+{% extends 'blotter_base.html' %}
+{% load static %}
+
+{% block title %}Blotter Filed – BIMS{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/blotter-success.css' %}">
+{% endblock %}
+
+{% block page_title %}Blotter Filed Successfully{% endblock %}
+
+{% block content %}
+<div class="success-card">
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-body text-center p-4">
+            <div class="success-icon">
+                <i class="bi bi-check-lg"></i>
+            </div>
+            <h5 class="fw-bold mb-1">Complaint Successfully Filed!</h5>
+            <p class="text-muted mb-0">Your blotter complaint has been received. Please save your blotter number for follow-up.</p>
+            
+            <div class="blotter-number-box">
+                <div class="label">Your Blotter Number</div>
+                <div class="number">{{ blotter.blotter_number }}</div>
+            </div>
+            
+            <div class="alert alert-warning text-start">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Please take note of your blotter number.</strong>
+                You will need this to follow up at the barangay hall.
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h6 class="mb-0 fw-bold">
+                <i class="bi bi-file-text me-2"></i>COMPLAINT SUMMARY
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <table class="table detail-table mb-0">
+                <tr class="border-bottom">
+                    <td>Blotter No.</td>
+                    <td><strong class="text-primary">{{ blotter.blotter_number }}</strong></td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Date Filed</td>
+                    <td>{{ blotter.created_at|date:"F d, Y g:i A" }}</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Status</td>
+                    <td><span class="badge-status badge-{{ blotter.status }}">{{ blotter.get_status_display }}</span></td>
+                </tr>
+                <tr class="section-header-row">
+                    <td colspan="2">COMPLAINANT</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Name</td>
+                    <td>{{ blotter.complainant_name }}</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Address</td>
+                    <td>{{ blotter.complainant_address|default:"—" }}</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Phone</td>
+                    <td>{{ blotter.complainant_phone|default:"—" }}</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Email</td>
+                    <td>{{ blotter.complainant_email|default:"—" }}</td>
+                </tr>
+                <tr class="section-header-row">
+                    <td colspan="2">RESPONDENT</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Name</td>
+                    <td>{{ blotter.respondent_name|default:"—" }}</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Address</td>
+                    <td>{{ blotter.respondent_address|default:"—" }}</td>
+                </tr>
+                <tr class="section-header-row">
+                    <td colspan="2">INCIDENT</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Type</td>
+                    <td>{{ blotter.get_incident_type_display }}</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Date of Incident</td>
+                    <td>{{ blotter.incident_date|date:"F d, Y" }}</td>
+                </tr>
+                <tr class="border-bottom">
+                    <td>Location</td>
+                    <td>{{ blotter.incident_location }}</td>
+                </tr>
+                <tr>
+                    <td>Description</td>
+                    <td class="description-cell">{{ blotter.incident_description|linebreaksbr }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 no-print">
+        <button onclick="window.print()" class="btn btn-print flex-fill">
+            <i class="bi bi-printer me-1"></i> Print / Save
+        </button>
+        <a href="{% url 'file_blotter' %}" class="btn btn-new flex-fill">
+            <i class="bi bi-plus-circle me-1"></i> File Another Complaint
+        </a>
+    </div>
+</div>
+{% endblock %}
