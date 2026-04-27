@@ -1,0 +1,70 @@
+/* style.css - Add these styles */
+body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+}
+
+/* Override dashboard.css styles for login page */
+.container {
+    margin-top: 80px;
+}
+
+.container .card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.container .logo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 20px;
+    display: block;
+}
+
+.container h2 {
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+.container input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.container button {
+    width: 100%;
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.container button:hover {
+    background: #5a67d8;
+}
+
+.container p {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.container a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.container a:hover {
+    text-decoration: underline;
+}
