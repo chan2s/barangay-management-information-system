@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Login page specific styles that work with dashboard.css */
+    .login-section {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 0 80px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        padding: 40px;
+        max-width: 450px;
+        margin: 0 auto;
+        transition: transform 0.3s ease;
+    }
+
+    .login-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .login-logo {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: block;
+        margin: 0 auto 20px;
+        border: 3px solid #667eea;
+        padding: 5px;
+    }
+
+    .login-card h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+        font-weight: 700;
+        font-family: 'Inter', sans-serif;
+    }
+
+    .login-card input {
+        width: 100%;
+        padding: 12px 15px;
+        margin: 10px 0;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .login-card input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+    }
+
+    .login-card button {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: transform 0.3s ease;
+    }
+
+    .login-card button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    }
+
+    .login-card p {
+        text-align: center;
+        margin-top: 25px;
+        margin-bottom: 0;
+    }
+
+    .login-card a {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-card a:hover {
+        text-decoration: underline;
+    }
+
+    /* Alert messages styling */
+    .alert-message {
+        margin-bottom: 20px;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .alert-error {
+        background-color: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+    }
+
+    .alert-success {
+        background-color: #efe;
+        color: #3c3;
+        border: 1px solid #cfc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="login-section">
+    <div class="container">
+        <div class="login-card">
+            <img src="{% static 'images/logo.jpg' %}" class="login-logo" alt="BIMS Logo">
+            <h2>Welcome Back</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-message alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+
+            <p>
+                Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
+            </p>
+        </div>
+    </div>
+</section>
+{% endblock %}
