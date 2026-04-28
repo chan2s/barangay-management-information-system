@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='dashboard.html'), name='dashboard'),
     path('blotter/', include('Blotter_Module.urls')),
-    # path('api/blotter-stats/', include('Blotter_Module.urls')), 
+    # path('api/blotter-stats/', include('Blotter_Module.urls')),
+    path('accounts/', include('accounts.urls')),
 ]
