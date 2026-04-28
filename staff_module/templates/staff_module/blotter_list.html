@@ -1,0 +1,289 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blotter Records - Staff View</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            padding: 12px 25px;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 30px;
+        }
+        
+        .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            border-left: 4px solid white;
+        }
+        
+        .logout-item {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+        }
+        
+        .top-header {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title h2 {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .blotter-table {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-pending { background: #ffeaa7; color: #d63031; }
+        .status-ongoing { background: #74b9ff; color: #0984e3; }
+        .status-resolved { background: #55efc4; color: #00b894; }
+        .status-dismissed { background: #dfe6e9; color: #636e72; }
+        
+        .view-btn {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -280px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-balance-scale" style="font-size: 48px;"></i>
+            <h3>BIMS</h3>
+            <p>Barangay Management System</p>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="{% url 'staff_module:staff_dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="{% url 'staff_module:staff_blotter_list' %}">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Blotter List</span>
+                </a>
+            </div>
+            {% if staff.role == 'admin' %}
+            <div class="nav-item">
+                <a href="{% url 'staff_module:staff_list' %}">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Staff</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <div class="logout-item">
+                <div class="nav-item">
+                    <a href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="top-header">
+            <div class="page-title">
+                <h2><i class="fas fa-file-alt"></i> Blotter Records</h2>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="user-role">{{ staff.get_role_display }}</div>
+                </div>
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="blotter-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Blotter #</th>
+                        <th>Complainant</th>
+                        <th>Respondent</th>
+                        <th>Incident Date</th>
+                        <th>Status</th>
+                        <th>Date Reported</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for blotter in blotters %}
+                    <tr>
+                        <td><strong>{{ blotter.blotter_number }}</strong></td>
+                        <td>{{ blotter.complainant.first_name }} {{ blotter.complainant.last_name }}</td>
+                        <td>{{ blotter.respondent.first_name }} {{ blotter.respondent.last_name }}</td>
+                        <td>{{ blotter.incident_date|date:"Y-m-d" }}</td>
+                        <td>
+                            <span class="status-badge status-{{ blotter.status }}">
+                                {{ blotter.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ blotter.date_reported|date:"Y-m-d" }}</td>
+                        <td>
+                                <a href="{% url 'staff_module:staff_blotter_detail' blotter.id %}" class="view-btn">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-inbox" style="font-size: 48px;"></i>
+                            <p>No blotter records found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -24,4 +24,5 @@ urlpatterns = [
     path('blotter/', include('Blotter_Module.urls')),
     # path('api/blotter-stats/', include('Blotter_Module.urls')),
     path('accounts/', include('accounts.urls')),
+    path('staff/', include('staff_module.urls')),
 ]
