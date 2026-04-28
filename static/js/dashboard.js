@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Fetch blotter statistics from server
     function fetchBlotterStats() {
         fetch('/blotter/api/blotter-stats/')
-            .then(response => response.json())
             .then(data => {
                 if (!data.error) {
                     const totalEl = document.getElementById('totalBlotters');
