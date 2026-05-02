@@ -1,0 +1,411 @@
+{% extends 'staff_module/dashboard.html' %}
+{% load static %}
+
+{% block title %}Approve Blotter - Staff Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .review-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    .review-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border: 1px solid #e8e8e8;
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 3px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #2c3e52;
+    }
+    .section-title i {
+        color: #667eea;
+        font-size: 20px;
+    }
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+    .detail-row {
+        display: flex;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-label {
+        width: 35%;
+        font-weight: 600;
+        color: #666;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .detail-value {
+        width: 65%;
+        color: #333;
+        font-weight: 500;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    .btn-approve {
+        background: linear-gradient(135deg, #00b894 0%, #009c7a 100%);
+        color: white;
+        padding: 12px 35px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-approve:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,184,148,0.3);
+    }
+    .btn-reject {
+        background: linear-gradient(135deg, #ff4757 0%, #e04350 100%);
+        color: white;
+        padding: 12px 35px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-reject:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255,71,87,0.3);
+    }
+    .btn-back {
+        background: #6c757d;
+        color: white;
+        padding: 10px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-back:hover {
+        background: #5a6268;
+        color: white;
+    }
+    textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin-top: 10px;
+        font-family: inherit;
+        resize: vertical;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-pending { background: #ffeaa7; color: #d63031; }
+    .id-preview {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .id-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .id-preview a {
+        display: inline-block;
+        margin-top: 10px;
+        color: #667eea;
+        text-decoration: none;
+    }
+    .verification-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .verification-email { background: #e3f2fd; color: #1976d2; }
+    .verification-id { background: #fff3e0; color: #ff9800; }
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    .header-actions h2 {
+        margin: 0;
+    }
+    @media (max-width: 768px) {
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="review-container">
+    <div class="header-actions">
+        <h2><i class="fas fa-clipboard-list"></i> Review Blotter Complaint</h2>
+        <a href="{% url 'staff_module:staff_pending_approvals' %}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Pending List
+        </a>
+    </div>
+    
+    <!-- Blotter Header Card -->
+    <div class="review-card">
+        <div class="section-title">
+            <i class="fas fa-file-alt"></i> Case Information
+        </div>
+        <div class="detail-grid">
+            <div class="detail-row">
+                <div class="detail-label">Blotter Number:</div>
+                <div class="detail-value"><strong style="color: #667eea;">{{ blotter.blotter_number }}</strong></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Date Filed:</div>
+                <div class="detail-value">{{ blotter.created_at|date:"F d, Y h:i A" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Case Status:</div>
+                <div class="detail-value">
+                    <span class="status-badge status-pending">{{ blotter.get_status_display }}</span>
+                </div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Verification Method:</div>
+                <div class="detail-value">
+                    {% if blotter.verification_method == 'email' %}
+                        <span class="verification-badge verification-email"><i class="fas fa-envelope"></i> Email Verified</span>
+                    {% else %}
+                        <span class="verification-badge verification-id"><i class="fas fa-id-card"></i> Valid ID Uploaded</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Complainant Card -->
+    <div class="review-card">
+        <div class="section-title">
+            <i class="fas fa-user-circle"></i> Complainant Information
+        </div>
+        <div class="detail-grid">
+            <div class="detail-row">
+                <div class="detail-label">Full Name:</div>
+                <div class="detail-value"><strong>{{ blotter.complainant_name }}</strong></div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Address:</div>
+                <div class="detail-value">{{ blotter.complainant_address|default:"—" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Phone Number:</div>
+                <div class="detail-value">{{ blotter.complainant_phone|default:"—" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Email Address:</div>
+                <div class="detail-value">{{ blotter.complainant_email|default:"—" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Respondent Card -->
+    <div class="review-card">
+        <div class="section-title">
+            <i class="fas fa-user-friends"></i> Respondent Information
+        </div>
+        <div class="detail-grid">
+            <div class="detail-row">
+                <div class="detail-label">Full Name:</div>
+                <div class="detail-value">{{ blotter.respondent_name|default:"—" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Address:</div>
+                <div class="detail-value">{{ blotter.respondent_address|default:"—" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Contact Number:</div>
+                <div class="detail-value">{{ blotter.respondent_contact|default:"—" }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Incident Card -->
+    <div class="review-card">
+        <div class="section-title">
+            <i class="fas fa-exclamation-triangle"></i> Incident Details
+        </div>
+        <div class="detail-grid">
+            <div class="detail-row">
+                <div class="detail-label">Incident Type:</div>
+                <div class="detail-value">{{ blotter.get_incident_type_display }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Date of Incident:</div>
+                <div class="detail-value">{{ blotter.incident_date|date:"F d, Y" }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Location:</div>
+                <div class="detail-value">{{ blotter.incident_location }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Description:</div>
+                <div class="detail-value">{{ blotter.incident_description|linebreaksbr }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Valid ID Display Section (Only shows if ID verification was used) -->
+    {% if blotter.verification_method == 'id_card' and blotter.valid_id_file %}
+    <div class="review-card">
+        <div class="section-title">
+            <i class="fas fa-id-card"></i> Valid ID Verification
+        </div>
+        <div class="detail-grid">
+            <div class="detail-row">
+                <div class="detail-label">ID Type:</div>
+                <div class="detail-value">{{ blotter.valid_id_type|default:"Not specified"|upper }}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Verification Status:</div>
+                <div class="detail-value">
+                    {% if blotter.id_verification_status == 'pending' %}
+                        <span class="verification-badge" style="background:#ffeaa7; color:#d63031;"><i class="fas fa-clock"></i> Pending Review</span>
+                    {% elif blotter.id_verification_status == 'verified' %}
+                        <span class="verification-badge" style="background:#d1e7dd; color:#0f5132;"><i class="fas fa-check-circle"></i> Verified</span>
+                    {% else %}
+                        <span class="verification-badge" style="background:#f8d7da; color:#842029;"><i class="fas fa-times-circle"></i> Rejected</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="id-preview">
+            <label style="font-weight: 600; margin-bottom: 10px; display: block;">Uploaded Valid ID:</label>
+            {% if blotter.valid_id_file.url|lower|slice:"-4:" == ".pdf" %}
+                <iframe src="{{ blotter.valid_id_file.url }}" style="width: 100%; height: 400px; border: none; border-radius: 8px;"></iframe>
+                <br>
+                <a href="{{ blotter.valid_id_file.url }}" target="_blank" class="btn-back" style="display: inline-block; margin-top: 10px;">
+                    <i class="fas fa-file-pdf"></i> View PDF
+                </a>
+            {% else %}
+                <img src="{{ blotter.valid_id_file.url }}" alt="Valid ID">
+                <br>
+                <a href="{{ blotter.valid_id_file.url }}" target="_blank">
+                    <i class="fas fa-eye"></i> View Full Size
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Staff Decision Card -->
+    <div class="review-card">
+        <div class="section-title">
+            <i class="fas fa-gavel"></i> Staff Decision
+        </div>
+        <form method="post" id="approvalForm">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label" style="font-weight: 600;"><i class="fas fa-sticky-note"></i> Review Notes (Optional)</label>
+                <textarea name="review_notes" rows="3" placeholder="Add any internal notes about this review..."></textarea>
+            </div>
+            
+            <!-- ID Verification Decision (if applicable) -->
+            {% if blotter.verification_method == 'id_card' and blotter.id_verification_status == 'pending' %}
+            <div class="alert alert-warning" style="background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <i class="fas fa-info-circle"></i> <strong>ID Verification Required:</strong> Please verify the uploaded ID before approving this blotter.
+                <div class="mt-2">
+                    <button type="button" id="verifyIdBtn" class="btn-approve" style="padding: 8px 20px; font-size: 14px; background: #ffa502;">
+                        <i class="fas fa-check-double"></i> Mark ID as Verified
+                    </button>
+                    <button type="button" id="rejectIdBtn" class="btn-reject" style="padding: 8px 20px; font-size: 14px;">
+                        <i class="fas fa-times"></i> Reject ID
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="action-buttons">
+                <button type="submit" name="action" value="approve" class="btn-approve" id="approveBtn">
+                    <i class="fas fa-check-circle"></i> Approve Blotter
+                </button>
+                <button type="button" name="action" value="reject" class="btn-reject" id="rejectBtn">
+                    <i class="fas fa-times-circle"></i> Reject Blotter
+                </button>
+            </div>
+            <div id="rejection-reason" style="display: none; margin-top: 20px;">
+                <label style="font-weight: 600;">Rejection Reason <span class="text-danger">*</span></label>
+                <textarea name="rejection_reason" rows="2" placeholder="Please provide a clear reason for rejection..."></textarea>
+                <button type="submit" name="action" value="reject" class="btn-reject" style="margin-top: 15px; padding: 10px 25px;">
+                    Confirm Rejection
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Rejection confirmation
+    const rejectBtn = document.getElementById('rejectBtn');
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const reasonDiv = document.getElementById('rejection-reason');
+            reasonDiv.style.display = 'block';
+            this.style.display = 'none';
+        });
+    }
+    
+    // ID Verification handlers
+    const verifyIdBtn = document.getElementById('verifyIdBtn');
+    if (verifyIdBtn) {
+        verifyIdBtn.addEventListener('click', function() {
+            if (confirm('Verify this ID? This will mark the ID as verified and allow blotter approval.')) {
+                fetch('{% url "blotter:verify_id" blotter.id %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: new URLSearchParams({
+                        'action': 'approve'
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    }
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}

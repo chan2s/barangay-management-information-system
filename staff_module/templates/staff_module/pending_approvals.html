@@ -1,0 +1,232 @@
+{% extends 'staff_module/dashboard.html' %}
+{% load static %}
+
+{% block title %}Pending Approvals - Staff Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pending-container { padding: 20px; }
+    .pending-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .pending-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    .pending-badge {
+        background: #ffeaa7;
+        color: #d63031;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+    .btn-approve {
+        background: #00b894;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 13px;
+        display: inline-block;
+    }
+    .btn-approve:hover { background: #009c7a; color: white; }
+    .filter-bar {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .search-input {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        min-width: 200px;
+    }
+    .btn-filter {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .btn-reset {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .detail-row { margin-bottom: 8px; }
+    .detail-label {
+        font-weight: 600;
+        width: 130px;
+        display: inline-block;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        background: white;
+        border-radius: 10px;
+    }
+    .page-title { margin-bottom: 20px; }
+    .page-title h2 { font-size: 24px; }
+    .pagination a {
+        padding: 5px 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-decoration: none;
+        color: #667eea;
+    }
+    .pagination a:hover { background: #f0f0f0; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pending-container">
+    <div class="page-title">
+        <h2><i class="fas fa-clock"></i> Pending Approvals</h2>
+        <p class="text-muted">Review and approve blotter complaints submitted by residents.</p>
+    </div>
+
+    <div class="filter-bar">
+        <form method="get" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
+            <input
+                type="text"
+                name="search"
+                class="search-input"
+                placeholder="Search by blotter #, complainant, or respondent..."
+                value="{{ search_query }}"
+            >
+            <button type="submit" class="btn-filter">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a href="{% url 'staff_module:staff_pending_approvals' %}" class="btn-reset">
+                <i class="fas fa-undo"></i> Reset
+            </a>
+        </form>
+    </div>
+
+    {% if blotters %}
+        <div style="background: #e8f5e9; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px;">
+            <strong>Total Pending:</strong> {{ total_pending }} blotter{{ total_pending|pluralize }} waiting for approval
+        </div>
+
+        {% for blotter in blotters %}
+        <div class="pending-card">
+            <div class="pending-header">
+                <div>
+                    <strong style="font-size: 16px;">{{ blotter.blotter_number }}</strong>
+                    <span class="pending-badge" style="margin-left: 10px;">⏳ Pending Approval</span>
+                </div>
+                <small class="text-muted">Filed: {{ blotter.created_at|date:"Y-m-d H:i" }}</small>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Complainant:</span>
+                        <span>{{ blotter.complainant_name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Respondent:</span>
+                        <span>{{ blotter.respondent_name|default:"—" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Incident Type:</span>
+                        <span>{{ blotter.get_incident_type_display }}</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="detail-row">
+                        <span class="detail-label">Incident Date:</span>
+                        <span>{{ blotter.incident_date|date:"Y-m-d" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Verification:</span>
+                        <span>
+                            {% if blotter.verification_method == 'email' %}
+                                📧 Email Verified
+                            {% else %}
+                                🆔 Valid ID Uploaded
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Contact:</span>
+                        <span>{{ blotter.complainant_phone|default:"—" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if blotter.incident_description %}
+            <div class="detail-row mt-2">
+                <span class="detail-label">Description:</span>
+                <span class="text-muted">{{ blotter.incident_description|truncatechars:120 }}</span>
+            </div>
+            {% endif %}
+
+            <div class="mt-3">
+                <a href="{% url 'staff_module:staff_approve_blotter' blotter.id %}" class="btn-approve">
+                    <i class="fas fa-search"></i> Review & Approve
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Pagination -->
+        {% if blotters.has_other_pages %}
+        <div class="pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
+            {% if blotters.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">« First</a>
+                <a href="?page={{ blotters.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">‹ Prev</a>
+            {% endif %}
+
+            <span style="background: #667eea; color: white; padding: 5px 12px; border-radius: 5px;">
+                Page {{ blotters.number }} of {{ blotters.paginator.num_pages }}
+            </span>
+
+            {% if blotters.has_next %}
+                <a href="?page={{ blotters.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next ›</a>
+                <a href="?page={{ blotters.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last »</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+    {% else %}
+        <div class="empty-state">
+            <i class="fas fa-check-circle" style="font-size: 64px; color: #00b894;"></i>
+            <p style="margin-top: 15px; font-size: 16px; font-weight: 600;">No pending approvals.</p>
+            <p class="text-muted">
+                {% if search_query %}
+                    No blotters matched "<strong>{{ search_query }}</strong>". Try a different search.
+                {% else %}
+                    All submitted blotters have been reviewed.
+                {% endif %}
+            </p>
+            {% if search_query %}
+                <a href="{% url 'staff_module:staff_pending_approvals' %}" class="btn-reset" style="margin-top: 10px;">
+                    <i class="fas fa-undo"></i> Clear Search
+                </a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

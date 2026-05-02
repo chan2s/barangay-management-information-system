@@ -1,0 +1,369 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NOTICE OF SUMMON - KP Case No. {{ blotter.blotter_number }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        @media print {
+            html, body { width: 210mm; height: 297mm; }
+            .no-print { display: none !important; }
+            .page { box-shadow: none; margin: 0; }
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: #e0e0e0;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #000;
+        }
+
+        .no-print {
+            text-align: center;
+            padding: 10px;
+            background: #fff;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .btn-print, .btn-back {
+            background: white;
+            color: black;
+            padding: 5px 14px;
+            border: 1px solid black;
+            cursor: pointer;
+            font-size: 10.5pt;
+            margin: 0 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .btn-print:hover, .btn-back:hover { background: #f0f0f0; }
+
+        /* A4 page — strict dimensions */
+        .page {
+            width: 210mm;
+            height: 297mm;
+            margin: 14px auto;
+            background: white;
+            padding: 12mm 14mm 10mm 14mm;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
+            margin-bottom: 6px;
+        }
+
+        .seal img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+        }
+
+        .header-text { flex: 1; text-align: center; }
+        .header-text .republic { font-size: 8.5pt; letter-spacing: 0.5px; }
+        .header-text .geo { font-size: 9.5pt; font-weight: bold; text-transform: uppercase; margin-top: 1px; }
+        .header-text .addr { font-size: 8pt; margin-top: 1px; }
+        .header-text .office {
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            display: inline-block;
+            padding: 2px 12px;
+            margin-top: 4px;
+        }
+
+        /* TITLE */
+        .title-section {
+            text-align: center;
+            margin: 6px 0 4px;
+        }
+        .notice-title {
+            font-size: 15pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-decoration: underline;
+            letter-spacing: 2px;
+        }
+        .subtitle { font-size: 9pt; font-style: italic; margin-top: 1px; }
+
+        /* META ROW */
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9pt;
+            margin-bottom: 5px;
+            border-bottom: 1px dotted #999;
+            padding-bottom: 4px;
+        }
+
+        /* RECIPIENT */
+        .recipient { font-size: 9.5pt; margin-bottom: 5px; line-height: 1.5; }
+
+        /* BODY TEXT */
+        .body-text {
+            text-align: justify;
+            margin-bottom: 5px;
+            font-size: 9.5pt;
+            line-height: 1.45;
+        }
+
+        /* CASE TABLE */
+        .case-details {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 5px 0;
+            font-size: 9pt;
+        }
+        .case-details td {
+            padding: 4px 7px;
+            border: 1px solid #000;
+            vertical-align: middle;
+        }
+        .case-details td.label {
+            font-weight: bold;
+            background: #f3f3f3;
+            width: 27%;
+        }
+        .case-details td.label-r {
+            font-weight: bold;
+            background: #f3f3f3;
+            width: 23%;
+        }
+
+        /* LEGAL REMINDERS */
+        .legal-reminder {
+            margin: 6px 0;
+            font-size: 8.5pt;
+            line-height: 1.4;
+        }
+        .legal-reminder .rem-title {
+            font-weight: bold;
+            font-size: 9pt;
+            margin-bottom: 3px;
+            text-decoration: underline;
+        }
+        .legal-reminder ol {
+            margin: 0;
+            padding-left: 18px;
+        }
+        .legal-reminder li { margin-bottom: 2px; }
+
+        /* SIGNATURE */
+        .signature-section {
+            margin-top: 10px;
+            text-align: center;
+            width: 50%;
+            margin-left: auto;
+        }
+        .sig-line {
+            border-top: 1px solid #000;
+            padding-top: 3px;
+            margin-top: 22px;
+        }
+        .sig-name { font-weight: bold; font-size: 9.5pt; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sig-title { font-size: 8.5pt; }
+
+        /* ACKNOWLEDGMENT */
+        .acknowledgment {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed #000;
+            font-size: 8.5pt;
+        }
+        .ack-title {
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            font-size: 9pt;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+        .ack-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 20px;
+        }
+        .ack-line {
+            display: block;
+            border-bottom: 1px solid #000;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: auto;
+            padding-top: 5px;
+            border-top: 1px solid #000;
+            font-size: 7.5pt;
+            text-align: center;
+            color: #444;
+            line-height: 1.5;
+        }
+
+        /* WATERMARK */
+        .watermark {
+            position: fixed;
+            opacity: 0.05;
+            z-index: 0;
+            top: 38%;
+            left: 18%;
+            transform: rotate(-25deg);
+            font-size: 54pt;
+            font-weight: bold;
+            color: black;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="watermark">OFFICIAL DOCUMENT</div>
+
+<div class="no-print">
+    <button onclick="window.print()" class="btn-print">🖨️ Print / Save as PDF</button>
+    <a href="{% url 'staff_module:staff_blotter_detail' blotter.id %}" class="btn-back">← Back to Blotter</a>
+</div>
+
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="seal">
+            <img src="{% static 'images/poblacionseal.jpg' %}" alt="Barangay Seal">
+        </div>
+        <div class="header-text">
+            <div class="republic">Republic of the Philippines</div>
+            <div class="geo">Province of Negros Oriental &bull; Municipality of Santa Catalina &bull; Barangay Poblacion</div>
+            <div class="addr">Burgos St., Poblacion, Santa Catalina, Negros Oriental</div>
+            <div class="office">Office of the Punong Barangay</div>
+        </div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="title-section">
+        <div class="notice-title">Notice of Summon</div>
+        <div class="subtitle">For Katarungang Pambarangay Conciliation Proceedings</div>
+    </div>
+
+    <!-- META -->
+    <div class="meta-row">
+        <span>KP Form No. 002 &nbsp;|&nbsp; Reference No.: <strong>{{ blotter.blotter_number }}</strong></span>
+        <span>Date: <strong>{{ today|date:"F d, Y" }}</strong></span>
+    </div>
+
+    <!-- RECIPIENT -->
+    <div class="recipient">
+        <strong>TO:</strong>&nbsp; <strong>{{ blotter.respondent_name|default:"RESPONDENT"|upper }}</strong><br>
+        <span style="margin-left: 2.2em;">{{ blotter.respondent_address|default:"Address not specified" }}</span>
+    </div>
+
+    <!-- BODY -->
+    <div class="body-text">
+        <strong>Greetings.</strong> Please be informed that a complaint for <strong>{{ blotter.get_incident_type_display|upper }}</strong> has been filed against you by
+        <strong>{{ blotter.complainant_name|upper }}</strong> before this Office, docketed as KP Case No. <strong>{{ blotter.blotter_number }}</strong>.
+    </div>
+
+    <div class="body-text">
+        In compliance with Section 410 of Republic Act No. 7160 (Local Government Code of 1991) and the Katarungang Pambarangay rules, you are hereby <strong>SUMMONED</strong> to appear for mandatory conciliation and mediation proceedings on the date, time, and place below:
+    </div>
+
+    <!-- CASE TABLE -->
+    <table class="case-details">
+        <tr>
+            <td class="label">KP Case / Blotter No.:</td>
+            <td><strong>{{ blotter.blotter_number }}</strong></td>
+            <td class="label-r">Complainant:</td>
+            <td>{{ blotter.complainant_name|upper }}</td>
+        </tr>
+        <tr>
+            <td class="label">Respondent:</td>
+            <td>{{ blotter.respondent_name|default:"RESPONDENT"|upper }}</td>
+            <td class="label-r">Nature of Complaint:</td>
+            <td>{{ blotter.get_incident_type_display|upper }}</td>
+        </tr>
+        <tr>
+            <td class="label">Incident Date:</td>
+            <td>{{ blotter.incident_date|date:"F d, Y" }}</td>
+            <td class="label-r">Incident Location:</td>
+            <td>{{ blotter.incident_location|upper }}</td>
+        </tr>
+        <tr>
+            <td class="label">Hearing / Mediation Date:</td>
+            <td colspan="3">
+                <strong>{{ hearing_date|date:"F d, Y" }} at {{ hearing_date|time:"h:i A" }}</strong>
+                &mdash; Barangay Session Hall, Burgos St., Poblacion, Santa Catalina, Negros Oriental
+            </td>
+        </tr>
+    </table>
+
+    <!-- LEGAL REMINDERS -->
+    <div class="legal-reminder">
+        <div class="rem-title">Important Reminders under the Katarungang Pambarangay Rules:</div>
+        <ol>
+            <li>You are required to appear <strong>personally</strong> on the scheduled date and time. No representation by counsel shall be allowed unless authorized by the Punong Barangay or Lupon Secretary.</li>
+            <li>Bring all evidence including affidavits, documents, photographs, or any proof relevant to your defense.</li>
+            <li>Failure to appear despite due notice shall make you subject to a <strong>Certification to File Action</strong>, which may be used to elevate the case to the appropriate court or prosecutor's office.</li>
+            <li>If both parties fail to appear, the complaint shall be dismissed for lack of interest.</li>
+            <li>This summon is issued under the authority of the Lupon Tagapamayapa and the Katarungang Pambarangay Law.</li>
+        </ol>
+    </div>
+
+    <!-- SIGNATURE -->
+    <div class="signature-section">
+        <div class="sig-line">
+            <div class="sig-name">Hon. Welmar Ta-ala</div>
+            <div class="sig-title">Punong Barangay, Barangay Santa Catalina</div>
+        </div>
+    </div>
+
+    <!-- ACKNOWLEDGMENT -->
+    <div class="acknowledgment">
+        <div class="ack-title">Acknowledgment Receipt</div>
+        <div class="ack-grid">
+            <div class="ack-field">
+                Date received: <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> day of <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u>, <u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u> at ___:___ &nbsp;&#9633;&nbsp;AM &nbsp;&#9633;&nbsp;PM
+            </div>
+            <div class="ack-field">
+                Witnessed by (Lupon Secretary):<span class="ack-line"></span>
+            </div>
+            <div class="ack-field">
+                Respondent's Signature:<span class="ack-line"></span>
+            </div>
+            <div class="ack-field">
+                Printed Name:<span class="ack-line"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        KP Form No. 002 (Revised 2026) &nbsp;|&nbsp; BIMS Tracking: {{ blotter.blotter_number }} &nbsp;|&nbsp; Generated via Barangay Integrated Management System (BIMS) — Official Document<br>
+        ** Issued in accordance with Republic Act No. 7160 and the Katarungang Pambarangay Implementing Rules **
+    </div>
+
+</div>
+</body>
+</html>
