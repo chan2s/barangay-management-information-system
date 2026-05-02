@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIMS - Request Confirmation</title>
+    <link rel="stylesheet" href="{% static 'css/certificates.css' %}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>Barangay Integrated Management System</h1>
+                <p>BIMS - Certificate Filing Module</p>
+            </div>
+            <div class="nav-links">
+                <a href="{% url 'certificates:request_form' %}" class="nav-link">Request Certificate</a>
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="#" class="nav-link">My Requests</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="result-container card">
+            <div class="result-header">
+                <div class="success-icon">✓</div>
+                <h2>Request Submitted Successfully!</h2>
+                <p>Your certificate request has been received</p>
+            </div>
+
+            <div class="result-details">
+                <h3>Request Details</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <label>Request ID:</label>
+                        <span class="request-id">{{ request_id }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Request Type:</label>
+                        <span>{{ request_type }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Full Name:</label>
+                        <span>{{ full_name }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Address:</label>
+                        <span>{{ address }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Contact Number:</label>
+                        <span>{{ contact_number }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Date of Birth:</label>
+                        <span>{{ dob }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Civil Status:</label>
+                        <span>{{ civil_status }}</span>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Purpose:</label>
+                        <span>{{ purpose }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <a href="{% url 'certificates:request_form' %}" class="btn btn-primary">
+                    ← Back to Request Form
+                </a>
+                <button onclick="window.print()" class="btn btn-secondary">
+                    🖨️ Print Confirmation
+                </button>
+            </div>
+
+            <div class="reminder">
+                <p>📌 Please keep your Request ID for tracking purposes.</p>
+                <p>⏰ Processing time: 1-5 business days depending on certificate type.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/certificates.js' %}"></script>
+</body>
+</html>

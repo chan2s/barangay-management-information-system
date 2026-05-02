@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIMS - Certificate Request Form</title>
+    <link rel="stylesheet" href="{% static 'css/certificates.css' %}">
+    <style>
+        .conditional-fields { display: none; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .section-title { background: var(--primary-light); color: white; padding: 10px 15px; border-radius: 8px; margin: 20px 0 15px 0; font-size: 16px; }
+        .info-badge { background: var(--gray-100); padding: 10px; border-left: 4px solid var(--secondary); margin-bottom: 20px; font-size: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 768px) { .form-row { grid-template-columns: 1fr; gap: 0; } }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h1>Barangay Integrated Management System</h1>
+                <p>BIMS - Certificate Filing Module</p>
+            </div>
+            <div class="nav-links">
+                <a href="{% url 'certificates:request_form' %}" class="nav-link active">Request Certificate</a>
+                <a href="/" class="nav-link">Dashboard</a>
+                <a href="#" class="nav-link">My Requests</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="form-container card">
+            <div class="form-header">
+                <h2>Certificate Request Form</h2>
+                <p>Please fill out all required information below</p>
+            </div>
+
+            <form id="certificateForm" class="certificate-form" method="post" action="{% url 'certificates:submit_request' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="requestType">Request Type <span class="required">*</span></label>
+                    <select id="requestType" name="requestType" required>
+                        <option value="">Select Certificate Type</option>
+                        <option value="Barangay Clearance">Barangay Clearance</option>
+                        <option value="Certificate of Indigency">Certificate of Indigency</option>
+                        <option value="Certificate of Residency">Certificate of Residency</option>
+                        <option value="Barangay ID">Barangay ID</option>
+                    </select>
+                </div>
+
+                <!-- Basic Information (Common to all certificates) -->
+                <div class="basic-info">
+                    <div class="section-title">Basic Information</div>
+
+                    <div class="form-group">
+                        <label for="fullName">Full Name <span class="required">*</span></label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Enter your complete name" required>
+                    </div>
+
+                    <!-- Date of Birth and Age - Hidden for Indigency only -->
+                    <div id="dobAgeFields" class="form-row">
+                        <div class="form-group">
+                            <label for="dob">Date of Birth <span class="required">*</span></label>
+                            <input type="date" id="dob" name="dob">
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input type="text" id="age" name="age" readonly placeholder="Auto-calculated" style="background: var(--gray-100);">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address / Residence <span class="required">*</span></label>
+                        <input type="text" id="address" name="address" placeholder="e.g., Purok 1, Poblacion, Santa Catalina, Negros Oriental" required>
+                    </div>
+
+                    <!-- Civil Status and Gender - Hidden for Indigency only -->
+                    <div id="civilGenderFields" class="form-row">
+                        <div class="form-group">
+                            <label for="civilStatus">Civil Status</label>
+                            <select id="civilStatus" name="civilStatus">
+                                <option value="">Select Civil Status</option>
+                                <option value="Single">Single</option>
+                                <option value="Married">Married</option>
+                                <option value="Widowed">Widowed</option>
+                                <option value="Divorced">Divorced</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Barangay ID Fields -->
+                    <div id="idFields" class="conditional-fields">
+                        <div class="form-group">
+                            <label for="barangay_purok">Sitio/Purok/Street <span class="required">*</span></label>
+                            <input type="text" id="barangay_purok" name="barangay_purok" placeholder="e.g., Electona Street, Purok 1">
+                        </div>
+                        <div class="form-group">
+                            <label for="barangay_birthplace">Birth Place</label>
+                            <input type="text" id="barangay_birthplace" name="barangay_birthplace" placeholder="e.g., Santa Catalina, Negros Oriental">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weight">Weight (kgs)</label>
+                                <input type="text" id="weight" name="weight" placeholder="e.g., 47">
+                            </div>
+                            <div class="form-group">
+                                <label for="height">Height</label>
+                                <input type="text" id="height" name="height" placeholder="e.g., 5'0&quot;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="emergency_name">Emergency Contact Name</label>
+                            <input type="text" id="emergency_name" name="emergency_name" placeholder="Full name of emergency contact">
+                        </div>
+                        <div class="form-group">
+                            <label for="emergency_address">Emergency Contact Address</label>
+                            <input type="text" id="emergency_address" name="emergency_address" placeholder="Complete address">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="emergency_contact">Emergency Contact Number</label>
+                                <input type="tel" id="emergency_contact" name="emergency_contact" placeholder="Contact number">
+                            </div>
+                            <div class="form-group">
+                                <label for="emergency_relationship">Relationship</label>
+                                <input type="text" id="emergency_relationship" name="emergency_relationship" placeholder="e.g., Mother, Father, Spouse">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barangay Clearance Fields -->
+                <div id="clearanceFields" class="conditional-fields">
+                    <div class="section-title">Barangay Clearance Details</div>
+                    <div class="form-group">
+                        <label for="purpose_clearance">Purpose of Request <span class="required">*</span></label>
+                        <textarea id="purpose_clearance" name="purpose_clearance" rows="3" placeholder="e.g., Employment, Business Permit, Travel"></textarea>
+                    </div>
+                </div>
+
+                <!-- Certificate of Indigency Fields (No DOB, Age, Civil Status, Gender) -->
+                <div id="indigencyFields" class="conditional-fields">
+                    <div class="section-title">Certificate of Indigency Details</div>
+                    <div class="form-group">
+                        <label for="purok_indigency">Purok / Sitio <span class="required">*</span></label>
+                        <input type="text" id="purok_indigency" name="purok" placeholder="e.g., Purok 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose_indigency">Purpose of Request <span class="required">*</span></label>
+                        <textarea id="purpose_indigency" name="purpose_indigency" rows="3" placeholder="e.g., Financial Assistance"></textarea>
+                    </div>
+                </div>
+
+                <!-- Certificate of Residency Fields -->
+                <div id="residencyFields" class="conditional-fields">
+                    <div class="section-title">Certificate of Residency Details</div>
+                    <div class="form-group">
+                        <label for="purok_residency">Purok / Sitio <span class="required">*</span></label>
+                        <input type="text" id="purok_residency" name="purok" placeholder="e.g., Purok 1">
+                    </div>
+                    <div class="form-group">
+                        <label for="purpose_residency">Purpose of Request <span class="required">*</span></label>
+                        <textarea id="purpose_residency" name="purpose_residency" rows="3" placeholder="e.g., School Enrollment"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="reset" class="btn btn-secondary">Clear Form</button>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="info-section">
+            <div class="info-card card">
+                <h3>Processing Time</h3>
+                <p>Barangay Clearance: 1-2 days</p>
+                <p>Certificate of Indigency: 2-3 days</p>
+                <p>Certificate of Residency: 1-2 days</p>
+                <p>Barangay ID: 3-5 days</p>
+            </div>
+            <div class="info-card card">
+                <h3>Requirements</h3>
+                <p>✓ Valid ID</p>
+                <p>✓ Proof of Residency</p>
+                <p>✓ Payment of fees</p>
+                <p>✓ 2x2 Picture (for ID)</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateAge(birthDate) {
+            const today = new Date();
+            const birth = new Date(birthDate);
+            let age = today.getFullYear() - birth.getFullYear();
+            const monthDiff = today.getMonth() - birth.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) age--;
+            return age;
+        }
+
+        const dobInput = document.getElementById('dob');
+        const ageInput = document.getElementById('age');
+        if (dobInput && ageInput) {
+            dobInput.addEventListener('change', function() {
+                if (this.value) {
+                    ageInput.value = calculateAge(this.value);
+                } else {
+                    ageInput.value = '';
+                }
+            });
+        }
+
+        const requestTypeSelect = document.getElementById('requestType');
+        const dobAgeFields = document.getElementById('dobAgeFields');
+        const civilGenderFields = document.getElementById('civilGenderFields');
+
+        if (requestTypeSelect) {
+            requestTypeSelect.addEventListener('change', function() {
+                const certType = this.value;
+                const clearanceFields = document.getElementById('clearanceFields');
+                const indigencyFields = document.getElementById('indigencyFields');
+                const residencyFields = document.getElementById('residencyFields');
+                const idFields = document.getElementById('idFields');
+
+                if (clearanceFields) clearanceFields.style.display = 'none';
+                if (indigencyFields) indigencyFields.style.display = 'none';
+                if (residencyFields) residencyFields.style.display = 'none';
+                if (idFields) idFields.style.display = 'none';
+
+                // Show/hide DOB, Age, Civil Status, Gender based on certificate type
+                // Hide for Indigency only, show for all others
+                if (certType === 'Certificate of Indigency') {
+                    // Hide DOB/Age and Civil Status/Gender for Indigency
+                    if (dobAgeFields) dobAgeFields.style.display = 'none';
+                    if (civilGenderFields) civilGenderFields.style.display = 'none';
+
+                    // Remove required attributes for hidden fields
+                    if (dobInput) dobInput.removeAttribute('required');
+                } else {
+                    // Show DOB/Age and Civil Status/Gender for other certificates
+                    if (dobAgeFields) dobAgeFields.style.display = 'grid';
+                    if (civilGenderFields) civilGenderFields.style.display = 'grid';
+
+                    // Add required attribute for DOB for other certificates
+                    if (dobInput && (certType === 'Barangay Clearance' || certType === 'Certificate of Residency' || certType === 'Barangay ID')) {
+                        dobInput.setAttribute('required', 'required');
+                    }
+                }
+
+                if (certType === 'Barangay Clearance' && clearanceFields) clearanceFields.style.display = 'block';
+                else if (certType === 'Certificate of Indigency' && indigencyFields) indigencyFields.style.display = 'block';
+                else if (certType === 'Certificate of Residency' && residencyFields) residencyFields.style.display = 'block';
+                else if (certType === 'Barangay ID' && idFields) idFields.style.display = 'block';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (requestTypeSelect) requestTypeSelect.dispatchEvent(new Event('change'));
+        });
+    </script>
+</body>
+</html>
