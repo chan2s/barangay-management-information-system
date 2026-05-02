@@ -1,13 +1,95 @@
 {% extends 'blotter_base.html' %}
 {% load static %}
 
-{% block title %}Blotter Filed – BIMS{% endblock %}
+{% block title %}Blotter Filed Successfully – BIMS{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/blotter-success.css' %}">
+<style>
+    .success-card {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+    .success-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    .blotter-number-box {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        margin: 20px 0;
+        border-left: 4px solid #28a745;
+    }
+    .blotter-number-box .label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #666;
+    }
+    .blotter-number-box .number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #28a745;
+        letter-spacing: 1px;
+    }
+    .detail-table tr td {
+        padding: 10px;
+        vertical-align: top;
+    }
+    .detail-table tr td:first-child {
+        font-weight: 600;
+        width: 35%;
+        background: #f8f9fa;
+    }
+    .badge-status {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .badge-pending { background: #fff3cd; color: #856404; }
+    .section-header-row td {
+        background: #e9ecef;
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 13px;
+    }
+    .description-cell {
+        line-height: 1.5;
+    }
+    .btn-print, .btn-new {
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        text-align: center;
+    }
+    .btn-print {
+        background: white;
+        border: 1px solid #6c757d;
+        color: #6c757d;
+    }
+    .btn-new {
+        background: #28a745;
+        color: white;
+    }
+    .btn-new:hover {
+        background: #218838;
+        color: white;
+    }
+</style>
 {% endblock %}
-
-{% block page_title %}Blotter Filed Successfully{% endblock %}
 
 {% block content %}
 <div class="success-card">
@@ -22,12 +104,15 @@
             <div class="blotter-number-box">
                 <div class="label">Your Blotter Number</div>
                 <div class="number">{{ blotter.blotter_number }}</div>
+                <small class="text-muted">Please keep this for tracking your complaint</small>
             </div>
             
-            <div class="alert alert-warning text-start">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <strong>Please take note of your blotter number.</strong>
-                You will need this to follow up at the barangay hall.
+            <div class="alert alert-info text-start">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>What happens next?</strong><br>
+                1. Barangay will review your complaint within 3-5 business days<br>
+                2. You will be notified once your blotter is approved<br>
+                3. Mediation/conciliation will be scheduled
             </div>
         </div>
     </div>
@@ -50,7 +135,7 @@
                 </tr>
                 <tr class="border-bottom">
                     <td>Status</td>
-                    <td><span class="badge-status badge-{{ blotter.status }}">{{ blotter.get_status_display }}</span></td>
+                    <td><span class="badge-status badge-pending">Pending Review</span></td>
                 </tr>
                 <tr class="section-header-row">
                     <td colspan="2">COMPLAINANT</td>
@@ -106,11 +191,11 @@
     </div>
 
     <div class="d-flex gap-2 no-print">
-        <button onclick="window.print()" class="btn btn-print flex-fill">
+        <button onclick="window.print()" class="btn-print flex-fill">
             <i class="bi bi-printer me-1"></i> Print / Save
         </button>
-        <a href="{% url 'file_blotter' %}" class="btn btn-new flex-fill">
-            <i class="bi bi-plus-circle me-1"></i> File Another Complaint
+        <a href="/" class="btn-new flex-fill text-center">
+            <i class="bi bi-house-door me-1"></i> Back to Home
         </a>
     </div>
 </div>

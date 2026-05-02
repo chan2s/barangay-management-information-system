@@ -5,18 +5,84 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/blotter-form.css' %}">
+<style>
+    .required-field::after {
+        content: "*";
+        color: red;
+        margin-left: 5px;
+    }
+    .legal-warning {
+        background: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .data-privacy {
+        background: #e8f4fd;
+        border-left: 4px solid #2196F3;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    .id-verification-section {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+    .error-list {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        padding: 15px;
+        margin-bottom: 20px;
+        color: #721c24;
+    }
+    .error-list ul {
+        margin-bottom: 0;
+        padding-left: 20px;
+    }
+    .field-error {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+</style>
 {% endblock %}
 
 {% block page_title %}File a Blotter Complaint{% endblock %}
 
 {% block content %}
 <div class="form-container">
-    <div class="notice-box">
-        <i class="bi bi-info-circle-fill me-2"></i>
-        <strong>Important:</strong> Fill out all required fields accurately.
-        Your blotter number will be given after submission.
-        Provide a valid <strong>phone number or email</strong> so the barangay can contact you.
+    <!-- Legal Warning -->
+    <div class="legal-warning">
+        <i class="bi bi-exclamation-triangle-fill me-2" style="color: #856404;"></i>
+        <strong>IMPORTANT LEGAL NOTICE:</strong>
+        <small>Republic Act No. 7160 (Local Government Code) and other applicable laws penalize the filing of false or malicious complaints. 
+        Any person found to have provided false information or filed a fraudulent complaint may be held liable for perjury and other criminal charges.</small>
     </div>
+
+    <!-- Data Privacy Notice -->
+    <div class="data-privacy">
+        <i class="bi bi-shield-lock-fill me-2" style="color: #2196F3;"></i>
+        <strong>DATA PRIVACY NOTICE:</strong>
+        <small>Your personal information is collected and processed solely for barangay record purposes in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173). 
+        Your data will not be shared with third parties without your consent unless required by law.</small>
+    </div>
+
+    <!-- Display form errors -->
+    {% if form.errors %}
+    <div class="error-list">
+        <strong><i class="bi bi-exclamation-triangle-fill me-2"></i> Please correct the following errors:</strong>
+        <ul>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li>{{ field|capfirst }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 
     {% if form.non_field_errors %}
     <div class="alert alert-danger">
@@ -25,6 +91,9 @@
         {% endfor %}
     </div>
     {% endif %}
+
+    <!-- Hidden field to store verification method -->
+    <input type="hidden" name="verification_method" id="id_verification_method" value="{% if request.session.verification_method == 'id_card' %}id_card{% else %}email{% endif %}">
 
     <form method="post" novalidate id="blotterForm" enctype="multipart/form-data">
         {% csrf_token %}
@@ -36,17 +105,17 @@
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <label class="form-label required-field">Full Name</label>
                     <input type="text" name="complainant_name" id="id_complainant_name" class="form-control" value="{{ form.complainant_name.value|default:'' }}" required>
                     {% if form.complainant_name.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.complainant_name.errors.0 }}</div>
+                    <div class="field-error">{{ form.complainant_name.errors.0 }}</div>
                     {% endif %}
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Complete Address <span class="text-danger">*</span></label>
+                    <label class="form-label required-field">Complete Address</label>
                     <textarea name="complainant_address" id="id_complainant_address" class="form-control" rows="2" required>{{ form.complainant_address.value|default:'' }}</textarea>
                     {% if form.complainant_address.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.complainant_address.errors.0 }}</div>
+                    <div class="field-error">{{ form.complainant_address.errors.0 }}</div>
                     {% endif %}
                 </div>
 
@@ -60,19 +129,34 @@
                             <div class="col-md-6">
                                 <label class="form-label">Phone Number</label>
                                 <input type="tel" name="complainant_phone" id="id_complainant_phone" class="form-control" value="{{ form.complainant_phone.value|default:'' }}">
+                                <small class="text-muted">Format: 09123456789</small>
                                 {% if form.complainant_phone.errors %}
-                                <div class="text-danger mt-1 error-text">{{ form.complainant_phone.errors.0 }}</div>
+                                <div class="field-error">{{ form.complainant_phone.errors.0 }}</div>
                                 {% endif %}
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" id="email-field-container">
                                 <label class="form-label">Email Address</label>
                                 <input type="email" name="complainant_email" id="id_complainant_email" class="form-control" value="{{ form.complainant_email.value|default:'' }}">
+                                <small class="text-muted">Verification code will be sent here</small>
                                 {% if form.complainant_email.errors %}
-                                <div class="text-danger mt-1 error-text">{{ form.complainant_email.errors.0 }}</div>
+                                <div class="field-error">{{ form.complainant_email.errors.0 }}</div>
                                 {% endif %}
+                            </div>
+                            <div class="col-md-6" id="confirm-email-container">
+                                <label class="form-label">Confirm Email Address</label>
+                                <input type="email" name="confirm_email" id="id_confirm_email" class="form-control" value="{{ form.confirm_email.value|default:'' }}">
+                                <small class="text-muted">Please re-enter your email address to confirm</small>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label required-field">Purpose of Report</label>
+                    {{ form.purpose }}
+                    {% if form.purpose.errors %}
+                    <div class="field-error">{{ form.purpose.errors.0 }}</div>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -84,24 +168,24 @@
             </div>
             <div class="row g-3">
                 <div class="col-md-6">
-                    <label class="form-label">Full Name <span class="text-danger">*</span></label>
+                    <label class="form-label required-field">Full Name</label>
                     <input type="text" name="respondent_name" id="id_respondent_name" class="form-control" value="{{ form.respondent_name.value|default:'' }}" required>
                     {% if form.respondent_name.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.respondent_name.errors.0 }}</div>
+                    <div class="field-error">{{ form.respondent_name.errors.0 }}</div>
                     {% endif %}
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Address <span class="text-danger">*</span></label>
+                    <label class="form-label required-field">Address</label>
                     <textarea name="respondent_address" id="id_respondent_address" class="form-control" rows="2" required>{{ form.respondent_address.value|default:'' }}</textarea>
                     {% if form.respondent_address.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.respondent_address.errors.0 }}</div>
+                    <div class="field-error">{{ form.respondent_address.errors.0 }}</div>
                     {% endif %}
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Contact (if known)</label>
                     <input type="text" name="respondent_contact" id="id_respondent_contact" class="form-control" value="{{ form.respondent_contact.value|default:'' }}">
                     {% if form.respondent_contact.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.respondent_contact.errors.0 }}</div>
+                    <div class="field-error">{{ form.respondent_contact.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -114,40 +198,43 @@
             </div>
             <div class="row g-3">
                 <div class="col-md-4">
-                    <label class="form-label">Incident Type <span class="text-danger">*</span></label>
+                    <label class="form-label required-field">Incident Type</label>
                     <select name="incident_type" id="id_incident_type" class="form-select" required>
                         <option value="">Select incident type</option>
                         <option value="physical_injury" {% if form.incident_type.value == 'physical_injury' %}selected{% endif %}>Physical Injury</option>
                         <option value="threat" {% if form.incident_type.value == 'threat' %}selected{% endif %}>Threat/Intimidation</option>
                         <option value="property_damage" {% if form.incident_type.value == 'property_damage' %}selected{% endif %}>Property Damage</option>
                         <option value="domestic" {% if form.incident_type.value == 'domestic' %}selected{% endif %}>Domestic Violence</option>
+                        <option value="theft" {% if form.incident_type.value == 'theft' %}selected{% endif %}>Theft/Robbery</option>
+                        <option value="harassment" {% if form.incident_type.value == 'harassment' %}selected{% endif %}>Harassment</option>
+                        <option value="land_dispute" {% if form.incident_type.value == 'land_dispute' %}selected{% endif %}>Land Dispute</option>
                         <option value="others" {% if form.incident_type.value == 'others' %}selected{% endif %}>Others</option>
                     </select>
                     {% if form.incident_type.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.incident_type.errors.0 }}</div>
+                    <div class="field-error">{{ form.incident_type.errors.0 }}</div>
                     {% endif %}
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Date of Incident <span class="text-danger">*</span></label>
+                    <label class="form-label required-field">Date of Incident</label>
                     <input type="date" name="incident_date" id="id_incident_date" class="form-control" value="{{ form.incident_date.value|date:'Y-m-d'|default:'' }}" required>
+                    <small class="text-muted">Cannot be a future date</small>
                     {% if form.incident_date.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.incident_date.errors.0 }}</div>
+                    <div class="field-error">{{ form.incident_date.errors.0 }}</div>
                     {% endif %}
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label">Location of Incident <span class="text-danger">*</span></label>
+                    <label class="form-label required-field">Location of Incident</label>
                     <input type="text" name="incident_location" id="id_incident_location" class="form-control" value="{{ form.incident_location.value|default:'' }}" placeholder="Specific location/address" required>
                     {% if form.incident_location.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.incident_location.errors.0 }}</div>
+                    <div class="field-error">{{ form.incident_location.errors.0 }}</div>
                     {% endif %}
                 </div>
                 <div class="col-12">
-                    <label class="form-label">Narration / Description <span class="text-danger">*</span>
-                        <span class="fw-normal text-muted ms-1">(describe what happened in detail)</span>
-                    </label>
-                    <textarea name="incident_description" id="id_incident_description" class="form-control" rows="6" placeholder="Provide a detailed account of what happened..." required>{{ form.incident_description.value|default:'' }}</textarea>
+                    <label class="form-label required-field">Narration / Description</label>
+                    <textarea name="incident_description" id="id_incident_description" class="form-control" rows="6" placeholder="Provide a detailed account of what happened (minimum 20 characters)..." required>{{ form.incident_description.value|default:'' }}</textarea>
+                    <small class="text-muted">Please provide as much detail as possible. Minimum 20 characters.</small>
                     {% if form.incident_description.errors %}
-                    <div class="text-danger mt-1 error-text">{{ form.incident_description.errors.0 }}</div>
+                    <div class="field-error">{{ form.incident_description.errors.0 }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -188,20 +275,58 @@
             </div>
         </div>
 
+        <!-- ID VERIFICATION SECTION (Only shown if user chose ID verification) -->
+        <div id="id-verification-section" class="id-verification-section" style="display: none;">
+            <div class="alert alert-warning border mb-3">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <strong>Note:</strong> ID verification requires manual review by barangay staff. 
+                Processing may take 1-2 business days.
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label required-field">Type of ID</label>
+                    <select name="id_type" id="id_id_type" class="form-select">
+                        <option value="">Select ID type</option>
+                        <option value="passport">Passport</option>
+                        <option value="drivers_license">Driver's License</option>
+                        <option value="postal_id">Postal ID</option>
+                        <option value="umid">UMID</option>
+                        <option value="philhealth">PhilHealth ID</option>
+                        <option value="pagibig">Pag-IBIG ID</option>
+                        <option value="national_id">National ID (PhilSys)</option>
+                        <option value="barangay_id">Barangay ID</option>
+                        <option value="voters_id">Voter's ID</option>
+                        <option value="others">Others</option>
+                    </select>
+                    {% if form.id_type.errors %}
+                    <div class="field-error">{{ form.id_type.errors.0 }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label required-field">Upload Valid ID</label>
+                    <input type="file" name="valid_id" id="id_valid_id" class="form-control" accept="image/*,.pdf">
+                    <small class="text-muted">Accepted formats: JPG, PNG, PDF (Max 5MB)</small>
+                    {% if form.valid_id.errors %}
+                    <div class="field-error">{{ form.valid_id.errors.0 }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
         <!-- CERTIFICATION & AGREEMENT -->
         <div class="form-section">
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="certify" required>
                 <label class="form-check-label" for="certify">
-                    I hereby certify that all information provided above is true and correct to the best of my knowledge.
-                    I understand that providing false information may lead to legal consequences.
+                    <strong>I hereby certify under oath that all information provided above is true and correct to the best of my knowledge.</strong><br>
+                    <small class="text-muted">I understand that providing false information may lead to legal consequences including perjury and other criminal charges under Philippine law.</small>
                 </label>
             </div>
             <div class="form-check mt-2">
                 <input class="form-check-input" type="checkbox" id="dataConsent" required>
                 <label class="form-check-label" for="dataConsent">
-                    I consent to the collection and processing of my personal data for barangay record purposes
-                    in accordance with the Data Privacy Act of 2012.
+                    <strong>Data Privacy Act Consent</strong><br>
+                    <small class="text-muted">I consent to the collection, storage, and processing of my personal information for barangay record purposes in accordance with Republic Act No. 10173 (Data Privacy Act of 2012). I understand that my data will be used solely for blotter and legal proceedings.</small>
                 </label>
             </div>
         </div>
@@ -222,22 +347,98 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Contact validation
+        // Get the verification method from hidden field
+        const hiddenVerificationMethod = document.getElementById('id_verification_method');
+        const verificationMethod = hiddenVerificationMethod ? hiddenVerificationMethod.value : 'email';
+        const emailFieldContainer = document.getElementById('email-field-container');
+        const confirmEmailContainer = document.getElementById('confirm-email-container');
+        const idVerificationSection = document.getElementById('id-verification-section');
+        const emailField = document.querySelector('[name="complainant_email"]');
+        const confirmEmailField = document.querySelector('[name="confirm_email"]');
+        const idTypeField = document.getElementById('id_id_type');
+        const validIdField = document.getElementById('id_valid_id');
+        
+        console.log('Verification method:', verificationMethod);
+        
+        if (verificationMethod === 'id_card') {
+            // Hide email fields for ID verification
+            if (emailFieldContainer) emailFieldContainer.style.display = 'none';
+            if (confirmEmailContainer) confirmEmailContainer.style.display = 'none';
+            // Show ID verification section
+            if (idVerificationSection) idVerificationSection.style.display = 'block';
+            // Remove email field requirements
+            if (emailField) emailField.removeAttribute('required');
+            if (confirmEmailField) confirmEmailField.removeAttribute('required');
+            // Make ID fields required
+            if (idTypeField) idTypeField.setAttribute('required', 'required');
+            if (validIdField) validIdField.setAttribute('required', 'required');
+        } else {
+            // Email verification - show email fields, hide ID section
+            if (emailFieldContainer) emailFieldContainer.style.display = 'block';
+            if (confirmEmailContainer) confirmEmailContainer.style.display = 'block';
+            if (idVerificationSection) idVerificationSection.style.display = 'none';
+            // Make email fields required
+            if (emailField) emailField.setAttribute('required', 'required');
+            if (confirmEmailField) confirmEmailField.setAttribute('required', 'required');
+            // Remove ID field requirements
+            if (idTypeField) idTypeField.removeAttribute('required');
+            if (validIdField) validIdField.removeAttribute('required');
+        }
+        
+        // Form validation
         const form = document.getElementById('blotterForm');
         if (form) {
             form.addEventListener('submit', function(e) {
-                const phone = document.querySelector('[name="complainant_phone"]').value.trim();
-                const email = document.querySelector('[name="complainant_email"]').value.trim();
+                const phone = document.querySelector('[name="complainant_phone"]') ? document.querySelector('[name="complainant_phone"]').value.trim() : '';
+                const email = document.querySelector('[name="complainant_email"]') ? document.querySelector('[name="complainant_email"]').value.trim() : '';
+                const confirmEmail = document.querySelector('[name="confirm_email"]') ? document.querySelector('[name="confirm_email"]').value.trim() : '';
+                const method = verificationMethod;
                 const certify = document.getElementById('certify');
                 const dataConsent = document.getElementById('dataConsent');
                 
-                if (!phone && !email) {
+                console.log('Submitting form - Method:', method, 'Phone:', phone, 'Email:', email);
+                
+                // Check at least one contact method
+                if (!phone && !email && method !== 'id_card') {
                     e.preventDefault();
                     alert('Please provide at least a phone number or email address.');
-                    document.querySelector('[name="complainant_phone"]').focus();
+                    if (document.querySelector('[name="complainant_phone"]')) document.querySelector('[name="complainant_phone"]').focus();
                     return false;
                 }
                 
+                // Email verification validation
+                if (method === 'email') {
+                    if (!email) {
+                        e.preventDefault();
+                        alert('Please provide an email address for verification.');
+                        if (document.querySelector('[name="complainant_email"]')) document.querySelector('[name="complainant_email"]').focus();
+                        return false;
+                    }
+                    if (email !== confirmEmail) {
+                        e.preventDefault();
+                        alert('Email addresses do not match. Please re-enter your email.');
+                        if (document.querySelector('[name="confirm_email"]')) document.querySelector('[name="confirm_email"]').focus();
+                        return false;
+                    }
+                }
+                
+                // ID verification validation
+                if (method === 'id_card') {
+                    const idType = document.querySelector('[name="id_type"]') ? document.querySelector('[name="id_type"]').value : '';
+                    const validId = document.querySelector('[name="valid_id"]') ? document.querySelector('[name="valid_id"]').files.length : 0;
+                    if (!idType) {
+                        e.preventDefault();
+                        alert('Please select the type of ID you are uploading.');
+                        return false;
+                    }
+                    if (validId === 0) {
+                        e.preventDefault();
+                        alert('Please upload a valid ID for verification.');
+                        return false;
+                    }
+                }
+                
+                // Check certifications
                 if (!certify.checked) {
                     e.preventDefault();
                     alert('Please certify that the information provided is true and correct.');
@@ -252,6 +453,7 @@
                     return false;
                 }
                 
+                console.log('Form validation passed');
                 return true;
             });
         }
@@ -265,6 +467,6 @@
                 }
             });
         }
-    });
+    }); 
 </script>
 {% endblock %}

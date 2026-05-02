@@ -1,71 +1,1077 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --white: #ffffff;
+    --cream: #fefcf3;
+    --yellow-soft: #fdf6d3;
+    --yellow-light: #fef0a0;
+    --yellow-mid: #f5d300;
+    --yellow-accent: #e6c200;
+    --charcoal: #1a1a2e;
+    --slate: #3d3d5c;
+    --muted: #6b6b8a;
+    --border: #e8e4d0;
+    --shadow-sm: 0 2px 8px rgba(26,26,46,0.06);
+    --shadow-md: 0 8px 32px rgba(26,26,46,0.10);
+    --shadow-lg: 0 24px 64px rgba(26,26,46,0.13);
+    --radius: 16px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+
+  /* ============ NAVBAR OVERRIDE ============ */
+  .navbar {
+    background: var(--white) !important;
+    border-bottom: 2px solid var(--yellow-mid);
+    box-shadow: var(--shadow-sm);
+    padding: 0.75rem 0;
+  }
+  .navbar-brand span { color: var(--charcoal); font-family: 'DM Serif Display', serif; font-size: 1.3rem; }
+  .navbar-brand small { color: var(--muted); font-size: 0.7rem; }
+  .brand-icon { background: var(--yellow-mid); color: var(--charcoal); }
+  .nav-link { color: var(--slate) !important; font-weight: 500; font-size: 0.9rem; }
+  .nav-link:hover, .nav-link.active { color: var(--charcoal) !important; }
+  .nav-link.btn-outline-light {
+    border-color: var(--yellow-mid) !important;
+    color: var(--charcoal) !important;
+    background: var(--yellow-soft);
+  }
+  .nav-link.btn-outline-light:hover {
+    background: var(--yellow-mid) !important;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    background: var(--cream);
+    padding: 130px 0 80px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Dot grid background pattern */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #d4c870 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.18;
+    pointer-events: none;
+  }
+
+  /* Decorative circle shapes */
+  .hero-circle-1 {
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    border: 48px solid var(--yellow-light);
+    opacity: 0.5;
+    animation: floatY 8s ease-in-out infinite;
+  }
+  .hero-circle-2 {
+    position: absolute;
+    bottom: 20px; left: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    border: 28px solid var(--yellow-light);
+    opacity: 0.35;
+    animation: floatY 11s ease-in-out infinite reverse;
+  }
+  .hero-strip {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: var(--yellow-mid);
+  }
+
+  @keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--yellow-mid);
+    color: var(--charcoal);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 40px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.1;
+    color: var(--charcoal);
+    margin-bottom: 12px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--yellow-accent);
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.65;
+    max-width: 480px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--charcoal);
+    color: var(--white);
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 2px solid var(--charcoal);
+    transition: background 0.2s, color 0.2s, transform 0.18s;
+  }
+  .btn-primary-hero:hover {
+    background: var(--yellow-mid);
+    color: var(--charcoal);
+    border-color: var(--yellow-mid);
+    transform: translateY(-2px);
+  }
+
+  .btn-outline-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--charcoal);
+    padding: 14px 28px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    border: 2px solid var(--border);
+    transition: border-color 0.2s, background 0.2s, transform 0.18s;
+  }
+  .btn-outline-hero:hover {
+    border-color: var(--yellow-mid);
+    background: var(--yellow-soft);
+    transform: translateY(-2px);
+  }
+
+  /* Hero right: visual card stack */
+  .hero-visual {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .hero-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-md);
+    animation: slideInRight 0.7s ease both;
+  }
+  .hero-card:nth-child(2) { animation-delay: 0.15s; margin-left: 20px; }
+  .hero-card:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .hero-card-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    background: var(--yellow-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    border: 1.5px solid var(--yellow-light);
+  }
+
+  .hero-card-title { font-weight: 700; font-size: 0.95rem; color: var(--charcoal); }
+  .hero-card-desc { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+
+  /* ============ STATS ============ */
+  .stats-bar {
+    background: var(--charcoal);
+    padding: 36px 0;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 16px 24px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-item:nth-child(1) { animation-delay: 0.1s; }
+  .stat-item:nth-child(2) { animation-delay: 0.2s; }
+  .stat-item:nth-child(3) { animation-delay: 0.3s; }
+  .stat-item:nth-child(4) { animation-delay: 0.4s; }
+
+  .stat-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.6rem;
+    color: var(--yellow-mid);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label { color: rgba(255,255,255,0.6); font-size: 0.82rem; font-weight: 500; }
+
+  /* ============ SECTIONS ============ */
+  .section { padding: 88px 0; }
+  .section-alt { background: var(--cream); }
+
+  .section-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--yellow-accent);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px; height: 2px;
+    background: var(--yellow-mid);
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.9rem, 4vw, 2.8rem);
+    color: var(--charcoal);
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .section-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 520px;
+  }
+
+  /* ============ MISSION / VISION ============ */
+  .mv-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 48px;
+  }
+
+  .mv-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 40px 36px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .mv-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+  .mv-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--yellow-mid);
+  }
+  .mv-card-icon {
+    width: 56px; height: 56px;
+    border-radius: 14px;
+    background: var(--yellow-soft);
+    border: 1.5px solid var(--yellow-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+  .mv-card h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--charcoal);
+    margin-bottom: 12px;
+  }
+  .mv-card p { color: var(--muted); line-height: 1.7; font-size: 0.95rem; }
+
+  /* ============ FEATURES ============ */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+
+  .feature-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--yellow-mid);
+  }
+  .feature-card:nth-child(1) { animation-delay: 0.05s; }
+  .feature-card:nth-child(2) { animation-delay: 0.15s; }
+  .feature-card:nth-child(3) { animation-delay: 0.25s; }
+  .feature-card:nth-child(4) { animation-delay: 0.35s; }
+  .feature-card:nth-child(5) { animation-delay: 0.45s; }
+  .feature-card:nth-child(6) { animation-delay: 0.55s; }
+
+  .feature-icon {
+    width: 52px; height: 52px;
+    border-radius: 12px;
+    background: var(--yellow-soft);
+    border: 1.5px solid var(--yellow-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 18px;
+  }
+  .feature-card h4 {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--charcoal);
+    margin-bottom: 8px;
+  }
+  .feature-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+
+  /* ============ HOW IT WORKS ============ */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin-top: 56px;
+    position: relative;
+  }
+
+  .steps-grid::before {
+    content: '';
+    position: absolute;
+    top: 32px;
+    left: calc(12.5% + 24px);
+    right: calc(12.5% + 24px);
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  .step-item {
+    text-align: center;
+    padding: 0 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-num {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 2px solid var(--yellow-mid);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--charcoal);
+    margin-bottom: 20px;
+    position: relative;
+    transition: background 0.2s, color 0.2s;
+  }
+  .step-item:hover .step-num {
+    background: var(--yellow-mid);
+  }
+
+  .step-item h4 {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--charcoal);
+    margin-bottom: 8px;
+  }
+  .step-item p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+  /* ============ OFFICIALS ============ */
+  .officials-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+  }
+
+  .official-card {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 20px;
+    text-align: center;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+  .official-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .official-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--yellow-soft);
+    border: 3px solid var(--yellow-mid);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 14px;
+    color: var(--charcoal);
+  }
+
+  .official-card h5 {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+  .official-card span {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ============ EMERGENCY BANNER ============ */
+  .emergency-banner {
+    background: var(--charcoal);
+    padding: 28px 0;
+    border-top: 4px solid var(--yellow-mid);
+    border-bottom: 4px solid var(--yellow-mid);
+  }
+  .emergency-inner {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .emergency-icon {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--yellow-mid);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    color: var(--charcoal);
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245,211,0,0.5); }
+    50% { box-shadow: 0 0 0 16px rgba(245,211,0,0); }
+  }
+  .emergency-text h4 {
+    color: var(--white);
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+  .emergency-text p { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
+  .emergency-numbers { display: flex; gap: 12px; flex-wrap: wrap; }
+  .emergency-num {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-sm);
+    padding: 8px 16px;
+    text-align: center;
+  }
+  .emergency-num span { display: block; font-size: 0.7rem; color: rgba(255,255,255,0.5); }
+  .emergency-num strong { color: var(--yellow-mid); font-size: 1rem; }
+
+  /* ============ CONTACT ============ */
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    margin-top: 48px;
+    align-items: start;
+  }
+
+  .contact-info-list { margin-top: 28px; display: flex; flex-direction: column; gap: 20px; }
+  .contact-info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .contact-info-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: var(--yellow-soft);
+    border: 1.5px solid var(--yellow-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .contact-info-item h6 { font-weight: 700; font-size: 0.9rem; color: var(--charcoal); margin-bottom: 2px; }
+  .contact-info-item p { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+  .contact-form {
+    background: var(--white);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+  }
+  .contact-form h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--charcoal);
+    margin-bottom: 20px;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label-custom {
+    display: block;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+  .form-control-custom {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--charcoal);
+    background: var(--white);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-control-custom:focus { border-color: var(--yellow-mid); }
+  textarea.form-control-custom { resize: vertical; min-height: 100px; }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--charcoal);
+    color: var(--white);
+    border: 2px solid var(--charcoal);
+    border-radius: var(--radius-sm);
+    padding: 13px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 4px;
+  }
+  .btn-submit:hover { background: var(--yellow-mid); color: var(--charcoal); border-color: var(--yellow-mid); }
+
+  /* ============ FOOTER OVERRIDE ============ */
+  .footer { background: var(--charcoal); }
+  .footer h5, .footer h6 { color: var(--white); }
+  .footer p, .footer ul li a, .footer small { color: rgba(255,255,255,0.55); }
+  .footer ul li a:hover { color: var(--yellow-mid); }
+  .social-links a { color: rgba(255,255,255,0.55); }
+  .social-links a:hover { color: var(--yellow-mid); }
+  .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); }
+
+  /* ============ UTILITY ============ */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up {
+    opacity: 0;
+    animation: fadeUp 0.7s ease forwards;
+  }
+  .d1 { animation-delay: 0.1s; }
+  .d2 { animation-delay: 0.22s; }
+  .d3 { animation-delay: 0.34s; }
+  .d4 { animation-delay: 0.46s; }
+  .d5 { animation-delay: 0.58s; }
+
+  /* ============ SCROLL REVEAL ============ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.65s ease, transform 0.65s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 991px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .hero-visual { display: none; }
+    .mv-grid { grid-template-columns: 1fr; }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .steps-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .steps-grid::before { display: none; }
+    .officials-grid { grid-template-columns: 1fr 1fr; }
+    .contact-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-item { border-bottom: 1px solid rgba(255,255,255,0.1); border-right: none; }
+    .stat-item:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.1); }
+  }
+
+  @media (max-width: 575px) {
+    .hero { padding: 110px 0 60px; }
+    .features-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .officials-grid { grid-template-columns: 1fr 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .hero-actions { flex-direction: column; }
+    .btn-primary-hero, .btn-outline-hero { justify-content: center; }
+    .emergency-inner { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero Section -->
+
+<!-- ===== HERO ===== -->
 <section class="hero">
-    <div class="hero-overlay"></div>
-    <div class="container">
-        <div class="hero-content">
-            <div class="hero-badge fade-up">
-                <i class="bi bi-shield-fill-check me-1"></i> Official Barangay Portal
-            </div>
-            <h1 class="fade-up delay-1">Barangay Santa Catalina</h1>
-            <p class="hero-sub fade-up delay-2">Barangay Integrated Management System</p>
-            <p class="hero-desc fade-up delay-3">Efficient, Transparent, and Community-Focused Public Service</p>
-            <div class="hero-buttons fade-up delay-4">
-                <a href="{% url 'file_blotter' %}" class="btn btn-primary btn-lg">
-                    <i class="bi bi-file-earmark-plus-fill me-2"></i> Report a Blotter
-                </a>
-                <a href="{% url 'track_blotter' %}" class="btn btn-outline-light btn-lg">
-                    <i class="bi bi-search me-2"></i> Track Your Blotter
-                </a>
-                <a href="/accounts/login/" class="btn btn-outline-light btn-lg">
-                    <i class="bi bi-box-arrow-in-right me-2"></i> Login
-                </a>
-            </div>
+  <div class="hero-strip"></div>
+  <div class="hero-circle-1"></div>
+  <div class="hero-circle-2"></div>
+
+  <div class="container">
+    <div class="hero-inner">
+      <!-- Left: Text -->
+      <div class="hero-text">
+        <div class="hero-eyebrow fade-up d1">
+          <i class="bi bi-shield-fill-check"></i> Official Barangay Portal
         </div>
+        <h1 class="fade-up d2">
+          Barangay<br>
+          <em>Santa Catalina</em><br>
+          Serves You
+        </h1>
+        <p class="hero-sub fade-up d3">
+          A modern, transparent, and community-focused Barangay Integrated Management System — built to serve every resident of Santa Catalina.
+        </p>
+        <div class="hero-actions fade-up d4">
+          <a href="/blotter/file/" class="btn-primary-hero">
+            <i class="bi bi-file-earmark-plus-fill"></i> Report a Blotter
+          </a>
+          <a href="/blotter/track/" class="btn-outline-hero">
+            <i class="bi bi-search"></i> Track Your Blotter
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Visual cards -->
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="hero-card-icon">📋</div>
+          <div>
+            <div class="hero-card-title">File a Blotter</div>
+            <div class="hero-card-desc">Submit incident reports quickly and securely online</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-icon">🔍</div>
+          <div>
+            <div class="hero-card-title">Track Your Case</div>
+            <div class="hero-card-desc">Real-time status updates on your filed blotter</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-icon">🏛️</div>
+          <div>
+            <div class="hero-card-title">Community Governance</div>
+            <div class="hero-card-desc">Transparent leadership for Santa Catalina residents</div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="hero-wave">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-            <path fill="#ffffff" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,154.7C960,171,1056,181,1152,165.3C1248,149,1344,107,1392,85.3L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
-        </svg>
+  </div>
+</section>
+
+<!-- ===== STATS BAR ===== -->
+<section class="stats-bar">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">4,200+</div>
+        <div class="stat-label">Registered Residents</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">98%</div>
+        <div class="stat-label">Cases Resolved</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">24/7</div>
+        <div class="stat-label">Emergency Response</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">1,150+</div>
+        <div class="stat-label">Blotters Filed</div>
+      </div>
     </div>
+  </div>
 </section>
 
-<!-- Rest of your sections (Statistics, Mission, Features, etc.) -->
-<!-- Statistics Section -->
-<section class="stats-section">
-    <!-- Your stats content -->
+<!-- ===== MISSION & VISION ===== -->
+<section class="section" id="about">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-eyebrow">About the Barangay</div>
+      <h2 class="section-title">Guided by Purpose,<br>Driven by Community</h2>
+      <p class="section-desc">Barangay Santa Catalina is committed to upholding the rights and welfare of every resident through accessible, efficient, and transparent governance.</p>
+    </div>
+
+    <div class="mv-grid">
+      <div class="mv-card reveal reveal-delay-1">
+        <div class="mv-card-icon">🎯</div>
+        <h3>Our Mission</h3>
+        <p>To provide accessible, efficient, and transparent government services to every resident of Barangay Santa Catalina. We are committed to maintaining peace, order, and sustainable community development through inclusive governance and active citizen participation.</p>
+      </div>
+      <div class="mv-card reveal reveal-delay-2">
+        <div class="mv-card-icon">🌟</div>
+        <h3>Our Vision</h3>
+        <p>A progressive, peaceful, and prosperous Barangay Santa Catalina where every resident enjoys a high quality of life, supported by a responsive local government that upholds justice, unity, and community empowerment.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Mission & Vision Section -->
-<section class="section-padding" id="about">
-    <!-- Your mission/vision content -->
+<!-- ===== FEATURES ===== -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-eyebrow">System Features</div>
+      <h2 class="section-title">Everything You Need<br>in One Portal</h2>
+      <p class="section-desc">BIMS brings key barangay services online — saving you time and making governance more transparent for everyone.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">📝</div>
+        <h4>Online Blotter Filing</h4>
+        <p>File incident reports online at any time, from anywhere. No need to visit the barangay hall to report an incident.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">🔍</div>
+        <h4>Blotter Case Tracking</h4>
+        <p>Monitor the real-time status of your filed blotter using your reference number. Stay informed every step of the way.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">👥</div>
+        <h4>Frontdesk Management</h4>
+        <p>Barangay staff can manage, update, and process all filed blotters and resident requests through a dedicated dashboard.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">📊</div>
+        <h4>Admin Dashboard</h4>
+        <p>Full administrative control over the system — manage officials, generate reports, and monitor barangay operations.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">🔔</div>
+        <h4>Notifications & Alerts</h4>
+        <p>Get timely updates on your case status and important barangay announcements directly through the system.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon">🔒</div>
+        <h4>Secure & Private</h4>
+        <p>All resident data and case information are securely stored and protected. Your privacy is our top priority.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Features Section -->
-<section class="section-padding bg-light">
-    <!-- Your features content -->
+<!-- ===== HOW IT WORKS ===== -->
+<section class="section">
+  <div class="container">
+    <div class="reveal" style="text-align:center;">
+      <div class="section-eyebrow" style="justify-content:center;">How It Works</div>
+      <h2 class="section-title" style="text-align:center;">File a Blotter in<br>4 Simple Steps</h2>
+      <p class="section-desc" style="text-align:center; margin:0 auto 0;">Our streamlined process makes reporting incidents quick and straightforward for all residents.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-item reveal">
+        <div class="step-num">1</div>
+        <h4>Visit the Portal</h4>
+        <p>Access the BIMS portal from any device — mobile, tablet, or desktop.</p>
+      </div>
+      <div class="step-item reveal reveal-delay-1">
+        <div class="step-num">2</div>
+        <h4>Fill the Form</h4>
+        <p>Complete the blotter form with accurate details about the incident.</p>
+      </div>
+      <div class="step-item reveal reveal-delay-2">
+        <div class="step-num">3</div>
+        <h4>Submit & Receive ID</h4>
+        <p>Submit your report and receive a unique reference number to track your case.</p>
+      </div>
+      <div class="step-item reveal reveal-delay-3">
+        <div class="step-num">4</div>
+        <h4>Track Your Case</h4>
+        <p>Use your reference number to monitor your case status anytime, anywhere.</p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- How It Works Section -->
-<section class="section-padding">
-    <!-- Your steps content -->
+<!-- ===== OFFICIALS ===== -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-eyebrow">Leadership</div>
+      <h2 class="section-title">Barangay Officials</h2>
+      <p class="section-desc">Meet the dedicated public servants leading Barangay Santa Catalina.</p>
+    </div>
+
+    <div class="officials-grid">
+      <div class="official-card reveal">
+        <div class="official-avatar">👤</div>
+        <h5>Hon. [Punong Barangay]</h5>
+        <span>Punong Barangay</span>
+      </div>
+      <div class="official-card reveal reveal-delay-1">
+        <div class="official-avatar">👤</div>
+        <h5>Hon. [Kagawad 1]</h5>
+        <span>Kagawad — Peace & Order</span>
+      </div>
+      <div class="official-card reveal reveal-delay-1">
+        <div class="official-avatar">👤</div>
+        <h5>Hon. [Kagawad 2]</h5>
+        <span>Kagawad — Health & Sanitation</span>
+      </div>
+      <div class="official-card reveal reveal-delay-2">
+        <div class="official-avatar">👤</div>
+        <h5>Hon. [Kagawad 3]</h5>
+        <span>Kagawad — Education</span>
+      </div>
+      <div class="official-card reveal">
+        <div class="official-avatar">👤</div>
+        <h5>Hon. [Kagawad 4]</h5>
+        <span>Kagawad — Infrastructure</span>
+      </div>
+      <div class="official-card reveal reveal-delay-1">
+        <div class="official-avatar">👤</div>
+        <h5>Hon. [Kagawad 5]</h5>
+        <span>Kagawad — Environment</span>
+      </div>
+      <div class="official-card reveal reveal-delay-1">
+        <div class="official-avatar">👤</div>
+        <h5>Hon. [Kagawad 6]</h5>
+        <span>Kagawad — Social Services</span>
+      </div>
+      <div class="official-card reveal reveal-delay-2">
+        <div class="official-avatar">👤</div>
+        <h5>[SK Chairperson]</h5>
+        <span>SK Chairperson</span>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Barangay Officials Section -->
-<section class="section-padding bg-light">
-    <!-- Your officials content -->
+<!-- ===== EMERGENCY BANNER ===== -->
+<section class="emergency-banner">
+  <div class="container">
+    <div class="emergency-inner">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="emergency-icon">🚨</div>
+        <div class="emergency-text">
+          <h4>Emergency Hotlines</h4>
+          <p>Available 24 hours a day, 7 days a week</p>
+        </div>
+      </div>
+      <div class="emergency-numbers">
+        <div class="emergency-num">
+          <span>Barangay Hall</span>
+          <strong>(032) 000-0000</strong>
+        </div>
+        <div class="emergency-num">
+          <span>Police (PNP)</span>
+          <strong>911</strong>
+        </div>
+        <div class="emergency-num">
+          <span>Fire Station</span>
+          <strong>(032) 000-0001</strong>
+        </div>
+        <div class="emergency-num">
+          <span>NDRRMC</span>
+          <strong>8888</strong>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Emergency Alert Banner -->
-<section class="emergency-alert">
-    <!-- Your emergency alert content -->
+<!-- ===== CONTACT ===== -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="reveal">
+      <div class="section-eyebrow">Get in Touch</div>
+      <h2 class="section-title">Contact the Barangay</h2>
+      <p class="section-desc">Have a concern, question, or suggestion? Reach out to us through any of these channels.</p>
+    </div>
+
+    <div class="contact-grid">
+      <!-- Info -->
+      <div class="reveal reveal-delay-1">
+        <div class="contact-info-list">
+          <div class="contact-info-item">
+            <div class="contact-info-icon">📍</div>
+            <div>
+              <h6>Barangay Hall Address</h6>
+              <p>Barangay Santa Catalina, [Municipality], Cebu, Philippines</p>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">📞</div>
+            <div>
+              <h6>Phone Number</h6>
+              <p>(032) 000-0000<br>Available Mon–Fri, 8AM–5PM</p>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">✉️</div>
+            <div>
+              <h6>Email Address</h6>
+              <p>brgy.santacatalina@example.gov.ph</p>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="contact-info-icon">🕐</div>
+            <div>
+              <h6>Office Hours</h6>
+              <p>Monday to Friday: 8:00 AM – 5:00 PM<br>Saturday: 8:00 AM – 12:00 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="contact-form reveal reveal-delay-2">
+        <h3>Send a Message</h3>
+        <div class="form-group">
+          <label class="form-label-custom">Full Name</label>
+          <input type="text" class="form-control-custom" placeholder="Juan Dela Cruz">
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Email Address</label>
+          <input type="email" class="form-control-custom" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Subject</label>
+          <input type="text" class="form-control-custom" placeholder="Inquiry / Concern / Suggestion">
+        </div>
+        <div class="form-group">
+          <label class="form-label-custom">Message</label>
+          <textarea class="form-control-custom" placeholder="Write your message here..."></textarea>
+        </div>
+        <button class="btn-submit">Send Message <i class="bi bi-send-fill ms-1"></i></button>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Contact Section -->
-<section class="section-padding" id="contact">
-    <!-- Your contact content -->
-</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => observer.observe(el));
+
+  // Animate stat numbers
+  function animateCount(el, target, suffix = '') {
+    let start = 0;
+    const duration = 1800;
+    const step = (timestamp) => {
+      if (!start) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.floor(eased * target);
+      el.textContent = current.toLocaleString() + suffix;
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  const statNumbers = document.querySelectorAll('.stat-number');
+  const statObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const txt = e.target.textContent;
+        if (txt.includes('4,200')) animateCount(e.target, 4200, '+');
+        else if (txt.includes('98')) animateCount(e.target, 98, '%');
+        else if (txt.includes('1,150')) animateCount(e.target, 1150, '+');
+        statObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.5 });
+  statNumbers.forEach(el => statObs.observe(el));
+</script>
 {% endblock %}

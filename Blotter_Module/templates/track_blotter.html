@@ -1,44 +1,181 @@
 {% extends 'blotter_base.html' %}
 {% load static %}
 
-{% block title %}Track Blotter – BIMS{% endblock %}
+{% block title %}Blotter Tracking System – BIMS{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/track-blotter.css' %}">
+<style>
+    /* Formal Government Style */
+    .track-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .formal-card {
+        background: white;
+        border: 1px solid #d4d4d4;
+        border-radius: 0;
+        margin-bottom: 25px;
+        box-shadow: none;
+    }
+    
+    .formal-card .card-header {
+        background: #f8f9fa;
+        border-bottom: 2px solid #8B0000;
+        padding: 15px 20px;
+        font-family: 'Times New Roman', serif;
+    }
+    
+    .formal-card .card-header h5 {
+        color: #2c3e52;
+        font-weight: 600;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .formal-card .card-body {
+        padding: 25px;
+    }
+    
+    .search-input {
+        border: 1px solid #ccc;
+        border-radius: 0;
+        font-family: 'Times New Roman', serif;
+    }
+    
+    .btn-search {
+        background: #2c3e52;
+        border: none;
+        border-radius: 0;
+        padding: 10px 20px;
+        font-family: 'Times New Roman', serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .btn-search:hover {
+        background: #1a2a3a;
+    }
+    
+    .info-section {
+        margin-bottom: 25px;
+    }
+    
+    .info-section-title {
+        background: #f0f4f8;
+        padding: 8px 12px;
+        border-left: 4px solid #8B0000;
+        margin-bottom: 15px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e52;
+        text-transform: uppercase;
+        font-family: 'Times New Roman', serif;
+    }
+    
+    .info-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px dotted #e0e0e0;
+    }
+    
+    .info-label {
+        width: 35%;
+        font-weight: 600;
+        color: #555;
+        font-size: 13px;
+        text-transform: uppercase;
+    }
+    
+    .info-value {
+        width: 65%;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .status-formal {
+        display: inline-block;
+        padding: 5px 15px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; border-left: 3px solid #ffc107; }
+    .status-scheduled { background: #cfe2ff; color: #084298; border-left: 3px solid #0d6efd; }
+    .status-in_progress { background: #cff4fc; color: #055160; border-left: 3px solid #0dcaf0; }
+    .status-resolved { background: #d1e7dd; color: #0f5132; border-left: 3px solid #198754; }
+    .status-unsettled { background: #f8d7da; color: #842029; border-left: 3px solid #dc3545; }
+    
+    .hearing-formal {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 20px;
+        margin-top: 15px;
+    }
+    
+    .hearing-title {
+        color: #8B0000;
+        font-weight: 700;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #dee2e6;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
+    
+    .official-stamp {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #dee2e6;
+        text-align: center;
+        font-size: 11px;
+        color: #888;
+        font-style: italic;
+    }
+    
+    hr {
+        border-top: 2px solid #dee2e6;
+        margin: 20px 0;
+    }
+</style>
 {% endblock %}
-
-{% block page_title %}Track Your Blotter{% endblock %}
 
 {% block content %}
 <div class="track-container">
     <!-- Search Form -->
-    <div class="track-card">
-        <h5 class="mb-3">
-            <i class="bi bi-file-text-fill text-primary me-2"></i>
-            Find Your Blotter
-        </h5>
-        
-        <form method="post" action="{% url 'track_blotter' %}">
-            {% csrf_token %}
-            <div class="row g-3">
-                <div class="col-md-8">
-                    <input type="text" 
-                           name="blotter_number" 
-                           class="form-control search-input" 
-                           placeholder="Enter your Blotter Number (e.g., BL-2026-0001)"
-                           value="{{ searched_number|default:'' }}"
-                           required>
-                    <small class="text-muted mt-2 d-block">
-                        <i class="bi bi-info-circle"></i> Enter the blotter number you received after filing
-                    </small>
+    <div class="formal-card">
+        <div class="card-header">
+            <h5><i class="bi bi-search me-2"></i> OFFICIAL BLOTTER TRACKING SYSTEM</h5>
+        </div>
+        <div class="card-body">
+            <p class="text-muted mb-4" style="font-size: 14px;">Please enter your official blotter number to track the status of your complaint filed with the Barangay.</p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <input type="text" 
+                               name="blotter_number" 
+                               class="form-control search-input" 
+                               placeholder="Enter Blotter Number (e.g., BL-2026-0001)"
+                               value="{{ searched_number|default:'' }}"
+                               required>
+                        <small class="text-muted mt-2 d-block">
+                            <i class="bi bi-info-circle"></i> Enter the blotter number as it appears on your official receipt
+                        </small>
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-search w-100 text-white">
+                            <i class="bi bi-search me-2"></i> TRACK
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn-search w-100">
-                        <i class="bi bi-search me-2"></i> Track Blotter
-                    </button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
     
     <!-- Messages -->
@@ -54,173 +191,195 @@
     
     <!-- Results -->
     {% if blotter %}
-    <div class="track-card result-card">
-        <h5 class="mb-3">
-            <i class="bi bi-file-check-fill text-success me-2"></i>
-            Blotter Details
-        </h5>
-        
-        <div class="blotter-details">
-            <!-- Blotter Number & Status -->
+    <div class="formal-card">
+        <div class="card-header">
+            <h5><i class="bi bi-file-text me-2"></i> OFFICIAL BLOTTER RECORD</h5>
+        </div>
+        <div class="card-body">
+            
+            <!-- Header Info -->
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Blotter Number:</span>
-                        <span class="detail-value fw-bold text-primary">{{ blotter.blotter_number }}</span>
+                    <div class="info-row">
+                        <span class="info-label">Blotter Number:</span>
+                        <span class="info-value"><strong>{{ blotter.blotter_number }}</strong></span>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Date Filed:</span>
-                        <span class="detail-value">{{ blotter.created_at|date:"F d, Y g:i A" }}</span>
+                    <div class="info-row">
+                        <span class="info-label">Date Filed:</span>
+                        <span class="info-value">{{ blotter.created_at|date:"F d, Y" }}</span>
                     </div>
                 </div>
             </div>
             
             <!-- Status -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="detail-row">
-                        <span class="detail-label">Status:</span>
-                        <span class="status-badge status-{{ blotter.status }}">
-                            <i class="bi 
-                                {% if blotter.status == 'pending' %}bi-clock-history
-                                {% elif blotter.status == 'scheduled' %}bi-calendar-check
-                                {% elif blotter.status == 'in_progress' %}bi-arrow-repeat
-                                {% elif blotter.status == 'resolved' %}bi-check-circle
-                                {% elif blotter.status == 'closed' %}bi-archive
-                                {% else %}bi-question-circle{% endif %} me-1"></i>
+            <div class="info-section">
+                <div class="info-row">
+                    <span class="info-label">Case Status:</span>
+                    <span class="info-value">
+                        <span class="status-formal status-{{ blotter.status }}">
                             {{ blotter.get_status_display }}
                         </span>
-                    </div>
+                    </span>
                 </div>
             </div>
             
             <hr>
             
-            <!-- Complainant Info -->
-            <h6 class="mb-3 mt-2 text-primary">
-                <i class="bi bi-person-fill me-2"></i>Complainant Information
-            </h6>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Full Name:</span>
-                        <span class="detail-value">{{ blotter.complainant_name }}</span>
-                    </div>
+            <!-- Complainant Information -->
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="bi bi-person-fill me-2"></i> COMPLAINANT INFORMATION
                 </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Address:</span>
-                        <span class="detail-value">{{ blotter.complainant_address|default:"—" }}</span>
-                    </div>
+                <div class="info-row">
+                    <span class="info-label">Full Name:</span>
+                    <span class="info-value">{{ blotter.complainant_name|upper }}</span>
                 </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Phone:</span>
-                        <span class="detail-value">{{ blotter.complainant_phone|default:"—" }}</span>
-                    </div>
+                <div class="info-row">
+                    <span class="info-label">Address:</span>
+                    <span class="info-value">{{ blotter.complainant_address|default:"—" }}</span>
                 </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Email:</span>
-                        <span class="detail-value">{{ blotter.complainant_email|default:"—" }}</span>
-                    </div>
+                <div class="info-row">
+                    <span class="info-label">Contact Number:</span>
+                    <span class="info-value">{{ blotter.complainant_phone|default:"—" }}</span>
                 </div>
             </div>
             
-            <!-- Respondent Info -->
-            <h6 class="mb-3 mt-4 text-danger">
-                <i class="bi bi-person-badge-fill me-2"></i>Respondent Information
-            </h6>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Full Name:</span>
-                        <span class="detail-value">{{ blotter.respondent_name|default:"—" }}</span>
-                    </div>
+            <!-- Respondent Information -->
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="bi bi-person-badge me-2"></i> RESPONDENT INFORMATION
                 </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Address:</span>
-                        <span class="detail-value">{{ blotter.respondent_address|default:"—" }}</span>
-                    </div>
+                <div class="info-row">
+                    <span class="info-label">Full Name:</span>
+                    <span class="info-value">{{ blotter.respondent_name|default:"—"|upper }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Address:</span>
+                    <span class="info-value">{{ blotter.respondent_address|default:"—" }}</span>
+                </div>
+                {% if blotter.respondent_contact %}
+                <div class="info-row">
+                    <span class="info-label">Contact Number:</span>
+                    <span class="info-value">{{ blotter.respondent_contact }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Incident Details -->
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="bi bi-exclamation-triangle me-2"></i> INCIDENT REPORT
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Incident Type:</span>
+                    <span class="info-value">{{ blotter.get_incident_type_display|upper }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Date of Incident:</span>
+                    <span class="info-value">{{ blotter.incident_date|date:"F d, Y" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Location:</span>
+                    <span class="info-value">{{ blotter.incident_location }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Narrative:</span>
+                    <span class="info-value">{{ blotter.incident_description|linebreaksbr }}</span>
                 </div>
             </div>
-            {% if blotter.respondent_contact %}
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="detail-row">
-                        <span class="detail-label">Contact:</span>
-                        <span class="detail-value">{{ blotter.respondent_contact }}</span>
-                    </div>
+            
+            <!-- Katarungang Pambarangay Schedule -->
+            {% if blotter.schedules.all %}
+            <div class="info-section">
+                <div class="info-section-title">
+                    <i class="bi bi-calendar-check me-2"></i> KATARUNGANG PAMBARANGAY PROCEEDINGS
                 </div>
+                
+                <!-- Upcoming Mediation -->
+                {% for hearing in blotter.schedules.all %}
+                    {% if hearing.outcome == 'pending' or hearing.outcome == 'rescheduled' %}
+                    <div class="hearing-formal">
+                        <div class="hearing-title">
+                            <i class="bi bi-gavel me-2"></i> SCHEDULED MEDIATION / CONCILIATION
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Type of Session:</span>
+                            <span class="info-value">
+                                {% if hearing.hearing_type == 'initial_mediation' %}INITIAL MEDIATION
+                                {% elif hearing.hearing_type == 'conciliation' %}CONCILIATION CONFERENCE
+                                {% elif hearing.hearing_type == 'follow_up' %}FOLLOW-UP MEDIATION
+                                {% elif hearing.hearing_type == 'settlement_meeting' %}SETTLEMENT MEETING
+                                {% else %}ARBITRATION{% endif %}
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Date of Appearance:</span>
+                            <span class="info-value">{{ hearing.hearing_date|date:"F d, Y" }} at {{ hearing.hearing_date|time:"g:i A" }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Venue:</span>
+                            <span class="info-value">{{ hearing.location }}</span>
+                        </div>
+                        {% if hearing.notes %}
+                        <div class="info-row">
+                            <span class="info-label">Advisory:</span>
+                            <span class="info-value">{{ hearing.notes }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="official-stamp">
+                            <i class="bi bi-shield-check"></i> Please appear on time. Bring any evidence or witnesses.
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                
+                <!-- Hearing History -->
+                {% for hearing in blotter.schedules.all %}
+                    {% if hearing.outcome == 'completed' or hearing.outcome == 'settled' or hearing.outcome == 'unsettled' %}
+                    <div style="background: #f5f5f5; padding: 12px 15px; margin-top: 10px; border-left: 3px solid #6c757d;">
+                        <div class="info-row">
+                            <span class="info-label">Previous Session:</span>
+                            <span class="info-value">{{ hearing.hearing_date|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Outcome:</span>
+                            <span class="info-value">
+                                {% if hearing.outcome == 'settled' %}✓ Amicable Settlement Reached
+                                {% elif hearing.outcome == 'unsettled' %}✗ No Agreement Reached
+                                {% else %}Session Completed{% endif %}
+                            </span>
+                        </div>
+                        {% if hearing.outcome_notes %}
+                        <div class="info-row">
+                            <span class="info-label">Remarks:</span>
+                            <span class="info-value">{{ hearing.outcome_notes }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
             </div>
             {% endif %}
             
-            <!-- Incident Details -->
-            <h6 class="mb-3 mt-4 text-warning">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>Incident Details
-            </h6>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Incident Type:</span>
-                        <span class="detail-value">{{ blotter.get_incident_type_display }}</span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Date of Incident:</span>
-                        <span class="detail-value">{{ blotter.incident_date|date:"F d, Y" }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="detail-row">
-                        <span class="detail-label">Location:</span>
-                        <span class="detail-value">{{ blotter.incident_location }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="detail-row">
-                        <span class="detail-label">Description:</span>
-                        <div class="detail-value mt-1">{{ blotter.incident_description|linebreaksbr }}</div>
-                    </div>
-                </div>
+            <!-- Official Footer -->
+            <hr>
+            <div class="official-stamp">
+                <i class="bi bi-shield-fill-check me-1"></i> This is a system-generated document. For official verification, contact the Barangay Secretary.
             </div>
             
             <!-- Action Buttons -->
             <div class="mt-4 text-center">
                 <button onclick="window.print()" class="btn btn-outline-secondary me-2">
-                    <i class="bi bi-printer me-1"></i> Print Details
+                    <i class="bi bi-printer me-1"></i> PRINT OFFICIAL COPY
                 </button>
-                <a href="{% url 'file_blotter' %}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-1"></i> File New Complaint
+                <a href="/blotter/file/" class="btn btn-primary">
+                    <i class="bi bi-file-earmark-plus me-1"></i> FILE NEW COMPLAINT
                 </a>
             </div>
         </div>
     </div>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Auto-dismiss alerts after 5 seconds
-        setTimeout(function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(function(alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            });
-        }, 5000);
-    });
-</script>
 {% endblock %}

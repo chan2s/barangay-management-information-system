@@ -20,7 +20,6 @@
             color: #333;
         }
         
-        /* Sidebar Styles */
         .sidebar {
             position: fixed;
             left: 0;
@@ -81,13 +80,11 @@
             padding-top: 20px;
         }
         
-        /* Main Content */
         .main-content {
             margin-left: 280px;
             padding: 20px;
         }
         
-        /* Top Header */
         .top-header {
             background: white;
             padding: 15px 30px;
@@ -120,7 +117,6 @@
             color: white;
         }
         
-        /* Detail Card */
         .detail-card {
             background: white;
             border-radius: 15px;
@@ -153,9 +149,11 @@
         }
         
         .status-pending { background: #ffeaa7; color: #d63031; }
-        .status-ongoing { background: #74b9ff; color: #0984e3; }
+        .status-scheduled { background: #74b9ff; color: #0984e3; }
+        .status-in_progress { background: #ffa502; color: white; }
         .status-resolved { background: #55efc4; color: #00b894; }
-        .status-dismissed { background: #dfe6e9; color: #636e72; }
+        .status-unsettled { background: #ff6b6b; color: white; }
+        .status-closed { background: #dfe6e9; color: #636e72; }
         
         .detail-section {
             margin-bottom: 25px;
@@ -203,7 +201,7 @@
             margin-top: 10px;
         }
         
-        .btn-back {
+        .btn-back, .btn-action {
             background: #667eea;
             color: white;
             padding: 10px 20px;
@@ -212,24 +210,109 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
         }
         
-        .btn-back:hover {
+        .btn-back:hover, .btn-action:hover {
             background: #764ba2;
+        }
+        
+        .btn-success {
+            background: #00b894;
+        }
+        
+        .btn-success:hover {
+            background: #00a884;
+        }
+        
+        .btn-danger {
+            background: #ff4757;
+        }
+        
+        .btn-danger:hover {
+            background: #ff3747;
+        }
+        
+        .btn-warning {
+            background: #ffa502;
+        }
+        
+        .btn-disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        
+        .btn-disabled:hover {
+            background: #ccc;
+            transform: none;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
         }
         
         .action-buttons {
             display: flex;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
         
-        .btn-edit {
-            background: #ffa502;
-            color: white;
-            padding: 10px 20px;
+        .hearing-item {
+            background: #f8f9fa;
+            padding: 15px;
             border-radius: 8px;
-            text-decoration: none;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .hearing-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .hearing-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .hearing-status-pending { background: #ffeaa7; color: #d63031; }
+        .hearing-status-completed { background: #55efc4; color: #00b894; }
+        .hearing-status-settled { background: #55efc4; color: #00b894; }
+        .hearing-status-unsettled { background: #ff6b6b; color: white; }
+        .hearing-status-rescheduled { background: #74b9ff; color: #0984e3; }
+        .hearing-status-failed { background: #ff4757; color: white; }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        .alert-warning i {
+            margin-right: 10px;
+            color: #d63031;
+        }
+        
+        .outcome-notes {
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #666;
         }
         
         @media (max-width: 768px) {
@@ -239,6 +322,10 @@
             .main-content {
                 margin-left: 0;
             }
+            .hearing-header {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -247,7 +334,7 @@
         <div class="sidebar-header">
             <i class="fas fa-balance-scale" style="font-size: 48px;"></i>
             <h3>BIMS</h3>
-            <p>Barangay Management System</p>
+            <p>Barangay Poblacion</p>
         </div>
         
         <div class="nav-menu">
@@ -309,12 +396,21 @@
                 </span>
             </div>
             
+            <!-- Warning: No Hearing Scheduled -->
+            {% if not schedules %}
+            <div class="alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>No Mediation/Conciliation Scheduled!</strong> 
+                Please schedule a hearing date before generating a summon letter.
+            </div>
+            {% endif %}
+            
             <div class="detail-section">
                 <h3><i class="fas fa-info-circle"></i> Incident Information</h3>
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-label">Incident Type</div>
-                        <div class="detail-value">{{ blotter.incident_type|default:"Not specified" }}</div>
+                        <div class="detail-value">{{ blotter.get_incident_type_display }}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Incident Date</div>
@@ -348,7 +444,7 @@
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Complainant Address</div>
-                        <div class="detail-value">{{ blotter.complainant_address }}</div>
+                        <div class="detail-value">{{ blotter.complainant_address|default:"Not specified" }}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Complainant Email</div>
@@ -360,7 +456,7 @@
                 <div class="detail-grid">
                     <div class="detail-item">
                         <div class="detail-label">Respondent Name</div>
-                        <div class="detail-value">{{ blotter.respondent_name }}</div>
+                        <div class="detail-value">{{ blotter.respondent_name|default:"Not specified" }}</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Respondent Contact</div>
@@ -368,16 +464,101 @@
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">Respondent Address</div>
-                        <div class="detail-value">{{ blotter.respondent_address }}</div>
+                        <div class="detail-value">{{ blotter.respondent_address|default:"Not specified" }}</div>
                     </div>
                 </div>
             </div>
             
+            <!-- Hearing Schedules Section -->
+            <div class="detail-section">
+                <h3><i class="fas fa-calendar-alt"></i> Katarungang Pambarangay Schedule</h3>
+                {% if schedules %}
+                    {% for hearing in schedules %}
+                    <div class="hearing-item">
+                        <div class="hearing-header">
+                            <div>
+                                <strong><i class="fas fa-gavel"></i> 
+                                    {% if hearing.hearing_type == 'initial_mediation' %}Initial Mediation
+                                    {% elif hearing.hearing_type == 'conciliation' %}Conciliation Conference
+                                    {% elif hearing.hearing_type == 'follow_up' %}Follow-up Mediation
+                                    {% elif hearing.hearing_type == 'settlement_meeting' %}Settlement Meeting
+                                    {% elif hearing.hearing_type == 'arbitration' %}Arbitration
+                                    {% elif hearing.hearing_type == 'rescheduled' %}Rescheduled Hearing
+                                    {% else %}{{ hearing.get_hearing_type_display }}{% endif %}
+                                </strong>
+                            </div>
+                            <div>
+                                <span class="hearing-status 
+                                    {% if hearing.outcome == 'pending' %}hearing-status-pending
+                                    {% elif hearing.outcome == 'completed' %}hearing-status-completed
+                                    {% elif hearing.outcome == 'settled' %}hearing-status-settled
+                                    {% elif hearing.outcome == 'unsettled' %}hearing-status-unsettled
+                                    {% elif hearing.outcome == 'rescheduled' %}hearing-status-rescheduled
+                                    {% elif hearing.outcome == 'failed_complainant' or hearing.outcome == 'failed_respondent' %}hearing-status-failed
+                                    {% endif %}">
+                                    {% if hearing.outcome == 'pending' %}Pending
+                                    {% elif hearing.outcome == 'completed' %}Completed
+                                    {% elif hearing.outcome == 'settled' %}✓ Settled
+                                    {% elif hearing.outcome == 'unsettled' %}Unsettled
+                                    {% elif hearing.outcome == 'rescheduled' %}Rescheduled
+                                    {% elif hearing.outcome == 'failed_complainant' %}❌ Complainant Absent
+                                    {% elif hearing.outcome == 'failed_respondent' %}❌ Respondent Absent
+                                    {% else %}{{ hearing.get_outcome_display }}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <i class="fas fa-calendar"></i> <strong>Date of Appearance:</strong> {{ hearing.hearing_date|date:"F d, Y h:i A" }}<br>
+                            <i class="fas fa-map-marker-alt"></i> <strong>Venue:</strong> {{ hearing.location }}<br>
+                            {% if hearing.outcome_notes %}
+                            <div class="outcome-notes">
+                                <i class="fas fa-sticky-note"></i> <strong>Outcome Notes:</strong> {{ hearing.outcome_notes }}
+                            </div>
+                            {% endif %}
+                            {% if hearing.notes %}
+                            <i class="fas fa-info-circle"></i> <strong>Remarks:</strong> {{ hearing.notes }}<br>
+                            {% endif %}
+                        </div>
+                        <div style="margin-top: 12px;">
+                            <a href="{% url 'staff_module:staff_update_hearing_status' hearing.id %}" class="btn-action btn-sm" style="padding: 5px 12px; font-size: 12px;">
+                                <i class="fas fa-edit"></i> Update Session Status
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #999; text-align: center; padding: 20px;">
+                        <i class="fas fa-calendar-times"></i> No mediation/conciliation schedule yet.
+                    </p>
+                {% endif %}
+            </div>
+            
+            <!-- Action Buttons -->
             <div class="action-buttons">
                 <a href="{% url 'staff_module:staff_blotter_list' %}" class="btn-back">
                     <i class="fas fa-arrow-left"></i> Back to List
                 </a>
-                <!-- Add edit button if needed -->
+                <a href="{% url 'staff_module:staff_schedule_hearing' blotter.id %}" class="btn-action">
+                    <i class="fas fa-calendar-plus"></i> Schedule Mediation
+                </a>
+                <a href="{% url 'staff_module:staff_update_status' blotter.id %}" class="btn-action btn-warning">
+                    <i class="fas fa-exchange-alt"></i> Update Case Status
+                </a>
+                
+                <!-- Conditional Summon Button -->
+                {% if schedules %}
+                <a href="{% url 'staff_module:staff_generate_summon' blotter.id %}" class="btn-action">
+                    <i class="fas fa-envelope-open-text"></i> Generate Summon Letter
+                </a>
+                {% else %}
+                <button class="btn-action btn-disabled" disabled onclick="alert('Please schedule a mediation/conciliation hearing first before generating a summon letter.')">
+                    <i class="fas fa-envelope-open-text"></i> Generate Summon Letter (Schedule First)
+                </button>
+                {% endif %}
+                
+                <a href="{% url 'staff_module:staff_upload_evidence' blotter.id %}" class="btn-action">
+                    <i class="fas fa-upload"></i> Upload Evidence
+                </a>
             </div>
         </div>
     </div>
