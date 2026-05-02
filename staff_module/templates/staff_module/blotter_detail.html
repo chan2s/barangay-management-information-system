@@ -1,0 +1,385 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blotter Details - BIMS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f0f2f5;
+            color: #333;
+        }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h3 {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        .nav-menu {
+            padding: 20px 0;
+        }
+        
+        .nav-item {
+            padding: 12px 25px;
+            margin: 5px 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 16px;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            padding-left: 30px;
+        }
+        
+        .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            border-left: 4px solid white;
+        }
+        
+        .logout-item {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 20px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+        }
+        
+        /* Top Header */
+        .top-header {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title h2 {
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        /* Detail Card */
+        .detail-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .blotter-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .status-pending { background: #ffeaa7; color: #d63031; }
+        .status-ongoing { background: #74b9ff; color: #0984e3; }
+        .status-resolved { background: #55efc4; color: #00b894; }
+        .status-dismissed { background: #dfe6e9; color: #636e72; }
+        
+        .detail-section {
+            margin-bottom: 25px;
+        }
+        
+        .detail-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .detail-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .detail-value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .description-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        
+        .btn-back {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-back:hover {
+            background: #764ba2;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-edit {
+            background: #ffa502;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -280px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-balance-scale" style="font-size: 48px;"></i>
+            <h3>BIMS</h3>
+            <p>Barangay Management System</p>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-item">
+                <a href="{% url 'staff_module:staff_dashboard' %}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="nav-item active">
+                <a href="{% url 'staff_module:staff_blotter_list' %}">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Blotter List</span>
+                </a>
+            </div>
+            {% if staff.role == 'admin' %}
+            <div class="nav-item">
+                <a href="{% url 'staff_module:staff_list' %}">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Staff</span>
+                </a>
+            </div>
+            {% endif %}
+            
+            <div class="logout-item">
+                <div class="nav-item">
+                    <a href="{% url 'logout' %}">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="top-header">
+            <div class="page-title">
+                <h2><i class="fas fa-file-alt"></i> Blotter Details</h2>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="user-role">{{ staff.get_role_display }}</div>
+                </div>
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="detail-card">
+            <div class="detail-header">
+                <span class="blotter-number">
+                    <i class="fas fa-hashtag"></i> {{ blotter.blotter_number }}
+                </span>
+                <span class="status-badge status-{{ blotter.status }}">
+                    {{ blotter.get_status_display }}
+                </span>
+            </div>
+            
+            <div class="detail-section">
+                <h3><i class="fas fa-info-circle"></i> Incident Information</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Incident Type</div>
+                        <div class="detail-value">{{ blotter.incident_type|default:"Not specified" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Incident Date</div>
+                        <div class="detail-value">{{ blotter.incident_date|date:"F d, Y" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Incident Location</div>
+                        <div class="detail-value">{{ blotter.incident_location }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Reported On</div>
+                        <div class="detail-value">{{ blotter.created_at|date:"F d, Y h:i A" }}</div>
+                    </div>
+                </div>
+                <div class="description-box">
+                    <div class="detail-label">Incident Description</div>
+                    <div class="detail-value">{{ blotter.incident_description }}</div>
+                </div>
+            </div>
+            
+            <div class="detail-section">
+                <h3><i class="fas fa-user-friends"></i> Parties Involved</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Complainant Name</div>
+                        <div class="detail-value">{{ blotter.complainant_name }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Complainant Contact</div>
+                        <div class="detail-value">{{ blotter.complainant_phone|default:"Not specified" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Complainant Address</div>
+                        <div class="detail-value">{{ blotter.complainant_address }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Complainant Email</div>
+                        <div class="detail-value">{{ blotter.complainant_email|default:"Not specified" }}</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 20px;"><i class="fas fa-user"></i> Respondent Information</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Respondent Name</div>
+                        <div class="detail-value">{{ blotter.respondent_name }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Respondent Contact</div>
+                        <div class="detail-value">{{ blotter.respondent_contact|default:"Not specified" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Respondent Address</div>
+                        <div class="detail-value">{{ blotter.respondent_address }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{% url 'staff_module:staff_blotter_list' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+                <!-- Add edit button if needed -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
