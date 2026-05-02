@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay ID - BIMS</title>
+    {% load static %}
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #e0e0e0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .id-card-front,
+        .id-card-back {
+            width: 6.7cm;
+            height: 9.9cm;
+            background: white;
+            border: 0.5px solid #1a5276;
+            border-radius: 3mm;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            overflow: auto;
+            margin-bottom: 5mm;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .id-card-front,
+            .id-card-back {
+                box-shadow: none;
+                margin: 0;
+                overflow: visible;
+            }
+            .no-print {
+                display: none !important;
+            }
+            @page {
+                size: letter;
+                margin: 0.5in;
+            }
+        }
+
+        .front-side,
+        .back-side {
+            padding: 3mm;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2mm;
+        }
+        .header h3 { font-size: 2.5mm; font-weight: normal; }
+        .header h2 { font-size: 3mm; font-weight: bold; margin: 0.5mm 0; }
+        .header h1 { font-size: 3.5mm; font-weight: bold; margin: 2mm 0; }
+
+        .photo-logo-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2mm 0;
+            gap: 2mm;
+        }
+        .photo-placeholder {
+            width: 14mm;
+            height: 14mm;
+            background: #f5f5f5;
+            border: 0.5px solid #1a5276;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2mm;
+        }
+        .logo-image {
+            width: 14mm;
+            height: 14mm;
+            border-radius: 50%;
+            border: 0.5px solid #1a5276;
+            object-fit: cover;
+        }
+
+        .id-number {
+            text-align: center;
+            font-size: 2.5mm;
+            font-weight: bold;
+            margin: 1.5mm 0;
+            padding: 1mm;
+            background: #f0f0f0;
+            border-radius: 1.5mm;
+        }
+
+        .name-section,
+        .address-section,
+        .municipality-section {
+            margin: 1.5mm 0;
+            text-align: center;
+        }
+        .name-value {
+            font-size: 3mm;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 100%;
+            padding: 1mm;
+        }
+        .address-value,
+        .municipality-value {
+            font-size: 2.5mm;
+            width: 100%;
+            padding: 1mm;
+        }
+        .name-underline,
+        .address-underline,
+        .municipality-underline {
+            width: 100%;
+            height: 0.3px;
+            background: #000;
+            margin: 1mm 0;
+        }
+        .name-label,
+        .address-label,
+        .municipality-label {
+            font-size: 2mm;
+            color: #666;
+        }
+
+        .back-header {
+            text-align: center;
+            margin-bottom: 2mm;
+        }
+        .back-header h4 {
+            font-size: 3mm;
+            font-weight: bold;
+        }
+        .info-line {
+            font-size: 2.2mm;
+            padding: 1mm 0;
+            margin: 1mm 0;
+        }
+        .info-label {
+            font-weight: bold;
+        }
+
+        .signature-holder-section {
+            margin: 2mm 0;
+            text-align: center;
+        }
+        .signature-line-space {
+            border-top: 0.3px solid #000;
+            width: 80%;
+            margin: 2mm auto 1mm;
+        }
+        .signature-label {
+            font-size: 1.8mm;
+            color: #666;
+        }
+
+        .emergency-section {
+            margin: 2mm 0;
+        }
+        .emergency-title {
+            font-weight: bold;
+            font-size: 2.2mm;
+        }
+        .emergency-row {
+            font-size: 2mm;
+            padding: 0.5mm 0;
+        }
+
+        /* Attested Section - Space for signature (no line) */
+        .attested-section {
+            margin: 2mm 0;
+            text-align: center;
+        }
+        .attested-label {
+            font-size: 2mm;
+            margin-bottom: 1mm;
+        }
+        /* Signature space (blank space for signature instead of line) */
+        .signature-space {
+            height: 3mm;
+            margin: 1mm 0;
+        }
+        .attested-name {
+            font-size: 2.2mm;
+            font-weight: bold;
+            margin: 1.5mm 0;
+        }
+        .attested-divider {
+            width: 60%;
+            height: 0.3px;
+            background: #000;
+            margin: 1.5mm auto;
+        }
+        .attested-title {
+            font-size: 2mm;
+        }
+
+        .date-issued {
+            margin-top: 2mm;
+            font-size: 2mm;
+            text-align: center;
+        }
+
+        .no-print {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn { padding: 10px 20px; margin: 0 10px; cursor: pointer; border: none; border-radius: 5px; font-size: 14px; }
+        .btn-print { background: #1a5276; color: white; }
+        .btn-pdf { background: #dc3545; color: white; }
+        .btn-back { background: #d4af37; color: #0a2b3e; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <!-- FRONT SIDE -->
+    <div class="id-card-front" id="frontSide">
+        <div class="front-side">
+            <div class="header">
+                <h3>Republic of the Philippines</h3>
+                <h2>Province of Negros Oriental</h2>
+                <h2>Municipality of Sta. Catalina</h2>
+                <h1>BARANGAY POBLACION</h1>
+            </div>
+            <div class="photo-logo-row">
+                <div class="photo-section">
+                    <div class="photo-placeholder">2x2<br>PHOTO</div>
+                </div>
+                <div class="logo-section">
+                    <img src="{% static 'images/barangay_seal.jpg' %}" alt="Barangay Seal" class="logo-image">
+                </div>
+            </div>
+            <div class="id-number">I.D No.: {{ tracking_id|default:"________" }}</div>
+            <div class="name-section">
+                <div class="name-value">{{ full_name|upper }}</div>
+                <div class="name-underline"></div>
+                <div class="name-label">(Name)</div>
+            </div>
+            <div class="address-section">
+                <div class="address-value">{% if purok and purok != '' %}{{ purok }}{% else %}_________________________{% endif %}</div>
+                <div class="address-underline"></div>
+                <div class="address-label">(Sitio/Purok/Street)</div>
+            </div>
+            <div class="municipality-section">
+                <div class="municipality-value">Sta. Catalina, Negros Oriental</div>
+                <div class="municipality-underline"></div>
+                <div class="municipality-label">(Municipality/Province)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BACK SIDE -->
+    <div class="id-card-back" id="backSide">
+        <div class="back-side">
+            <div class="back-header"><h4>BARANGAY POBLACION</h4></div>
+            <div class="info-line"><span class="info-label">Weight:</span> {% if weight %}{{ weight }} kgs{% else %}________ kgs{% endif %}</div>
+            <div class="info-line"><span class="info-label">Height:</span> {% if height %}{{ height }}{% else %}________{% endif %}</div>
+            <div class="info-line"><span class="info-label">Gender:</span> {% if gender %}{{ gender|title }}{% else %}________{% endif %}</div>
+            <div class="info-line"><span class="info-label">Civil Status:</span> {% if civil_status %}{{ civil_status|title }}{% else %}________{% endif %}</div>
+            <div class="info-line"><span class="info-label">Birth Date:</span> {% if dob %}{{ dob }}{% else %}________{% endif %}</div>
+            <div class="info-line"><span class="info-label">Birth Place:</span> {% if birthplace %}{{ birthplace }}{% else %}Sta. Catalina, Negros Oriental{% endif %}</div>
+            <div class="signature-holder-section">
+                <div class="signature-line-space"></div>
+                <div class="signature-label">Signature of Holder</div>
+            </div>
+            <div class="emergency-section">
+                <div class="emergency-title">IN CASE OF EMERGENCY PLEASE NOTIFY:</div>
+                <div class="emergency-row"><span class="info-label">Name:</span> {% if emergency_name %}{{ emergency_name }}{% else %}_________________{% endif %}</div>
+                <div class="emergency-row"><span class="info-label">Address:</span> {% if emergency_address %}{{ emergency_address }}{% else %}_________________{% endif %}</div>
+                <div class="emergency-row"><span class="info-label">Contact No.:</span> {% if emergency_contact %}{{ emergency_contact }}{% else %}_________________{% endif %}</div>
+                <div class="emergency-row"><span class="info-label">Relationship:</span> {% if emergency_relationship %}{{ emergency_relationship }}{% else %}_________________{% endif %}</div>
+            </div>
+
+            <!-- Attested Section - Space for signature (no line) -->
+            <div class="attested-section">
+                <div class="attested-label">Attested:</div>
+                <!-- Space for signature (blank space instead of line) -->
+                <div class="signature-space"></div>
+                <div class="attested-name">HON. WELMER TA-ALA</div>
+                <div class="attested-divider"></div>
+                <div class="attested-title">Punong Barangay</div>
+            </div>
+            <div class="date-issued">Date Issued: {% if current_date %}{{ current_date }}{% else %}________________{% endif %}</div>
+        </div>
+    </div>
+
+    <div class="no-print">
+        <button class="btn btn-print" onclick="window.print()">🖨️ Print ID Card</button>
+        <button class="btn btn-pdf" onclick="exportToPDF()">📄 Export to PDF</button>
+        <button class="btn btn-back" onclick="window.location.href='{% url 'certificates:request_form' %}'">← Back to Form</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function exportToPDF() {
+            const front = document.getElementById('frontSide');
+            const back = document.getElementById('backSide');
+            const container = document.createElement('div');
+            container.appendChild(front.cloneNode(true));
+            container.appendChild(back.cloneNode(true));
+
+            html2pdf().set({
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: 'Barangay_ID_{{ tracking_id }}.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            }).from(container).save();
+        }
+    </script>
+</body>
+</html>

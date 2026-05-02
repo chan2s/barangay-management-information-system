@@ -24,7 +24,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-bz-p&w&pa)&+nqu@hku(h*!bkfpkpn8#3gwit@nv(!@v_u_qff'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
+
 
 ALLOWED_HOSTS = []
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Blotter_Module',
     'accounts',
+    'certificates',
 ]
 
 MIDDLEWARE = [
