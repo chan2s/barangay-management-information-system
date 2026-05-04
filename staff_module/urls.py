@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = 'staff_module'
@@ -27,4 +27,7 @@ urlpatterns = [
     path('create/', views.staff_create, name='staff_create'),
     path('edit/<int:staff_id>/', views.staff_edit, name='staff_edit'),
     path('delete/<int:staff_id>/', views.staff_delete, name='staff_delete'),
+    
+    # Certificates Module
+    path('certificates/', include('certificates.urls')),
 ]

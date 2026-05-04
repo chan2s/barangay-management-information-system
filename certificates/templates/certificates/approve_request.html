@@ -1,0 +1,98 @@
+{% extends 'staff_module/dashboard.html' %}
+{% load static %}
+
+{% block title %}Approve Certificate Request - Staff Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .approve-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .info-box {
+        background: #f8f9fa;
+        border-left: 4px solid #00b894;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #333;
+    }
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        resize: vertical;
+    }
+    .btn-submit {
+        background: #00b894;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-left: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="approve-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-check-circle"></i> Approve Certificate Request</h2>
+        <a href="{% url 'certificates:request_list' %}" class="btn-cancel">Back</a>
+    </div>
+    
+    <div class="card">
+        <div class="info-box">
+            <strong>Request #: {{ request.request_id }}</strong><br>
+            Applicant: {{ request.full_name }}<br>
+            Certificate Type: {{ request.get_request_type_display }}
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Staff Notes (Optional)</label>
+                <textarea name="staff_notes" rows="3" placeholder="Add any notes about this request..."></textarea>
+            </div>
+            
+            <div class="alert alert-warning">
+                <i class="fas fa-info-circle"></i>
+                Approving this request will move it to "Processing" status. You can then generate the certificate.
+            </div>
+            
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-check"></i> Confirm Approval
+            </button>
+            <a href="{% url 'certificates:view_request' request.id %}" class="btn-cancel">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

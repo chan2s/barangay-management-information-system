@@ -32,6 +32,8 @@ class CertificateRequest(models.Model):
     request_type = models.CharField(max_length=20, choices=CERTIFICATE_TYPES)
     full_name = models.CharField(max_length=200)
     address = models.TextField()
+    contact_number = models.CharField(max_length=20, blank=True)
+    email = models.EmailField(blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     age = models.IntegerField(null=True, blank=True)
     civil_status = models.CharField(max_length=20, choices=CIVIL_STATUS_CHOICES, blank=True)
@@ -73,13 +75,6 @@ class CertificateRequest(models.Model):
     def save(self, *args, **kwargs):
         if not self.request_id:
             self.request_id = f"REQ-{uuid.uuid4().hex[:4].upper()}"
-
-        if self.date_of_birth:
-            today = datetime.now().date()
-            self.age = today.year - self.date_of_birth.year - (
-                    (today.month, today.day) < (self.date_of_birth.month, self.date_of_birth.day)
-            )
-
         super().save(*args, **kwargs)
 
     def __str__(self):

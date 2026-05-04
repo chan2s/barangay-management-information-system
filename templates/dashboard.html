@@ -62,7 +62,7 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* Dot grid background pattern */
+  /* Dot pattern overlay */
   .hero::before {
     content: '';
     position: absolute;
@@ -71,9 +71,24 @@
     background-size: 28px 28px;
     opacity: 0.18;
     pointer-events: none;
+    z-index: 0;
   }
 
-  /* Decorative circle shapes */
+  /* Poblacion seal watermark */
+/* Poblacion seal watermark */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("{% static 'images/poblacionseal.jpg' %}");
+  background-repeat: no-repeat;
+  background-position: 75% center;
+  background-size: 460px 460px;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
   .hero-circle-1 {
     position: absolute;
     top: -80px; right: -80px;
@@ -82,6 +97,7 @@
     border: 48px solid var(--yellow-light);
     opacity: 0.5;
     animation: floatY 8s ease-in-out infinite;
+    z-index: 0;
   }
   .hero-circle-2 {
     position: absolute;
@@ -91,12 +107,14 @@
     border: 28px solid var(--yellow-light);
     opacity: 0.35;
     animation: floatY 11s ease-in-out infinite reverse;
+    z-index: 0;
   }
   .hero-strip {
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 5px;
     background: var(--yellow-mid);
+    z-index: 2;
   }
 
   @keyframes floatY {
@@ -196,7 +214,15 @@
     transform: translateY(-2px);
   }
 
-  /* Hero right: visual card stack */
+  .btn-certificate {
+    background: var(--yellow-mid);
+    color: var(--charcoal);
+    border-color: var(--yellow-mid);
+  }
+  .btn-certificate:hover {
+    background: var(--yellow-accent);
+  }
+
   .hero-visual {
     position: relative;
     display: flex;
@@ -671,6 +697,12 @@
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .stat-item { border-bottom: 1px solid rgba(255,255,255,0.1); border-right: none; }
     .stat-item:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.1); }
+    /* On mobile, reposition seal so it doesn't obscure text */
+    .hero::after {
+      background-position: center bottom -20px;
+      background-size: 260px 260px;
+      opacity: 0.05;
+    }
   }
 
   @media (max-width: 575px) {
@@ -703,7 +735,7 @@
         </div>
         <h1 class="fade-up d2">
           Barangay<br>
-          <em>Santa Catalina</em><br>
+          <em>Poblacion, Santa Catalina</em><br>
           Serves You
         </h1>
         <p class="hero-sub fade-up d3">
@@ -713,6 +745,9 @@
           <a href="/blotter/file/" class="btn-primary-hero">
             <i class="bi bi-file-earmark-plus-fill"></i> Report a Blotter
           </a>
+          <a href="/certificates/" class="btn-primary-hero btn-certificate">
+            <i class="bi bi-file-text-fill"></i> Request Certificate
+          </a>
           <a href="/blotter/track/" class="btn-outline-hero">
             <i class="bi bi-search"></i> Track Your Blotter
           </a>
@@ -720,12 +755,19 @@
       </div>
 
       <!-- Right: Visual cards -->
-      <div class="hero-visual">
+      {% comment %} <div class="hero-visual">
         <div class="hero-card">
           <div class="hero-card-icon">📋</div>
           <div>
             <div class="hero-card-title">File a Blotter</div>
             <div class="hero-card-desc">Submit incident reports quickly and securely online</div>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="hero-card-icon">📄</div>
+          <div>
+            <div class="hero-card-title">Request Certificate</div>
+            <div class="hero-card-desc">Get Barangay Clearance, Indigency, and other certificates</div>
           </div>
         </div>
         <div class="hero-card">
@@ -735,20 +777,13 @@
             <div class="hero-card-desc">Real-time status updates on your filed blotter</div>
           </div>
         </div>
-        <div class="hero-card">
-          <div class="hero-card-icon">🏛️</div>
-          <div>
-            <div class="hero-card-title">Community Governance</div>
-            <div class="hero-card-desc">Transparent leadership for Santa Catalina residents</div>
-          </div>
-        </div>
       </div>
     </div>
-  </div>
+  </div> {% endcomment %}
 </section>
 
 <!-- ===== STATS BAR ===== -->
-<section class="stats-bar">
+{% comment %} <section class="stats-bar">
   <div class="container">
     <div class="stats-grid">
       <div class="stat-item">
@@ -769,7 +804,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> {% endcomment %}
 
 <!-- ===== MISSION & VISION ===== -->
 <section class="section" id="about">
@@ -811,29 +846,29 @@
         <p>File incident reports online at any time, from anywhere. No need to visit the barangay hall to report an incident.</p>
       </div>
       <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon">📄</div>
+        <h4>Certificate Requests</h4>
+        <p>Request Barangay Clearance, Certificate of Indigency, Residency Certificate, and Barangay ID online.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
         <div class="feature-icon">🔍</div>
         <h4>Blotter Case Tracking</h4>
         <p>Monitor the real-time status of your filed blotter using your reference number. Stay informed every step of the way.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-2">
+      <div class="feature-card reveal">
         <div class="feature-icon">👥</div>
         <h4>Frontdesk Management</h4>
-        <p>Barangay staff can manage, update, and process all filed blotters and resident requests through a dedicated dashboard.</p>
+        <p>Barangay staff can manage, update, and process all filed blotters and certificate requests through a dedicated dashboard.</p>
       </div>
-      <div class="feature-card reveal">
+      <div class="feature-card reveal reveal-delay-1">
         <div class="feature-icon">📊</div>
         <h4>Admin Dashboard</h4>
         <p>Full administrative control over the system — manage officials, generate reports, and monitor barangay operations.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-1">
+      <div class="feature-card reveal reveal-delay-2">
         <div class="feature-icon">🔔</div>
         <h4>Notifications & Alerts</h4>
         <p>Get timely updates on your case status and important barangay announcements directly through the system.</p>
-      </div>
-      <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon">🔒</div>
-        <h4>Secure & Private</h4>
-        <p>All resident data and case information are securely stored and protected. Your privacy is our top priority.</p>
       </div>
     </div>
   </div>
@@ -844,8 +879,8 @@
   <div class="container">
     <div class="reveal" style="text-align:center;">
       <div class="section-eyebrow" style="justify-content:center;">How It Works</div>
-      <h2 class="section-title" style="text-align:center;">File a Blotter in<br>4 Simple Steps</h2>
-      <p class="section-desc" style="text-align:center; margin:0 auto 0;">Our streamlined process makes reporting incidents quick and straightforward for all residents.</p>
+      <h2 class="section-title" style="text-align:center;">Request a Certificate in<br>4 Simple Steps</h2>
+      <p class="section-desc" style="text-align:center; margin:0 auto 0;">Our streamlined process makes requesting barangay certificates quick and easy.</p>
     </div>
 
     <div class="steps-grid">
@@ -856,18 +891,18 @@
       </div>
       <div class="step-item reveal reveal-delay-1">
         <div class="step-num">2</div>
-        <h4>Fill the Form</h4>
-        <p>Complete the blotter form with accurate details about the incident.</p>
+        <h4>Select Certificate Type</h4>
+        <p>Choose the certificate you need: Clearance, Indigency, Residency, or Barangay ID.</p>
       </div>
       <div class="step-item reveal reveal-delay-2">
         <div class="step-num">3</div>
-        <h4>Submit & Receive ID</h4>
-        <p>Submit your report and receive a unique reference number to track your case.</p>
+        <h4>Fill & Submit</h4>
+        <p>Complete the online application form with your personal details.</p>
       </div>
       <div class="step-item reveal reveal-delay-3">
         <div class="step-num">4</div>
-        <h4>Track Your Case</h4>
-        <p>Use your reference number to monitor your case status anytime, anywhere.</p>
+        <h4>Claim at Barangay Hall</h4>
+        <p>Receive notification when your certificate is ready for claiming.</p>
       </div>
     </div>
   </div>

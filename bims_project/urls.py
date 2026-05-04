@@ -14,6 +14,10 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('staff/', include('staff_module.urls')),
     path('certificates/', include('certificates.urls')),
+    path('kapitan/', include('kapitan_portal.urls')),
+    path('admin-panel/', include('admin_panel.urls')),
+
+
 ]
 
 # Serve media files during development

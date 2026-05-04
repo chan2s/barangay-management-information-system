@@ -1,0 +1,158 @@
+{% extends 'staff_module/dashboard.html' %}
+{% load static %}
+
+{% block title %}Hearing Details - Kapitan Portal{% endblock %}
+
+{% block page_heading %}<i class="fas fa-gavel"></i> Hearing Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .details-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2c3e52;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #c9a03d;
+    }
+    .detail-row {
+        display: flex;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-label {
+        width: 35%;
+        font-weight: 600;
+        color: #555;
+    }
+    .detail-value {
+        width: 65%;
+        color: #333;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-scheduled { background: #74b9ff; color: #0984e3; }
+    .status-completed { background: #55efc4; color: #00b894; }
+    .status-pending { background: #ffeaa7; color: #d63031; }
+    .btn-back {
+        background: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-back:hover {
+        background: #5a6268;
+    }
+    .hearing-info {
+        background: #f8f9fa;
+        border-left: 4px solid #c9a03d;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="details-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-gavel"></i> Hearing Details</h2>
+        <a href="{% url 'kapitan_portal:dashboard' %}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+    </div>
+    
+    <div class="detail-card">
+        <div class="section-title">Hearing Information</div>
+        <div class="detail-row">
+            <span class="detail-label">Hearing Type:</span>
+            <span class="detail-value">{{ hearing.get_hearing_type_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Date & Time:</span>
+            <span class="detail-value">{{ hearing.hearing_date|date:"F d, Y" }} at {{ hearing.hearing_date|time:"g:i A" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Location:</span>
+            <span class="detail-value">{{ hearing.location }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">
+                <span class="status-badge status-{{ hearing.outcome }}">
+                    {{ hearing.get_outcome_display }}
+                </span>
+            </span>
+        </div>
+        {% if hearing.notes %}
+        <div class="detail-row">
+            <span class="detail-label">Notes:</span>
+            <span class="detail-value">{{ hearing.notes }}</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="detail-card">
+        <div class="section-title">Case Information</div>
+        <div class="detail-row">
+            <span class="detail-label">Blotter Number:</span>
+            <span class="detail-value"><strong>{{ blotter.blotter_number }}</strong></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Case Status:</span>
+            <span class="detail-value">{{ blotter.get_status_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Incident Type:</span>
+            <span class="detail-value">{{ blotter.get_incident_type_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Incident Date:</span>
+            <span class="detail-value">{{ blotter.incident_date|date:"F d, Y" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Incident Location:</span>
+            <span class="detail-value">{{ blotter.incident_location }}</span>
+        </div>
+    </div>
+    
+    <div class="detail-card">
+        <div class="section-title">Parties Involved</div>
+        <div class="hearing-info">
+            <strong><i class="fas fa-user"></i> Complainant:</strong><br>
+            {{ blotter.complainant_name }}<br>
+            <small>{{ blotter.complainant_address|default:"Address not specified" }}</small>
+        </div>
+        <div class="hearing-info">
+            <strong><i class="fas fa-user"></i> Respondent:</strong><br>
+            {{ blotter.respondent_name|default:"Not specified" }}<br>
+            <small>{{ blotter.respondent_address|default:"Address not specified" }}</small>
+        </div>
+    </div>
+    
+    <div class="detail-card">
+        <div class="section-title">Incident Description</div>
+        <div class="detail-row">
+            <span class="detail-value">{{ blotter.incident_description|linebreaksbr }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,335 @@
+{% extends 'staff_module/dashboard.html' %}
+{% load static %}
+
+{% block title %}Certificate Request Details - Staff Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    .details-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #2c3e52;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    .detail-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-label {
+        width: 35%;
+        font-weight: 600;
+        color: #555;
+    }
+    .detail-value {
+        width: 65%;
+        color: #333;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-pending { background: #ffeaa7; color: #d63031; }
+    .status-processing { background: #74b9ff; color: #0984e3; }
+    .status-completed { background: #55efc4; color: #00b894; }
+    .status-released { background: #00b894; color: white; }
+    .status-cancelled { background: #dfe6e9; color: #636e72; }
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+    }
+    .btn-approve {
+        background: #00b894;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-approve:hover {
+        background: #009c7a;
+    }
+    .btn-reject {
+        background: #ff4757;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-reject:hover {
+        background: #e04350;
+    }
+    .btn-release {
+        background: #17a2b8;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-release:hover {
+        background: #138496;
+    }
+    .btn-back {
+        background: #6c757d;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-back:hover {
+        background: #5a6268;
+    }
+    .btn-print {
+        background: #2c3e52;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-print:hover {
+        background: #1a2a3a;
+    }
+    .btn-pdf {
+        background: #dc3545;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .btn-pdf:hover {
+        background: #c82333;
+    }
+    .alert {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+    .alert-info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    .alert-warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="details-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-file-certificate"></i> Certificate Request Details</h2>
+        <a href="{% url 'certificates:request_list' %}" class="btn-back"><i class="fas fa-arrow-left"></i> Back to List</a>
+    </div>
+    
+    <div class="detail-card">
+        <div class="section-title">Request Information</div>
+        <div class="detail-row">
+            <span class="detail-label">Reference Number:</span>
+            <span class="detail-value"><strong>{{ request.request_id }}</strong></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Certificate Type:</span>
+            <span class="detail-value">{{ request.get_request_type_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Date Submitted:</span>
+            <span class="detail-value">{{ request.date_submitted|date:"F d, Y h:i A" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">
+                <span class="status-badge status-{{ request.status }}">
+                    {{ request.get_status_display }}
+                </span>
+            </span>
+        </div>
+    </div>
+    
+    <div class="detail-card">
+        <div class="section-title">Applicant Information</div>
+        <div class="detail-row">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">{{ request.full_name }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Address:</span>
+            <span class="detail-value">{{ request.address }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Contact Number:</span>
+            <span class="detail-value">{{ request.contact_number|default:"Not provided" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ request.email|default:"Not provided" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Date of Birth:</span>
+            <span class="detail-value">{{ request.date_of_birth|date:"F d, Y"|default:"Not provided" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Age:</span>
+            <span class="detail-value">{{ request.age|default:"Not provided" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Civil Status:</span>
+            <span class="detail-value">{{ request.get_civil_status_display|default:"Not provided" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Gender:</span>
+            <span class="detail-value">{{ request.gender|default:"Not provided" }}</span>
+        </div>
+    </div>
+    
+    <div class="detail-card">
+        <div class="section-title">Certificate Details</div>
+        <div class="detail-row">
+            <span class="detail-label">Purpose:</span>
+            <span class="detail-value">{{ request.purpose|linebreaksbr|default:"Not specified" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Purok/Sitio:</span>
+            <span class="detail-value">{{ request.purok|default:"Not specified" }}</span>
+        </div>
+        {% if request.birthplace %}
+        <div class="detail-row">
+            <span class="detail-label">Birthplace:</span>
+            <span class="detail-value">{{ request.birthplace }}</span>
+        </div>
+        {% endif %}
+        {% if request.weight %}
+        <div class="detail-row">
+            <span class="detail-label">Weight:</span>
+            <span class="detail-value">{{ request.weight }} kg</span>
+        </div>
+        {% endif %}
+        {% if request.height %}
+        <div class="detail-row">
+            <span class="detail-label">Height:</span>
+            <span class="detail-value">{{ request.height }}</span>
+        </div>
+        {% endif %}
+        {% if request.emergency_name %}
+        <div class="detail-row">
+            <span class="detail-label">Emergency Contact:</span>
+            <span class="detail-value">{{ request.emergency_name }} ({{ request.emergency_relationship }}) - {{ request.emergency_contact }}</span>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if request.remarks %}
+    <div class="detail-card">
+        <div class="section-title">Remarks</div>
+        <div class="detail-row">
+            <span class="detail-value">{{ request.remarks|linebreaksbr }}</span>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="detail-card">
+        <div class="section-title">Actions</div>
+        
+        <!-- Print/Export Options (Always visible for processing/released) -->
+        {% if request.status == 'processing' or request.status == 'released' %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Certificate is ready. You can print or export the certificate.
+        </div>
+        <div class="btn-group">
+            <button onclick="generateCertificate('print')" class="btn-print">
+                <i class="fas fa-print"></i> Print Certificate
+            </button>
+            <button onclick="generateCertificate('pdf')" class="btn-pdf">
+                <i class="fas fa-file-pdf"></i> Export to PDF
+            </button>
+        </div>
+        {% endif %}
+        
+        <!-- Status-specific actions -->
+        <div class="action-buttons">
+            {% if request.status == 'pending' %}
+                <a href="{% url 'certificates:approve_request' request.id %}" class="btn-approve">
+                    <i class="fas fa-check"></i> Approve Request
+                </a>
+                <a href="{% url 'certificates:reject_request' request.id %}" class="btn-reject">
+                    <i class="fas fa-times"></i> Reject Request
+                </a>
+            {% elif request.status == 'processing' %}
+                <a href="{% url 'certificates:mark_as_released' request.id %}" class="btn-release">
+                    <i class="fas fa-hand-peace"></i> Mark as Released
+                </a>
+            {% elif request.status == 'released' %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-check-circle"></i> This certificate has already been released to the applicant.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    function generateCertificate(type) {
+        var certType = '{{ request.request_type }}';
+        var url = '';
+        
+        if (certType === 'clearance') {
+            url = "{% url 'certificates:generate_clearance' request.id %}";
+        } else if (certType === 'residency') {
+            url = "{% url 'certificates:generate_residency' request.id %}";
+        } else if (certType === 'indigency') {
+            url = "{% url 'certificates:generate_indigency' request.id %}";
+        } else if (certType === 'id') {
+            url = "{% url 'certificates:generate_barangay_id' request.id %}";
+        }
+        
+        if (type === 'print') {
+            window.open(url, '_blank');
+        } else if (type === 'pdf') {
+            window.open(url + '?pdf=1', '_blank');
+        }
+    }
+</script>
+{% endblock %}

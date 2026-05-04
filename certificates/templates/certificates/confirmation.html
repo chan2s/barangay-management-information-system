@@ -1,0 +1,143 @@
+{% extends 'blotter_base.html' %}
+{% load static %}
+
+{% block title %}Request Submitted - BIMS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-container {
+        max-width: 600px;
+        margin: 60px auto;
+        padding: 20px;
+    }
+    .confirmation-card {
+        background: white;
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border: 1px solid #e0e0e0;
+    }
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        background: #28a745;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+    }
+    .success-icon i {
+        font-size: 40px;
+        color: white;
+    }
+    .tracking-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
+        margin: 25px 0;
+        border-left: 4px solid #667eea;
+    }
+    .tracking-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: #666;
+        letter-spacing: 1px;
+    }
+    .tracking-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+        font-family: monospace;
+        letter-spacing: 1px;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: #ffeaa7;
+        color: #d63031;
+    }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .info-label {
+        font-weight: 600;
+        color: #555;
+    }
+    .info-value {
+        color: #333;
+    }
+    .btn-home {
+        background: #667eea;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 20px;
+    }
+    .btn-home:hover {
+        background: #764ba2;
+        color: white;
+    }
+    .note {
+        margin-top: 20px;
+        padding: 15px;
+        background: #fff3cd;
+        border-radius: 8px;
+        font-size: 13px;
+        color: #856404;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <div class="success-icon">
+            <i class="bi bi-check-lg"></i>
+        </div>
+        
+        <h2>Request Submitted Successfully!</h2>
+        <p>Your certificate request has been received and is now pending review.</p>
+        
+        <div class="tracking-box">
+            <div class="tracking-label">YOUR TRACKING NUMBER</div>
+            <div class="tracking-number">{{ tracking_id }}</div>
+            <div class="tracking-label mt-2">Status</div>
+            <div><span class="status-badge">{{ status|title }}</span></div>
+        </div>
+        
+        <div class="info-row">
+            <span class="info-label">Certificate Type:</span>
+            <span class="info-value">{{ request_type }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Submitted By:</span>
+            <span class="info-value">{{ full_name }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Date Submitted:</span>
+            <span class="info-value">{{ submitted_date }}</span>
+        </div>
+        
+        <div class="note">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            <strong>What's next?</strong><br>
+            Your request is pending staff approval. Once approved, you will be notified to claim your certificate at the Barangay Hall. 
+            Please present your tracking number when claiming.
+        </div>
+        
+        <a href="/" class="btn-home">
+            <i class="bi bi-house-door me-2"></i> Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

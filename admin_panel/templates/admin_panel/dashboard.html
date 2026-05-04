@@ -1,0 +1,147 @@
+{% extends 'staff_module/dashboard.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - BIMS{% endblock %}
+
+{% block page_heading %}<i class="fas fa-crown"></i> Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card-admin {
+        background: linear-gradient(135deg, #2c3e52 0%, #1a2a3a 100%);
+        color: white;
+    }
+    .quick-link {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        transition: transform 0.2s;
+        display: block;
+    }
+    .quick-link:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+    .quick-link i {
+        font-size: 40px;
+        margin-bottom: 10px;
+        color: #2c3e52;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="welcome-banner">
+        <h2><i class="fas fa-crown"></i> Welcome, System Administrator!</h2>
+        <p>Manage users, monitor system activity, and configure barangay settings.</p>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card stat-card-admin">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_users }}</h3>
+                <p>Total Users</p>
+            </div>
+        </div>
+        <div class="stat-card stat-card-admin">
+            <div class="stat-icon"><i class="fas fa-user-tie"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_staff }}</h3>
+                <p>Staff Members</p>
+            </div>
+        </div>
+        <div class="stat-card stat-card-admin">
+            <div class="stat-icon"><i class="fas fa-user"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_residents }}</h3>
+                <p>Residents</p>
+            </div>
+        </div>
+        <div class="stat-card stat-card-admin">
+            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_blotters }}</h3>
+                <p>Total Blotters</p>
+            </div>
+        </div>
+        <div class="stat-card stat-card-admin">
+            <div class="stat-icon"><i class="fas fa-file-certificate"></i></div>
+            <div class="stat-info">
+                <h3>{{ total_certificates }}</h3>
+                <p>Certificates</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Links -->
+    <div class="staff-card">
+        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+        <div class="quick-actions-grid">
+            <a href="{% url 'admin_panel:user_list' %}" class="quick-link">
+                <i class="fas fa-users"></i>
+                <strong>Manage Users</strong>
+                <p>View, edit, or delete user accounts</p>
+            </a>
+            <a href="{% url 'admin_panel:user_create' %}" class="quick-link">
+                <i class="fas fa-user-plus"></i>
+                <strong>Create User</strong>
+                <p>Add a new user account</p>
+            </a>
+            <a href="{% url 'admin_panel:system_settings' %}" class="quick-link">
+                <i class="fas fa-cog"></i>
+                <strong>System Settings</strong>
+                <p>Configure barangay system</p>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Recent Users -->
+    <div class="staff-card">
+        <h3><i class="fas fa-user-clock"></i> Recent Users</h3>
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Date Joined</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>{{ user.get_full_name|default:"—" }}</td>
+                        <td>{{ user.email|default:"—" }}</td>
+                        <td>
+                            {% if user.is_superuser %}
+                                <span class="status-badge" style="background:#ff4757; color:white;">Super Admin</span>
+                            {% elif user.is_staff %}
+                                <span class="status-badge" style="background:#ffa502; color:white;">Staff</span>
+                            {% else %}
+                                <span class="status-badge" style="background:#74b9ff; color:white;">Resident</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                        <td>
+                            <a href="{% url 'admin_panel:user_edit' user.id %}" class="view-btn">Edit</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="empty-state">No users found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
