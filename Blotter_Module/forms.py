@@ -154,15 +154,17 @@ class ScheduleForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 
+from .models import Evidence
+
 class EvidenceForm(forms.ModelForm):
     class Meta:
         model = Evidence
-        fields = ['title', 'evidence_type', 'file', 'description']
+        fields = ['title', 'description', 'file', 'file_type']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'evidence_type': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Evidence title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description of evidence...'}),
             'file': forms.FileInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'file_type': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class CommentForm(forms.ModelForm):

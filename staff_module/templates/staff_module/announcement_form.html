@@ -1,0 +1,473 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit{% else %}New{% endif %} Announcement - BIMS{% endblock %}
+{% block nav_announcements %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .form-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .card-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid var(--yellow);
+        background: var(--white);
+    }
+    
+    .card-header h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+    }
+    
+    .card-header h2 i {
+        color: var(--yellow);
+    }
+    
+    .card-body {
+        padding: 28px;
+    }
+    
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 24px;
+    }
+    
+    label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--slate);
+        margin-bottom: 8px;
+    }
+    
+    label i {
+        margin-right: 8px;
+        color: var(--yellow);
+        width: 18px;
+    }
+    
+    .required-star {
+        color: #ef4444;
+        margin-left: 3px;
+    }
+    
+    /* Form Controls */
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text);
+        background: var(--white);
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--yellow);
+        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+    }
+    
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 150px;
+    }
+    
+    input[type="datetime-local"].form-control {
+        padding: 8px 12px;
+    }
+    
+    /* Help Text */
+    .help-text {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 6px;
+        line-height: 1.4;
+    }
+    
+    /* Priority Preview */
+    .priority-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+    
+    .priority-preview-normal { background: #e9ecef; color: #6c757d; }
+    .priority-preview-important { background: #fff3cd; color: #856404; }
+    .priority-preview-urgent { background: #f8d7da; color: #721c24; }
+    
+    /* Image Preview */
+    .image-preview {
+        margin-top: 12px;
+        padding: 12px;
+        background: var(--cream);
+        border-radius: var(--radius-sm);
+        border: 1px dashed var(--border);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    
+    .image-preview img {
+        max-width: 120px;
+        max-height: 80px;
+        object-fit: cover;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+    }
+    
+    .image-preview .image-info {
+        flex: 1;
+        font-size: 0.75rem;
+        color: var(--muted);
+    }
+    
+    .remove-image {
+        background: #dc3545;
+        color: white;
+        border: none;
+        padding: 5px 12px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    /* Live Preview */
+    .live-preview {
+        background: var(--cream);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-top: 28px;
+        border: 1px solid var(--border);
+    }
+    
+    .live-preview-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--muted);
+        margin-bottom: 16px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .preview-card {
+        background: var(--white);
+        border-radius: var(--radius-sm);
+        padding: 16px;
+        border: 1px solid var(--border);
+    }
+    
+    .preview-card .preview-title {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--charcoal);
+    }
+    
+    .preview-card .preview-content {
+        font-size: 0.8rem;
+        color: var(--slate);
+        line-height: 1.5;
+    }
+    
+    /* Button Group */
+    .btn-group {
+        display: flex;
+        gap: 16px;
+        margin-top: 28px;
+    }
+    
+    .btn-submit {
+        flex: 1;
+        background: var(--charcoal);
+        color: var(--white);
+        border: none;
+        padding: 12px 24px;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-submit:hover {
+        background: var(--yellow);
+        color: var(--charcoal);
+        transform: translateY(-2px);
+    }
+    
+    .btn-cancel {
+        flex: 1;
+        background: transparent;
+        color: var(--slate);
+        border: 1.5px solid var(--border);
+        padding: 12px 24px;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .btn-cancel:hover {
+        background: var(--cream);
+        border-color: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .card-body {
+            padding: 20px;
+        }
+        
+        .btn-group {
+            flex-direction: column;
+        }
+        
+        .image-preview {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="card-header">
+            <h2>
+                <i class="fas fa-{% if is_edit %}edit{% else %}plus-circle{% endif %}"></i>
+                {% if is_edit %}Edit Announcement{% else %}Create New Announcement{% endif %}
+            </h2>
+        </div>
+        
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" id="announcementForm">
+                {% csrf_token %}
+                
+                <!-- Title -->
+                <div class="form-group">
+                    <label><i class="fas fa-heading"></i> Title <span class="required-star">*</span></label>
+                    {{ form.title }}
+                    <div class="help-text">A clear, descriptive title for your announcement (max 200 characters)</div>
+                </div>
+                
+                <!-- Content -->
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Content <span class="required-star">*</span></label>
+                    {{ form.content }}
+                    <div class="help-text">Write the full announcement details here. Support for line breaks and formatting.</div>
+                </div>
+                
+                <!-- Priority Level -->
+                <div class="form-group">
+                    <label><i class="fas fa-flag"></i> Priority Level</label>
+                    {{ form.priority }}
+                    <div class="help-text">
+                        <strong>Normal:</strong> Regular announcements<br>
+                        <strong>Important:</strong> Highly important information (yellow badge)<br>
+                        <strong>Urgent:</strong> Requires immediate attention (red badge)
+                    </div>
+                    <div id="priorityPreview" class="priority-preview priority-preview-normal">
+                        <i class="fas fa-info-circle"></i> Normal Priority
+                    </div>
+                </div>
+                
+                <!-- Image Upload -->
+                <div class="form-group">
+                    <label><i class="fas fa-image"></i> Image (Optional)</label>
+                    {{ form.image }}
+                    <div class="help-text">Upload an image to accompany your announcement (JPG, PNG, GIF - max 5MB)</div>
+                    <div id="imagePreviewContainer" class="image-preview" style="display: none;">
+                        <img id="imagePreview" src="#" alt="Preview">
+                        <div class="image-info">
+                            <span id="imageName"></span>
+                        </div>
+                        <button type="button" class="remove-image" onclick="removeImage()">Remove</button>
+                    </div>
+                    {% if is_edit and announcement.image %}
+                    <div class="current-image" style="margin-top: 10px; padding: 10px; background: var(--cream); border-radius: var(--radius-sm);">
+                        <strong>Current Image:</strong>
+                        <img src="{{ announcement.image.url }}" alt="Current image" style="max-width: 200px; border-radius: var(--radius-sm); margin-top: 8px;">
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Schedule Date -->
+                <div class="form-group">
+                    <label><i class="fas fa-calendar-alt"></i> Schedule Date (Optional)</label>
+                    {{ form.scheduled_date }}
+                    <div class="help-text">Set a future date to schedule this announcement. Leave empty to publish immediately.</div>
+                </div>
+                
+                <!-- Expiration Date -->
+                <div class="form-group">
+                    <label><i class="fas fa-hourglass-end"></i> Expiration Date (Optional)</label>
+                    {{ form.expires_at }}
+                    <div class="help-text">Set when this announcement should expire. After expiration, it won't appear on the public page.</div>
+                </div>
+                
+                <!-- Live Preview -->
+                <div class="live-preview">
+                    <div class="live-preview-title">
+                        <i class="fas fa-eye"></i> Live Preview
+                    </div>
+                    <div class="preview-card">
+                        <div class="preview-title" id="previewTitle">Your announcement title will appear here</div>
+                        <div class="preview-content" id="previewContent">Your announcement content will appear here...</div>
+                    </div>
+                </div>
+                
+                <!-- Buttons -->
+                <div class="btn-group">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-save"></i> {% if is_edit %}Update{% else %}Publish{% endif %} Announcement
+                    </button>
+                    <a href="{% url 'staff_module:announcement_list' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Live Preview
+    const titleInput = document.querySelector('input[name="title"]');
+    const contentInput = document.querySelector('textarea[name="content"]');
+    const previewTitle = document.getElementById('previewTitle');
+    const previewContent = document.getElementById('previewContent');
+    
+    function updatePreview() {
+        if (titleInput.value.trim()) {
+            previewTitle.textContent = titleInput.value;
+        } else {
+            previewTitle.textContent = 'Your announcement title will appear here';
+        }
+        
+        if (contentInput.value.trim()) {
+            previewContent.textContent = contentInput.value;
+        } else {
+            previewContent.textContent = 'Your announcement content will appear here...';
+        }
+    }
+    
+    titleInput.addEventListener('input', updatePreview);
+    contentInput.addEventListener('input', updatePreview);
+    
+    // Priority Preview
+    const prioritySelect = document.querySelector('select[name="priority"]');
+    const priorityPreview = document.getElementById('priorityPreview');
+    
+    function updatePriorityPreview() {
+        const value = prioritySelect.value;
+        const icon = value === 'urgent' ? 'fa-bell' : (value === 'important' ? 'fa-exclamation-circle' : 'fa-info-circle');
+        const text = value === 'urgent' ? 'Urgent Priority' : (value === 'important' ? 'Important Priority' : 'Normal Priority');
+        const className = value === 'urgent' ? 'priority-preview-urgent' : (value === 'important' ? 'priority-preview-important' : 'priority-preview-normal');
+        
+        priorityPreview.className = `priority-preview ${className}`;
+        priorityPreview.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
+    }
+    
+    prioritySelect.addEventListener('change', updatePriorityPreview);
+    updatePriorityPreview();
+    
+    // Image Preview
+    const imageInput = document.querySelector('input[type="file"]');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const imageName = document.getElementById('imageName');
+    
+    imageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                imagePreview.src = event.target.result;
+                imageName.textContent = file.name;
+                imagePreviewContainer.style.display = 'flex';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreviewContainer.style.display = 'none';
+        }
+    });
+    
+    function removeImage() {
+        imageInput.value = '';
+        imagePreviewContainer.style.display = 'none';
+    }
+    
+    // Form Validation
+    document.getElementById('announcementForm').addEventListener('submit', function(e) {
+        const submitBtn = document.getElementById('submitBtn');
+        if (!titleInput.value.trim()) {
+            e.preventDefault();
+            alert('Please enter an announcement title.');
+            titleInput.focus();
+            return false;
+        }
+        
+        if (!contentInput.value.trim()) {
+            e.preventDefault();
+            alert('Please enter announcement content.');
+            contentInput.focus();
+            return false;
+        }
+        
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {% if is_edit %}Updating...{% else %}Publishing...{% endif %}';
+        submitBtn.disabled = true;
+        
+        return true;
+    });
+</script>
+{% endblock %}

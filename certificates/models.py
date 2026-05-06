@@ -14,7 +14,9 @@ class CertificateRequest(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('processing', 'Processing'),
-        ('completed', 'Completed'),
+        ('for_approval', 'For Kapitan Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
         ('released', 'Released'),
         ('cancelled', 'Cancelled'),
     ]
@@ -39,9 +41,15 @@ class CertificateRequest(models.Model):
     civil_status = models.CharField(max_length=20, choices=CIVIL_STATUS_CHOICES, blank=True)
     gender = models.CharField(max_length=10, blank=True)
     purpose = models.TextField(blank=True)
+    claim_deadline = models.DateTimeField(null=True, blank=True)
 
     # Certificate Specific Fields
     purok = models.CharField(max_length=100, blank=True)
+
+    # File Upload Fields - ADD THESE
+    valid_id = models.FileField(upload_to='valid_ids/%Y/%m/%d/', blank=True, null=True)
+    proof_residency = models.FileField(upload_to='proof_residency/%Y/%m/%d/', blank=True, null=True)
+    photo = models.FileField(upload_to='photos/%Y/%m/%d/', blank=True, null=True)
 
     # Health Certification Specific Fields
     birthplace = models.CharField(max_length=200, blank=True)
@@ -61,11 +69,14 @@ class CertificateRequest(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     date_submitted = models.DateTimeField(auto_now_add=True)
     date_processed = models.DateTimeField(null=True, blank=True)
+    date_approved = models.DateTimeField(null=True, blank=True)
     date_released = models.DateTimeField(null=True, blank=True)
 
     # Additional Info
     remarks = models.TextField(blank=True)
     processed_by = models.CharField(max_length=100, blank=True)
+    approved_by = models.CharField(max_length=100, blank=True)
+    rejection_reason = models.TextField(blank=True)
 
     class Meta:
         ordering = ['-date_submitted']

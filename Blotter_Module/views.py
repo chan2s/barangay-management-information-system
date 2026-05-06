@@ -186,7 +186,7 @@ def file_blotter(request):
                 blotter.verification_method = 'id_card'
                 blotter.verification_status = 'pending_id_verification'
                 blotter.verified_contact = form.cleaned_data.get('complainant_phone') or form.cleaned_data.get('complainant_email')
-                blotter.valid_id_file = form.cleaned_data.get('valid_id')
+                blotter.valid_id_file = request.FILES.get('valid_id')
                 blotter.valid_id_type = form.cleaned_data.get('id_type')
                 blotter.id_verification_status = 'pending'
             else:
@@ -194,18 +194,34 @@ def file_blotter(request):
                 blotter.verification_status = 'pending_review'
                 blotter.verified_contact = form.cleaned_data.get('complainant_email')
             
-            # IMPORTANT: Set is_approved to FALSE - requires staff approval
             blotter.is_approved = False
-            
             blotter.purpose = form.cleaned_data.get('purpose')
             blotter.status = 'pending'
             blotter.ip_address = get_client_ip(request)
             blotter.save()
             
-            # Debug: Print to console to verify
-            print(f"NEW BLOTTER CREATED: {blotter.blotter_number}")
-            print(f"is_approved: {blotter.is_approved}")
-            print(f"status: {blotter.status}")
+            # ===== HANDLE EVIDENCE UPLOADS =====
+            evidence_files = request.FILES.getlist('evidence')
+            for file in evidence_files:
+                if file:
+                    # Determine file type
+                    ext = file.name.split('.')[-1].lower()
+                    if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
+                        file_type = 'image'
+                    elif ext in ['pdf', 'doc', 'docx', 'txt']:
+                        file_type = 'document'
+                    elif ext in ['mp4', 'avi', 'mov', 'mkv']:
+                        file_type = 'video'
+                    else:
+                        file_type = 'other'
+                    
+                    Evidence.objects.create(
+                        blotter=blotter,
+                        title=f"Evidence - {file.name[:50]}",
+                        file=file,
+                        file_type=file_type,
+                        uploaded_by=request.user if request.user.is_authenticated else None
+                    )
             
             BlotterAuditLog.objects.create(
                 blotter=blotter,
@@ -214,41 +230,9 @@ def file_blotter(request):
                 performed_by=request.user if request.user.is_authenticated else None
             )
             
-            if blotter.verification_method == 'email' and blotter.complainant_email:
-                try:
-                    send_mail(
-                        f'Blotter Received - {blotter.blotter_number}',
-                        f"""
-Republic of the Philippines
-Barangay Poblacion, Santa Catalina, Negros Oriental
-
-BLOTTER RECEIPT
-
-Dear {blotter.complainant_name},
-
-Your blotter complaint has been received and is awaiting staff approval.
-
-Blotter Number: {blotter.blotter_number}
-Date Filed: {blotter.created_at.strftime('%Y-%m-%d %H:%M')}
-Status: Pending Staff Approval
-
-You can track your blotter once it is approved by barangay staff.
-
-For inquiries, please contact the Barangay Hall.
-
-This is an automated message.
-                        """,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [blotter.complainant_email],
-                        fail_silently=True,
-                    )
-                except Exception as e:
-                    print(f"Email send error: {e}")
-            
             request.session.flush()
             
             messages.success(request, f'Your blotter has been submitted! Your blotter number is: {blotter.blotter_number}')
-            messages.info(request, 'Your blotter is pending staff approval. You will be notified once approved.')
             
             return render(request, 'blotter_success.html', {'blotter': blotter})
         else:

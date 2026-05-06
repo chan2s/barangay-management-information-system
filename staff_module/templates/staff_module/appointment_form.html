@@ -1,0 +1,361 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Schedule Appointment - BIMS{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    /* Card Styles */
+    .card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .card-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid var(--yellow);
+        background: var(--white);
+    }
+    
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-title i {
+        color: var(--yellow);
+        font-size: 1.2rem;
+    }
+    
+    .card-body {
+        padding: 28px 24px;
+    }
+    
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--slate);
+        margin-bottom: 8px;
+    }
+    
+    .form-group label i {
+        margin-right: 6px;
+        color: var(--yellow);
+        width: 18px;
+    }
+    
+    .required-star {
+        color: #ef4444;
+        margin-left: 3px;
+    }
+    
+    /* Form Controls */
+    .form-control {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: 'Inter', sans-serif;
+        font-size: 0.85rem;
+        color: var(--text);
+        background: var(--white);
+        transition: all 0.2s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--yellow);
+        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+    }
+    
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 14px center;
+        padding-right: 40px;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    input[type="datetime-local"].form-control {
+        padding: 8px 12px;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+    
+    /* Help Text */
+    .help-text {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 5px;
+    }
+    
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+    
+    .btn-submit {
+        background: var(--charcoal);
+        color: white;
+        padding: 12px 28px;
+        border: none;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-submit:hover {
+        background: var(--yellow);
+        color: var(--charcoal);
+        transform: translateY(-2px);
+    }
+    
+    .btn-cancel {
+        background: transparent;
+        color: var(--slate);
+        padding: 12px 28px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-cancel:hover {
+        background: var(--cream);
+        border-color: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    /* Info Box */
+    .info-box {
+        background: var(--cream);
+        border-left: 4px solid var(--yellow);
+        padding: 14px 16px;
+        margin-bottom: 24px;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .info-box i {
+        color: var(--yellow);
+        font-size: 1.1rem;
+        margin-top: 2px;
+    }
+    
+    .info-box-content {
+        flex: 1;
+    }
+    
+    .info-box-content strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--charcoal);
+    }
+    
+    .info-box-content p {
+        font-size: 0.8rem;
+        color: var(--slate);
+        margin: 0;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-submit, .btn-cancel {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-calendar-plus"></i>
+                Schedule New Appointment
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <div class="info-box-content">
+                    <strong>Appointment Information</strong>
+                    <p>Fill out the form below to schedule an appointment. All fields marked with <span style="color: #ef4444;">*</span> are required.</p>
+                </div>
+            </div>
+            
+            <form method="post" id="appointmentForm">
+                {% csrf_token %}
+                
+                <!-- Resident Information -->
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Resident Full Name <span class="required-star">*</span></label>
+                    {{ form.resident_name }}
+                    <div class="help-text">Enter the complete name of the resident requesting the appointment</div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-map-marker-alt"></i> Resident Address <span class="required-star">*</span></label>
+                    {{ form.resident_address }}
+                    <div class="help-text">Complete address including barangay, city/municipality</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Contact Number <span class="required-star">*</span></label>
+                        {{ form.resident_contact }}
+                        <div class="help-text">Format: 09123456789</div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
+                        {{ form.resident_email }}
+                        <div class="help-text">Optional - for sending notifications</div>
+                    </div>
+                </div>
+                
+                <!-- Appointment Details -->
+                <div class="form-group">
+                    <label><i class="fas fa-tasks"></i> Purpose of Appointment <span class="required-star">*</span></label>
+                    {{ form.purpose }}
+                    <div class="help-text">Briefly describe the reason for the appointment</div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Appointment Date & Time <span class="required-star">*</span></label>
+                        {{ form.appointment_date }}
+                        <div class="help-text">Select date and time for the appointment</div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-hourglass-half"></i> Duration (minutes)</label>
+                        {{ form.duration_minutes }}
+                        <div class="help-text">Estimated duration (default: 30 minutes)</div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-flag"></i> Priority Level</label>
+                        {{ form.priority }}
+                        <div class="help-text">
+                            <span style="color: #dc2626;">Urgent</span> - Immediate attention<br>
+                            <span style="color: #ea580c;">Important</span> - High priority<br>
+                            <span style="color: #4b5563;">Normal</span> - Regular appointment
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Notes -->
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note"></i> Additional Notes</label>
+                    {{ form.notes }}
+                    <div class="help-text">Any special instructions or additional information</div>
+                </div>
+                
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" id="submitBtn">
+                        <i class="fas fa-save"></i> Create Appointment
+                    </button>
+                    <a href="{% url 'staff_module:appointment_list' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Form validation
+    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        const appointmentDate = document.querySelector('input[name="appointment_date"]');
+        if (appointmentDate && appointmentDate.value) {
+            const selectedDate = new Date(appointmentDate.value);
+            const now = new Date();
+            
+            if (selectedDate < now) {
+                e.preventDefault();
+                toast.error('Please select a future date and time for the appointment.', 'Invalid Date');
+                appointmentDate.focus();
+                return false;
+            }
+        }
+        
+        const contactNumber = document.querySelector('input[name="resident_contact"]');
+        if (contactNumber && contactNumber.value) {
+            const phoneRegex = /^[0-9]{11}$/;
+            if (!phoneRegex.test(contactNumber.value.replace(/\D/g, ''))) {
+                e.preventDefault();
+                toast.warning('Please enter a valid 11-digit contact number.', 'Invalid Contact Number');
+                contactNumber.focus();
+                return false;
+            }
+        }
+        
+        // Show loading state on button
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+        submitBtn.disabled = true;
+        
+        return true;
+    });
+</script>
+{% endblock %}

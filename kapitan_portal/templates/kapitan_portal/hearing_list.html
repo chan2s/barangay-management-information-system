@@ -1,0 +1,555 @@
+{% extends 'kapitan_portal/kapitan_base.html' %}
+{% load static %}
+
+{% block title %}Hearings - Kapitan Portal{% endblock %}
+{% block nav_hearings %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-heading {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 8px 0;
+    }
+    
+    .page-heading i {
+        color: var(--yellow);
+        margin-right: 10px;
+    }
+    
+    .page-description {
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+    
+    /* Filter Card */
+    .filter-section {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .filter-title {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--charcoal);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid var(--yellow);
+    }
+    
+    .filter-title i {
+        color: var(--yellow);
+    }
+    
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+    
+    .filter-group {
+        flex: 1;
+        min-width: 180px;
+    }
+    
+    .filter-group label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--muted);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filter-group input, .filter-group select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s;
+    }
+    
+    .filter-group input:focus, .filter-group select:focus {
+        outline: none;
+        border-color: var(--yellow);
+        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+    }
+    
+    .btn-filter {
+        background: var(--charcoal);
+        color: var(--white);
+        border: none;
+        padding: 8px 20px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-filter:hover {
+        background: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    .btn-reset {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        padding: 8px 20px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .btn-reset:hover {
+        background: var(--yellow-soft);
+        color: var(--charcoal);
+        border-color: var(--yellow);
+    }
+    
+    /* Result Count */
+    .result-count {
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 16px;
+        background: var(--cream);
+        padding: 8px 16px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+    
+    /* Table Container */
+    .table-container {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 2px solid var(--yellow);
+        background: var(--white);
+    }
+    
+    .table-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .table-title i {
+        color: var(--yellow);
+    }
+    
+    .total-badge {
+        background: var(--yellow-soft);
+        color: var(--charcoal);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    th {
+        background: var(--bg);
+        color: var(--slate);
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.85rem;
+        color: var(--text);
+    }
+    
+    tr:hover {
+        background: var(--cream);
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+    
+    .status-scheduled {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .status-completed {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .status-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    /* Outcome Badges */
+    .outcome-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+    
+    .outcome-settled {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .outcome-unsettled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .outcome-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    /* View Button - MADE VISIBLE */
+    .view-btn {
+        background: var(--yellow);
+        color: var(--charcoal);
+        padding: 6px 16px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--yellow);
+    }
+    
+    .view-btn:hover {
+        background: var(--yellow-accent);
+        border-color: var(--yellow-accent);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+    }
+    
+    .empty-state i {
+        font-size: 56px;
+        margin-bottom: 16px;
+        display: block;
+        opacity: 0.5;
+    }
+    
+    /* Pagination */
+    .pagination {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        align-items: center;
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+    }
+    
+    .pagination a, .pagination span {
+        padding: 6px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        color: var(--slate);
+        font-size: 0.75rem;
+        transition: all 0.2s;
+    }
+    
+    .pagination a:hover {
+        background: var(--yellow);
+        color: var(--charcoal);
+        border-color: var(--yellow);
+    }
+    
+    .pagination .current {
+        background: var(--yellow);
+        color: var(--charcoal);
+        border-color: var(--yellow);
+        font-weight: 600;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .filter-row {
+            flex-direction: column;
+        }
+        
+        .filter-group {
+            width: 100%;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-filter, .btn-reset {
+            flex: 1;
+            justify-content: center;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            min-width: 700px;
+        }
+        
+        .view-btn {
+            padding: 4px 12px;
+            font-size: 0.7rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="page-heading">
+            <i class="fas fa-gavel"></i> Katarungang Pambarangay Hearings
+        </h2>
+        <p class="page-description">Manage and monitor all scheduled mediation and conciliation hearings</p>
+    </div>
+    
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-title">
+            <i class="fas fa-filter"></i> Filter Hearings
+        </div>
+        <form method="get">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" name="search" placeholder="Blotter #, Complainant, Respondent..." value="{{ search_query }}">
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="">All Status</option>
+                        <option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option>
+                        <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group filter-actions">
+                    <button type="submit" class="btn-filter">
+                        <i class="fas fa-search"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'kapitan_portal:hearing_list' %}" class="btn-reset">
+                        <i class="fas fa-undo"></i> Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Result Count -->
+    <div class="result-count">
+        <i class="fas fa-list"></i> Showing {{ hearings|length }} of {{ hearings.paginator.count }} hearing records
+    </div>
+    
+    <!-- Table Container -->
+    <div class="table-container">
+        <div class="table-header">
+            <div class="table-title">
+                <i class="fas fa-gavel"></i>
+                Hearings Schedule
+            </div>
+            <span class="total-badge">{{ hearings.paginator.count }} Total</span>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Blotter #</th>
+                        <th>Complainant</th>
+                        <th>Respondent</th>
+                        <th>Hearing Type</th>
+                        <th>Date & Time</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Outcome</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hearing in hearings %}
+                    <tr>
+                        <td><strong>{{ hearing.blotter.blotter_number }}</strong></td>
+                        <td>{{ hearing.blotter.complainant_name|truncatechars:25 }}</td>
+                        <td>{{ hearing.blotter.respondent_name|default:"—"|truncatechars:25 }}</td>
+                        <td>
+                            {% if hearing.hearing_type == 'initial_mediation' %}
+                                Initial Mediation
+                            {% elif hearing.hearing_type == 'conciliation' %}
+                                Conciliation
+                            {% elif hearing.hearing_type == 'follow_up' %}
+                                Follow-up
+                            {% elif hearing.hearing_type == 'settlement_meeting' %}
+                                Settlement Meeting
+                            {% elif hearing.hearing_type == 'arbitration' %}
+                                Arbitration
+                            {% else %}
+                                {{ hearing.get_hearing_type_display }}
+                            {% endif %}
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <i class="fas fa-calendar" style="font-size: 0.7rem; margin-right: 5px; color: var(--muted);"></i>
+                            {{ hearing.hearing_date|date:"M d, Y" }}
+                            <br>
+                            <i class="fas fa-clock" style="font-size: 0.7rem; margin-right: 5px; color: var(--muted);"></i>
+                            {{ hearing.hearing_date|date:"h:i A" }}
+                        </td>
+                        <td>{{ hearing.location|truncatechars:30 }}</div>
+                        <td>
+                            {% if hearing.is_completed %}
+                                <span class="status-badge status-completed">
+                                    <i class="fas fa-check-circle"></i> Completed
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-scheduled">
+                                    <i class="fas fa-calendar-check"></i> Scheduled
+                                </span>
+                            {% endif %}
+                        </div>
+                        <td>
+                            {% if hearing.outcome == 'settled' %}
+                                <span class="outcome-badge outcome-settled">
+                                    <i class="fas fa-handshake"></i> Settled
+                                </span>
+                            {% elif hearing.outcome == 'unsettled' %}
+                                <span class="outcome-badge outcome-unsettled">
+                                    <i class="fas fa-times-circle"></i> Unsettled
+                                </span>
+                            {% else %}
+                                <span class="outcome-badge outcome-pending">
+                                    <i class="fas fa-clock"></i> Pending
+                                </span>
+                            {% endif %}
+                        </div>
+                        <td>
+                            <a href="{% url 'kapitan_portal:hearing_detail' hearing.id %}" class="view-btn">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                        </div>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <i class="fas fa-gavel"></i>
+                                <p>No hearing records found.</p>
+                                <p style="font-size: 0.8rem;">Scheduled hearings will appear here.</p>
+                            </div>
+                        </div>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if hearings.has_other_pages %}
+        <div class="pagination">
+            {% if hearings.has_previous %}
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ hearings.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    <i class="fas fa-angle-left"></i> Prev
+                </a>
+            {% endif %}
+            
+            <span class="current">{{ hearings.number }} / {{ hearings.paginator.num_pages }}</span>
+            
+            {% if hearings.has_next %}
+                <a href="?page={{ hearings.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    Next <i class="fas fa-angle-right"></i>
+                </a>
+                <a href="?page={{ hearings.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -30,4 +30,30 @@ urlpatterns = [
     
     # Certificates Module
     path('certificates/', include('certificates.urls')),
+    
+    #sa admin panel
+    path('admin-panel/', include('admin_panel.urls')),
+
+
+    # sa announcements
+    path('announcements/', views.announcement_list, name='announcement_list'),
+    path('announcements/create/', views.announcement_create, name='announcement_create'),
+    path('announcements/edit/<int:announcement_id>/', views.announcement_edit, name='announcement_edit'),
+    path('announcements/delete/<int:announcement_id>/', views.announcement_delete, name='announcement_delete'),
+    path('announcements/<int:pk>/toggle/', views.announcement_toggle_status, name='announcement_toggle_status'),
+    
+    
+    path('appointments/', views.appointment_list, name='appointment_list'),
+    path('appointments/create/', views.appointment_create, name='appointment_create'),
+    path('appointments/<int:pk>/', views.appointment_detail, name='appointment_detail'),
+    path('appointments/<int:pk>/status/', views.appointment_update_status, name='appointment_update_status'),
+    path('appointments/calendar/', views.appointment_calendar, name='appointment_calendar'),
+    
+    path('reports/', views.reports_dashboard, name='reports_dashboard'),
+    path('reports/blotter/', views.blotter_report, name='blotter_report'),
+    path('reports/certificate/', views.certificate_report, name='certificate_report'),
+    path('reports/hearing/', views.hearing_report, name='hearing_report'),
+    path('reports/summary/', views.summary_report, name='summary_report'),
+    
+    path('blotters/<int:blotter_id>/approve-action/', views.staff_approve_blotter_action, name='staff_approve_blotter_action'),
 ]

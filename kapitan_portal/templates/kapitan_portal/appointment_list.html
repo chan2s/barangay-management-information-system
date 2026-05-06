@@ -1,0 +1,336 @@
+{% extends 'kapitan_portal/kapitan_base.html' %}
+{% load static %}
+
+{% block title %}Appointments - Kapitan Portal{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Page Header */
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-heading {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 8px 0;
+    }
+    
+    .page-heading i {
+        color: var(--yellow);
+        margin-right: 10px;
+    }
+    
+    .page-description {
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+    
+    /* Filter Bar */
+    .filter-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .filter-btn {
+        padding: 6px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        background: var(--white);
+        color: var(--slate);
+        border: 1px solid var(--border);
+    }
+    
+    .filter-btn:hover {
+        background: var(--yellow-soft);
+        border-color: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    .filter-btn.active {
+        background: var(--yellow);
+        color: var(--charcoal);
+        border-color: var(--yellow);
+    }
+    
+    .filter-btn i {
+        margin-right: 5px;
+    }
+    
+    /* Section Card */
+    .section-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .card-header {
+        padding: 16px 20px;
+        border-bottom: 2px solid var(--yellow);
+        background: var(--white);
+    }
+    
+    .card-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .card-title i {
+        color: var(--yellow);
+    }
+    
+    /* Data Table */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table thead th {
+        padding: 14px 16px;
+        text-align: left;
+        background: var(--bg);
+        color: var(--slate);
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .data-table tbody td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.85rem;
+        color: var(--text);
+        vertical-align: middle;
+    }
+    
+    .data-table tbody tr:hover {
+        background: var(--cream);
+    }
+    
+    .data-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .ref-no {
+        font-weight: 700;
+        color: var(--charcoal);
+        font-family: monospace;
+        font-size: 0.85rem;
+    }
+    
+    /* Badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .badge-approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .badge-completed {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .badge-cancelled {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+    
+    /* View Button - Made VISIBLE by default */
+    .btn-view {
+        background: var(--yellow);
+        color: var(--charcoal);
+        padding: 6px 14px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 700;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--yellow);
+    }
+    
+    .btn-view:hover {
+        background: var(--yellow-accent);
+        border-color: var(--yellow-accent);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+    
+    /* Alternative: Blue button if you prefer */
+    /* .btn-view {
+        background: #3b82f6;
+        color: white;
+        border: 1px solid #3b82f6;
+    }
+    
+    .btn-view:hover {
+        background: #2563eb;
+    } */
+    
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--muted);
+    }
+    
+    .empty-state i {
+        font-size: 56px;
+        margin-bottom: 16px;
+        display: block;
+        opacity: 0.5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .data-table {
+            display: block;
+            overflow-x: auto;
+        }
+        
+        .filter-bar {
+            justify-content: flex-start;
+        }
+        
+        .btn-view {
+            padding: 4px 10px;
+            font-size: 0.65rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="page-heading">
+            <i class="fas fa-calendar-alt"></i> Appointments
+        </h2>
+        <p class="page-description">View and manage all scheduled appointments and blotter hearings</p>
+    </div>
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <a href="?status=" class="filter-btn {% if not status_filter %}active{% endif %}">
+            <i class="fas fa-list"></i> All
+        </a>
+        <a href="?status=pending" class="filter-btn {% if status_filter == 'pending' %}active{% endif %}">
+            <i class="fas fa-clock"></i> Pending
+        </a>
+        <a href="?status=approved" class="filter-btn {% if status_filter == 'approved' %}active{% endif %}">
+            <i class="fas fa-check-circle"></i> Approved
+        </a>
+        <a href="?status=completed" class="filter-btn {% if status_filter == 'completed' %}active{% endif %}">
+            <i class="fas fa-check-double"></i> Completed
+        </a>
+        <a href="?status=cancelled" class="filter-btn {% if status_filter == 'cancelled' %}active{% endif %}">
+            <i class="fas fa-times-circle"></i> Cancelled
+        </a>
+    </div>
+    
+    <!-- Appointments Table -->
+    <div class="section-card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-list-ul"></i>
+                Appointment Requests
+                <span style="font-size: 0.7rem; font-weight: normal; margin-left: 8px; color: var(--muted);">
+                    ({{ appointments|length }} records)
+                </span>
+            </div>
+        </div>
+        
+        {% if appointments %}
+        <div style="overflow-x: auto;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Ref #</th>
+                        <th>Resident Name</th>
+                        <th>Appointment Type</th>
+                        <th>Date & Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for apt in appointments %}
+                    <tr>
+                        <td class="ref-no">{{ apt.reference_number }}</td>
+                        <td>{{ apt.resident_name }}</td>
+                        <td>
+                            {% if apt.appointment_type == 'blotter_hearing' %}
+                                <span style="background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 5px; font-size: 0.7rem;">
+                                    <i class="fas fa-gavel"></i> Blotter Hearing
+                                </span>
+                            {% else %}
+                                <span style="background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 5px; font-size: 0.7rem;">
+                                    <i class="fas fa-calendar-check"></i> Kapitan Appointment
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td style="white-space: nowrap;">
+                            <i class="fas fa-calendar" style="font-size: 0.7rem; margin-right: 5px; color: var(--muted);"></i>
+                            {{ apt.appointment_date|date:"M d, Y" }}
+                            <br>
+                            <i class="fas fa-clock" style="font-size: 0.7rem; margin-right: 5px; color: var(--muted);"></i>
+                            {{ apt.appointment_date|date:"h:i A" }}
+                        </td>
+                        <td>
+                            <span class="badge badge-{{ apt.status }}">
+                                <i class="fas fa-{% if apt.status == 'pending' %}clock{% elif apt.status == 'approved' %}check-circle{% elif apt.status == 'completed' %}check-double{% else %}times-circle{% endif %}"></i>
+                                {{ apt.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'kapitan_portal:appointment_detail' apt.id %}" class="btn-view">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <p>No appointments found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

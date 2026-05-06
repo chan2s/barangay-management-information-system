@@ -1,232 +1,268 @@
-{% extends 'staff_module/dashboard.html' %}
+{% extends 'staff_module/staff_base.html' %}
 {% load static %}
 
-{% block title %}Pending Approvals - Staff Panel{% endblock %}
+{% block title %}Pending Approvals - BIMS{% endblock %}
+{% block nav_pending %}active{% endblock %}
 
 {% block extra_css %}
 <style>
-    .pending-container { padding: 20px; }
-    .pending-card {
-        background: white;
-        border-radius: 10px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    .filter-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
     }
-    .pending-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-    }
-    .pending-badge {
-        background: #ffeaa7;
-        color: #d63031;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 11px;
-        font-weight: 600;
-    }
-    .btn-approve {
-        background: #00b894;
-        color: white;
-        padding: 8px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-size: 13px;
-        display: inline-block;
-    }
-    .btn-approve:hover { background: #009c7a; color: white; }
-    .filter-bar {
-        background: white;
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
-        align-items: center;
-    }
+    .filter-card form { display: flex; gap: 10px; width: 100%; flex-wrap: wrap; align-items: center; }
     .search-input {
-        flex: 1;
+        flex: 1; min-width: 220px;
         padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        min-width: 200px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-family: 'Inter', sans-serif;
+        background: var(--bg);
+        outline: none;
+        transition: border-color 0.15s;
     }
+    .search-input:focus { border-color: #6b7280; background: var(--white); }
     .btn-filter {
-        background: #667eea;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 5px;
+        background: var(--sidebar-bg); color: #fff;
+        border: none; padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 0.78rem; font-weight: 600;
+        font-family: 'Inter', sans-serif;
         cursor: pointer;
+        display: flex; align-items: center; gap: 6px;
+        transition: opacity 0.15s;
     }
+    .btn-filter:hover { opacity: 0.85; }
     .btn-reset {
-        background: #6c757d;
-        color: white;
-        border: none;
-        padding: 8px 20px;
-        border-radius: 5px;
-        cursor: pointer;
+        background: var(--bg); color: var(--muted);
+        border: 1px solid var(--border);
+        padding: 8px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 0.78rem; font-weight: 600;
+        font-family: 'Inter', sans-serif;
         text-decoration: none;
-        display: inline-block;
+        display: flex; align-items: center; gap: 6px;
     }
-    .detail-row { margin-bottom: 8px; }
-    .detail-label {
-        font-weight: 600;
-        width: 130px;
-        display: inline-block;
+    .btn-reset:hover { color: var(--text); }
+
+    .info-bar {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        color: #166534;
+        padding: 10px 16px;
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-bottom: 14px;
     }
-    .empty-state {
+
+    .pending-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 14px;
+        transition: box-shadow 0.15s;
+    }
+    .pending-card:hover { box-shadow: var(--shadow-md); }
+
+    .pending-card-head {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 13px 18px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+    }
+    .pending-blotter-no { font-weight: 700; font-size: 0.88rem; color: var(--text); }
+    .pending-filed { font-size: 0.7rem; color: var(--muted); }
+
+    .badge {
+        display: inline-flex; align-items: center;
+        padding: 3px 9px; border-radius: 20px;
+        font-size: 0.68rem; font-weight: 600;
+    }
+    .badge-waiting { background: #fef3c7; color: #92400e; }
+
+    .pending-card-body {
+        display: grid; grid-template-columns: 1fr 1fr;
+        gap: 0;
+        padding: 0;
+    }
+
+    .info-cell {
+        padding: 10px 18px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.78rem;
+        border-right: 1px solid var(--border);
+    }
+    .info-cell:nth-child(even) { border-right: none; }
+    .info-cell:nth-last-child(-n+2) { border-bottom: none; }
+    .info-cell-label { font-size: 0.67rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 3px; }
+    .info-cell-value { color: var(--text); font-weight: 500; }
+
+    .description-strip {
+        padding: 10px 18px;
+        border-top: 1px solid var(--border);
+        font-size: 0.78rem;
+        color: var(--muted);
+        background: var(--bg);
+    }
+    .description-strip strong { color: var(--text); }
+
+    .pending-card-footer {
+        padding: 12px 18px;
+        border-top: 1px solid var(--border);
+        display: flex; gap: 8px;
+    }
+
+    .btn-review {
+        display: inline-flex; align-items: center; gap: 7px;
+        padding: 8px 16px;
+        background: var(--sidebar-bg); color: #fff;
+        border-radius: var(--radius-sm);
+        font-size: 0.78rem; font-weight: 600;
+        text-decoration: none;
+        transition: opacity 0.15s;
+    }
+    .btn-review:hover { opacity: 0.85; }
+
+    /* Empty state */
+    .empty-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
         text-align: center;
-        padding: 60px;
-        background: white;
-        border-radius: 10px;
+        padding: 60px 20px;
     }
-    .page-title { margin-bottom: 20px; }
-    .page-title h2 { font-size: 24px; }
-    .pagination a {
-        padding: 5px 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        text-decoration: none;
-        color: #667eea;
+    .empty-card i { font-size: 2.5rem; color: var(--green); display: block; margin-bottom: 14px; }
+    .empty-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .empty-card p { font-size: 0.8rem; color: var(--muted); }
+
+    .pagination-bar {
+        display: flex; justify-content: center; align-items: center;
+        gap: 6px; margin-top: 16px;
     }
-    .pagination a:hover { background: #f0f0f0; }
+    .pagination-bar a, .pagination-bar span {
+        padding: 5px 10px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 0.75rem; font-weight: 500;
+        color: var(--muted); text-decoration: none;
+        transition: all 0.15s;
+    }
+    .pagination-bar a:hover { background: var(--bg); color: var(--text); }
+    .pagination-bar .current { background: var(--sidebar-bg); color: #fff; border-color: var(--sidebar-bg); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="pending-container">
-    <div class="page-title">
-        <h2><i class="fas fa-clock"></i> Pending Approvals</h2>
-        <p class="text-muted">Review and approve blotter complaints submitted by residents.</p>
+<h2 class="page-heading">Pending Approvals</h2>
+
+<!-- Search -->
+<div class="filter-card">
+    <form method="get">
+        <input type="text" name="search" class="search-input"
+               placeholder="Search by blotter #, complainant, or respondent..."
+               value="{{ search_query }}">
+        <button type="submit" class="btn-filter"><i class="fas fa-search"></i> Search</button>
+        <a href="{% url 'staff_module:staff_pending_approvals' %}" class="btn-reset"><i class="fas fa-undo"></i> Reset</a>
+    </form>
+</div>
+
+{% if blotters %}
+    <div class="info-bar">
+        <i class="fas fa-clock"></i>
+        <strong>{{ total_pending }}</strong> blotter{{ total_pending|pluralize }} waiting for approval
     </div>
 
-    <div class="filter-bar">
-        <form method="get" style="display: flex; gap: 10px; width: 100%; flex-wrap: wrap;">
-            <input
-                type="text"
-                name="search"
-                class="search-input"
-                placeholder="Search by blotter #, complainant, or respondent..."
-                value="{{ search_query }}"
-            >
-            <button type="submit" class="btn-filter">
-                <i class="fas fa-search"></i> Search
-            </button>
-            <a href="{% url 'staff_module:staff_pending_approvals' %}" class="btn-reset">
-                <i class="fas fa-undo"></i> Reset
-            </a>
-        </form>
-    </div>
-
-    {% if blotters %}
-        <div style="background: #e8f5e9; padding: 10px 15px; border-radius: 5px; margin-bottom: 20px;">
-            <strong>Total Pending:</strong> {{ total_pending }} blotter{{ total_pending|pluralize }} waiting for approval
+    {% for blotter in blotters %}
+    <div class="pending-card">
+        <div class="pending-card-head">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span class="pending-blotter-no">{{ blotter.blotter_number }}</span>
+                <span class="badge badge-waiting"><i class="fas fa-clock"></i> Pending Approval</span>
+            </div>
+            <span class="pending-filed">Filed: {{ blotter.created_at|date:"M d, Y H:i" }}</span>
         </div>
-
-        {% for blotter in blotters %}
-        <div class="pending-card">
-            <div class="pending-header">
-                <div>
-                    <strong style="font-size: 16px;">{{ blotter.blotter_number }}</strong>
-                    <span class="pending-badge" style="margin-left: 10px;">⏳ Pending Approval</span>
-                </div>
-                <small class="text-muted">Filed: {{ blotter.created_at|date:"Y-m-d H:i" }}</small>
+        <div class="pending-card-body">
+            <div class="info-cell">
+                <div class="info-cell-label">Complainant</div>
+                <div class="info-cell-value">{{ blotter.complainant_name }}</div>
             </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Complainant:</span>
-                        <span>{{ blotter.complainant_name }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Respondent:</span>
-                        <span>{{ blotter.respondent_name|default:"—" }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Incident Type:</span>
-                        <span>{{ blotter.get_incident_type_display }}</span>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="detail-row">
-                        <span class="detail-label">Incident Date:</span>
-                        <span>{{ blotter.incident_date|date:"Y-m-d" }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Verification:</span>
-                        <span>
-                            {% if blotter.verification_method == 'email' %}
-                                📧 Email Verified
-                            {% else %}
-                                🆔 Valid ID Uploaded
-                            {% endif %}
-                        </span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Contact:</span>
-                        <span>{{ blotter.complainant_phone|default:"—" }}</span>
-                    </div>
+            <div class="info-cell">
+                <div class="info-cell-label">Respondent</div>
+                <div class="info-cell-value">{{ blotter.respondent_name|default:"—" }}</div>
+            </div>
+            <div class="info-cell">
+                <div class="info-cell-label">Incident Type</div>
+                <div class="info-cell-value">{{ blotter.get_incident_type_display }}</div>
+            </div>
+            <div class="info-cell">
+                <div class="info-cell-label">Incident Date</div>
+                <div class="info-cell-value">{{ blotter.incident_date|date:"M d, Y" }}</div>
+            </div>
+            <div class="info-cell">
+                <div class="info-cell-label">Verification</div>
+                <div class="info-cell-value">
+                    {% if blotter.verification_method == 'email' %}
+                        <i class="fas fa-envelope" style="color:var(--blue);"></i> Email Verified
+                    {% else %}
+                        <i class="fas fa-id-card" style="color:#d97706;"></i> Valid ID Uploaded
+                    {% endif %}
                 </div>
             </div>
-
-            {% if blotter.incident_description %}
-            <div class="detail-row mt-2">
-                <span class="detail-label">Description:</span>
-                <span class="text-muted">{{ blotter.incident_description|truncatechars:120 }}</span>
-            </div>
-            {% endif %}
-
-            <div class="mt-3">
-                <a href="{% url 'staff_module:staff_approve_blotter' blotter.id %}" class="btn-approve">
-                    <i class="fas fa-search"></i> Review & Approve
-                </a>
+            <div class="info-cell">
+                <div class="info-cell-label">Contact</div>
+                <div class="info-cell-value">{{ blotter.complainant_phone|default:"—" }}</div>
             </div>
         </div>
-        {% endfor %}
-
-        <!-- Pagination -->
-        {% if blotters.has_other_pages %}
-        <div class="pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;">
-            {% if blotters.has_previous %}
-                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">« First</a>
-                <a href="?page={{ blotters.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">‹ Prev</a>
-            {% endif %}
-
-            <span style="background: #667eea; color: white; padding: 5px 12px; border-radius: 5px;">
-                Page {{ blotters.number }} of {{ blotters.paginator.num_pages }}
-            </span>
-
-            {% if blotters.has_next %}
-                <a href="?page={{ blotters.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next ›</a>
-                <a href="?page={{ blotters.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last »</a>
-            {% endif %}
+        {% if blotter.incident_description %}
+        <div class="description-strip">
+            <strong>Description:</strong> {{ blotter.incident_description|truncatechars:130 }}
         </div>
         {% endif %}
-
-    {% else %}
-        <div class="empty-state">
-            <i class="fas fa-check-circle" style="font-size: 64px; color: #00b894;"></i>
-            <p style="margin-top: 15px; font-size: 16px; font-weight: 600;">No pending approvals.</p>
-            <p class="text-muted">
-                {% if search_query %}
-                    No blotters matched "<strong>{{ search_query }}</strong>". Try a different search.
-                {% else %}
-                    All submitted blotters have been reviewed.
-                {% endif %}
-            </p>
-            {% if search_query %}
-                <a href="{% url 'staff_module:staff_pending_approvals' %}" class="btn-reset" style="margin-top: 10px;">
-                    <i class="fas fa-undo"></i> Clear Search
-                </a>
-            {% endif %}
+        <div class="pending-card-footer">
+            <a href="{% url 'staff_module:staff_approve_blotter' blotter.id %}" class="btn-review">
+                <i class="fas fa-search"></i> Review & Approve
+            </a>
         </div>
+    </div>
+    {% endfor %}
+
+    {% if blotters.has_other_pages %}
+    <div class="pagination-bar">
+        {% if blotters.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">« First</a>
+            <a href="?page={{ blotters.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">‹ Prev</a>
+        {% endif %}
+        <span class="current">{{ blotters.number }} / {{ blotters.paginator.num_pages }}</span>
+        {% if blotters.has_next %}
+            <a href="?page={{ blotters.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next ›</a>
+            <a href="?page={{ blotters.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last »</a>
+        {% endif %}
+    </div>
     {% endif %}
-</div>
+
+{% else %}
+    <div class="empty-card">
+        <i class="fas fa-check-circle"></i>
+        <h3>No Pending Approvals</h3>
+        <p>
+            {% if search_query %}
+                No blotters matched "<strong>{{ search_query }}</strong>". Try a different search.
+            {% else %}
+                All submitted blotters have been reviewed.
+            {% endif %}
+        </p>
+        {% if search_query %}
+        <a href="{% url 'staff_module:staff_pending_approvals' %}" class="btn-reset" style="display:inline-flex; margin-top: 14px;">
+            <i class="fas fa-undo"></i> Clear Search
+        </a>
+        {% endif %}
+    </div>
+{% endif %}
 {% endblock %}

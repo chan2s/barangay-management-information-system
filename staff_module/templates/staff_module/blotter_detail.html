@@ -1,566 +1,946 @@
+{% extends 'staff_module/staff_base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Blotter Details - BIMS</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+
+{% block title %}Blotter Details - BIMS{% endblock %}
+{% block nav_blotters %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Override content padding for full width */
+    .content {
+        padding: 20px 24px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+    
+    /* Back link */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 500;
+        margin-bottom: 20px;
+        transition: color 0.18s;
+    }
+    .back-link:hover { color: var(--text); }
+
+    /* Page header */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .page-title h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+    }
+    
+    .page-title h1 i {
+        color: var(--yellow);
+        margin-right: 10px;
+    }
+    
+    .blotter-number {
+        font-family: monospace;
+        background: var(--bg);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .meta-badges {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    /* Status badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-scheduled { background: #dbeafe; color: #1e40af; }
+    .badge-in_progress { background: #fed7aa; color: #c2410c; }
+    .badge-resolved { background: #dcfce7; color: #166534; }
+    .badge-approved { background: #d1fae5; color: #065f46; }
+    .badge-unapproved { background: #fef9c3; color: #854d0e; }
+
+    /* 2-Column Layout */
+    .detail-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    /* Cards */
+    .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 20px;
+    }
+    
+    .card:last-child { margin-bottom: 0; }
+
+    .card-header {
+        padding: 14px 20px;
+        border-bottom: 2px solid var(--yellow);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: var(--white);
+    }
+    
+    .card-header i {
+        color: var(--yellow);
+        font-size: 1rem;
+    }
+    
+    .card-header h3 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text);
+    }
+    
+    .card-body {
+        padding: 0;
+    }
+
+    /* Detail rows */
+    .detail-row {
+        display: flex;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .detail-row:last-child { border-bottom: none; }
+    
+    .detail-label {
+        width: 30%;
+        font-weight: 600;
+        color: var(--muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+    
+    .detail-value {
+        width: 70%;
+        color: var(--text);
+        font-size: 0.85rem;
+        font-weight: 500;
+        word-break: break-word;
+    }
+
+    /* Action Buttons - ALL VISIBLE WITHOUT HOVER */
+    .action-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 16px;
+    }
+    
+    .btn-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        width: 100%;
+        cursor: pointer;
+        border: none;
+    }
+    
+    /* Primary button - Charcoal background, visible */
+/* Primary button - Charcoal background, visible */
+.btn-primary { 
+    background: #2d3748 !important; 
+    color: #ffffff !important;
+    border: 1px solid #2d3748 !important;
+}
+.btn-primary:hover { 
+    background: var(--yellow) !important; 
+    color: #2d3748 !important;
+    border-color: var(--yellow) !important;
+    transform: translateY(-1px);
+}
+    
+    /* Success button - Green, visible */
+    .btn-success { 
+        background: #10b981; 
+        color: white;
+        border: 1px solid #10b981;
+    }
+    .btn-success:hover { 
+        background: #059669;
+        transform: translateY(-1px);
+    }
+    
+    /* Warning button - Orange, visible */
+    .btn-warning { 
+        background: #f59e0b; 
+        color: white;
+        border: 1px solid #f59e0b;
+    }
+    .btn-warning:hover { 
+        background: #d97706;
+        transform: translateY(-1px);
+    }
+    
+    /* Approve button - Green, visible */
+    .btn-approve { 
+        background: #22c55e; 
+        color: white;
+        border: 1px solid #22c55e;
+    }
+    .btn-approve:hover { 
+        background: #16a34a;
+        transform: translateY(-1px);
+    }
+    
+    /* Reject button - Red, visible */
+    .btn-reject { 
+        background: #ef4444; 
+        color: white;
+        border: 1px solid #ef4444;
+    }
+    .btn-reject:hover { 
+        background: #dc2626;
+        transform: translateY(-1px);
+    }
+    
+    /* Ghost button - Light gray, visible */
+    .btn-ghost { 
+        background: var(--bg); 
+        color: var(--slate);
+        border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { 
+        background: var(--cream);
+        border-color: var(--yellow);
+    }
+
+    /* Sidebar info items */
+    .info-item {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .info-item:last-child { border-bottom: none; }
+    
+    .info-label {
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    
+    .info-value {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+
+    /* Evidence gallery */
+    .evidence-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 16px;
+        padding: 16px 20px;
+    }
+    
+    .evidence-item {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: var(--white);
+    }
+    
+    .evidence-item:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--yellow);
+    }
+    
+    .evidence-preview {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        background: var(--bg);
+    }
+    
+    .evidence-icon {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--yellow-soft);
+        font-size: 2rem;
+        color: var(--yellow);
+    }
+    
+    .evidence-info {
+        padding: 10px;
+        text-align: center;
+        background: var(--white);
+    }
+    
+    .evidence-title {
+        font-size: 0.7rem;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .evidence-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+    }
+    
+    .evidence-link {
+        flex: 1;
+        font-size: 0.65rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-decoration: none;
+        background: var(--charcoal);
+        color: white;
+        text-align: center;
+    }
+    
+    .evidence-link:hover { background: var(--yellow); color: var(--charcoal); }
+
+    /* Valid ID */
+    .valid-id-container { padding: 16px 20px; }
+    .valid-id-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--cream);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px;
+    }
+    
+    .valid-id-preview {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+    }
+    
+    .valid-id-icon {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--yellow-soft);
+        border-radius: var(--radius-sm);
+        font-size: 2rem;
+        color: var(--yellow);
+    }
+    
+    .valid-id-status {
+        font-size: 0.65rem;
+        padding: 3px 10px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-top: 5px;
+    }
+    
+    .status-verified { background: #d1fae5; color: #065f46; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+
+    /* No evidence */
+    .no-evidence {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--muted);
+    }
+    
+    .no-evidence i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        display: block;
+        opacity: 0.5;
+    }
+
+    /* Modal */
+    .image-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .image-modal.open { display: flex; }
+    
+    .image-modal img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 35px;
+        color: white;
+        font-size: 40px;
+        cursor: pointer;
+    }
+    
+    .close-modal:hover { color: var(--yellow); }
+
+    /* Rejection Modal */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9998;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-overlay.open { display: flex; }
+    
+    .rejection-modal {
+        background: var(--white);
+        border-radius: var(--radius);
+        max-width: 500px;
+        width: 90%;
+        overflow: hidden;
+    }
+    
+    .rejection-modal .modal-header {
+        padding: 20px;
+        background: #ef4444;
+        color: white;
+    }
+    
+    .rejection-modal .modal-body { padding: 20px; }
+    
+    .rejection-modal textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        resize: vertical;
+        margin-top: 10px;
+    }
+    
+    .rejection-modal .modal-footer {
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    /* Responsive */
+    @media (max-width: 1000px) {
+        .detail-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .content {
+            padding: 16px !important;
         }
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f0f2f5;
-            color: #333;
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
         }
         
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 280px;
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-        
-        .sidebar-header {
-            padding: 30px 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .sidebar-header h3 {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-        
-        .nav-menu {
-            padding: 20px 0;
-        }
-        
-        .nav-item {
-            padding: 12px 25px;
-            margin: 5px 0;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-item a {
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 16px;
-        }
-        
-        .nav-item:hover {
-            background: rgba(255,255,255,0.1);
-            padding-left: 30px;
-        }
-        
-        .nav-item.active {
-            background: rgba(255,255,255,0.2);
-            border-left: 4px solid white;
-        }
-        
-        .logout-item {
-            position: absolute;
-            bottom: 20px;
-            width: 100%;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 20px;
-        }
-        
-        .main-content {
-            margin-left: 280px;
-            padding: 20px;
-        }
-        
-        .top-header {
-            background: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        
-        .page-title h2 {
-            font-size: 24px;
-            color: #333;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        
-        .user-avatar {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-        }
-        
-        .detail-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        
-        .detail-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .blotter-number {
-            font-size: 20px;
-            font-weight: 700;
-            color: #667eea;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        
-        .status-pending { background: #ffeaa7; color: #d63031; }
-        .status-scheduled { background: #74b9ff; color: #0984e3; }
-        .status-in_progress { background: #ffa502; color: white; }
-        .status-resolved { background: #55efc4; color: #00b894; }
-        .status-unsettled { background: #ff6b6b; color: white; }
-        .status-closed { background: #dfe6e9; color: #636e72; }
-        
-        .detail-section {
-            margin-bottom: 25px;
-        }
-        
-        .detail-section h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-            font-size: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 15px;
-        }
-        
-        .detail-item {
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
+        .detail-row {
+            flex-direction: column;
+            gap: 4px;
         }
         
         .detail-label {
-            font-size: 12px;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 5px;
+            width: 100%;
         }
         
         .detail-value {
-            font-size: 16px;
-            color: #333;
-            font-weight: 500;
+            width: 100%;
         }
         
-        .description-box {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
+        .evidence-gallery {
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
         }
         
-        .btn-back, .btn-action {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
+        .valid-id-item {
+            flex-direction: column;
+            text-align: center;
         }
         
-        .btn-back:hover, .btn-action:hover {
-            background: #764ba2;
+        .action-group {
+            padding: 12px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .evidence-gallery {
+            grid-template-columns: 1fr;
         }
         
-        .btn-success {
-            background: #00b894;
+        .meta-badges {
+            flex-direction: column;
         }
         
-        .btn-success:hover {
-            background: #00a884;
+        .btn-action {
+            padding: 8px 12px;
+            font-size: 0.75rem;
         }
-        
-        .btn-danger {
-            background: #ff4757;
-        }
-        
-        .btn-danger:hover {
-            background: #ff3747;
-        }
-        
-        .btn-warning {
-            background: #ffa502;
-        }
-        
-        .btn-disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        
-        .btn-disabled:hover {
-            background: #ccc;
-            transform: none;
-        }
-        
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .hearing-item {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .hearing-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        
-        .hearing-status {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        
-        .hearing-status-pending { background: #ffeaa7; color: #d63031; }
-        .hearing-status-completed { background: #55efc4; color: #00b894; }
-        .hearing-status-settled { background: #55efc4; color: #00b894; }
-        .hearing-status-unsettled { background: #ff6b6b; color: white; }
-        .hearing-status-rescheduled { background: #74b9ff; color: #0984e3; }
-        .hearing-status-failed { background: #ff4757; color: white; }
-        
-        .alert-warning {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            color: #856404;
-        }
-        
-        .alert-warning i {
-            margin-right: 10px;
-            color: #d63031;
-        }
-        
-        .outcome-notes {
-            margin-top: 10px;
-            padding: 10px;
-            background: #fff;
-            border-radius: 5px;
-            font-size: 13px;
-            color: #666;
-        }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                left: -280px;
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .hearing-header {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-balance-scale" style="font-size: 48px;"></i>
-            <h3>BIMS</h3>
-            <p>Barangay Poblacion</p>
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <!-- Back button -->
+    <a href="{% url 'staff_module:staff_blotter_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Blotter Records
+    </a>
+
+    <!-- Page header -->
+    <div class="page-header">
+        <div class="page-title">
+            <h1>
+                <i class="fas fa-file-alt"></i> Blotter Details
+                <span class="blotter-number">#{{ blotter.blotter_number }}</span>
+            </h1>
         </div>
-        
-        <div class="nav-menu">
-            <div class="nav-item">
-                <a href="{% url 'staff_module:staff_dashboard' %}">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-item active">
-                <a href="{% url 'staff_module:staff_blotter_list' %}">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Blotter List</span>
-                </a>
-            </div>
-            {% if staff.role == 'admin' %}
-            <div class="nav-item">
-                <a href="{% url 'staff_module:staff_list' %}">
-                    <i class="fas fa-users"></i>
-                    <span>Manage Staff</span>
-                </a>
-            </div>
+        <div class="meta-badges">
+            <span class="badge badge-{{ blotter.status }}">{{ blotter.get_status_display }}</span>
+            {% if blotter.is_approved %}
+                <span class="badge badge-approved"><i class="fas fa-check-circle"></i> Approved</span>
+            {% else %}
+                <span class="badge badge-unapproved"><i class="fas fa-clock"></i> Pending Approval</span>
             {% endif %}
-            
-            <div class="logout-item">
-                <div class="nav-item">
-                    <a href="{% url 'logout' %}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
-    
-    <div class="main-content">
-        <div class="top-header">
-            <div class="page-title">
-                <h2><i class="fas fa-file-alt"></i> Blotter Details</h2>
-            </div>
-            <div class="user-info">
-                <div class="user-details">
-                    <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
-                    <div class="user-role">{{ staff.get_role_display }}</div>
-                </div>
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-            </div>
-        </div>
+
+    <!-- Main 2-column layout -->
+    <div class="detail-layout">
         
-        <div class="detail-card">
-            <div class="detail-header">
-                <span class="blotter-number">
-                    <i class="fas fa-hashtag"></i> {{ blotter.blotter_number }}
-                </span>
-                <span class="status-badge status-{{ blotter.status }}">
-                    {{ blotter.get_status_display }}
-                </span>
+        <!-- LEFT COLUMN -->
+        <div>
+            <!-- Incident Information -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Incident Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Blotter Number</span>
+                        <span class="detail-value"><strong>{{ blotter.blotter_number }}</strong></span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Incident Type</span>
+                        <span class="detail-value">{{ blotter.get_incident_type_display }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Incident Date</span>
+                        <span class="detail-value">{{ blotter.incident_date|date:"F d, Y" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value">{{ blotter.incident_location }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Reported On</span>
+                        <span class="detail-value">{{ blotter.created_at|date:"F d, Y h:i A" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Description</span>
+                        <span class="detail-value">{{ blotter.incident_description|linebreaksbr|truncatewords:50 }}</span>
+                    </div>
+                </div>
             </div>
-            
-            <!-- Warning: No Hearing Scheduled -->
-            {% if not schedules %}
-            <div class="alert-warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                <strong>No Mediation/Conciliation Scheduled!</strong> 
-                Please schedule a hearing date before generating a summon letter.
+
+            <!-- Complainant Information -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user"></i>
+                    <h3>Complainant Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Full Name</span>
+                        <span class="detail-value">{{ blotter.complainant_name }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Address</span>
+                        <span class="detail-value">{{ blotter.complainant_address|default:"Not provided" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Contact</span>
+                        <span class="detail-value">{{ blotter.complainant_phone|default:"Not provided" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value">{{ blotter.complainant_email|default:"Not provided" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Respondent Information -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user-friends"></i>
+                    <h3>Respondent Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="detail-row">
+                        <span class="detail-label">Full Name</span>
+                        <span class="detail-value">{{ blotter.respondent_name|default:"Not specified" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Address</span>
+                        <span class="detail-value">{{ blotter.respondent_address|default:"Not specified" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Contact</span>
+                        <span class="detail-value">{{ blotter.respondent_contact|default:"Not provided" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Valid ID -->
+            {% if blotter.valid_id_file %}
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-id-card"></i>
+                    <h3>Valid ID</h3>
+                </div>
+                <div class="valid-id-container">
+                    <div class="valid-id-item">
+                        {% if blotter.valid_id_file.url|lower|slice:"-3:" in 'jpg,png,gif,jpeg' %}
+                            <img src="{{ blotter.valid_id_file.url }}" alt="Valid ID" class="valid-id-preview" onclick="showFullImage(this.src)">
+                        {% else %}
+                            <div class="valid-id-icon"><i class="fas fa-file-pdf"></i></div>
+                        {% endif %}
+                        <div class="valid-id-info">
+                            <div class="valid-id-type"><strong>{{ blotter.valid_id_type|default:"Valid ID"|upper }}</strong></div>
+                            <div class="valid-id-status status-{% if blotter.id_verification_status == 'verified' %}verified{% elif blotter.id_verification_status == 'rejected' %}rejected{% else %}pending{% endif %}">
+                                <i class="fas fa-{% if blotter.id_verification_status == 'verified' %}check-circle{% elif blotter.id_verification_status == 'rejected' %}times-circle{% else %}clock{% endif %}"></i>
+                                {% if blotter.id_verification_status == 'verified' %}Verified{% elif blotter.id_verification_status == 'rejected' %}Rejected{% else %}Pending{% endif %}
+                            </div>
+                            <div style="margin-top: 10px;">
+                                <a href="{{ blotter.valid_id_file.url }}" target="_blank" class="evidence-link" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;">
+                                    <i class="fas fa-eye"></i> View Document
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             {% endif %}
-            
-            <div class="detail-section">
-                <h3><i class="fas fa-info-circle"></i> Incident Information</h3>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Incident Type</div>
-                        <div class="detail-value">{{ blotter.get_incident_type_display }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Incident Date</div>
-                        <div class="detail-value">{{ blotter.incident_date|date:"F d, Y" }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Incident Location</div>
-                        <div class="detail-value">{{ blotter.incident_location }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Reported On</div>
-                        <div class="detail-value">{{ blotter.created_at|date:"F d, Y h:i A" }}</div>
-                    </div>
+
+            <!-- Supporting Evidence -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-paperclip"></i>
+                    <h3>Supporting Evidence</h3>
                 </div>
-                <div class="description-box">
-                    <div class="detail-label">Incident Description</div>
-                    <div class="detail-value">{{ blotter.incident_description }}</div>
-                </div>
-            </div>
-            
-            <div class="detail-section">
-                <h3><i class="fas fa-user-friends"></i> Parties Involved</h3>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Complainant Name</div>
-                        <div class="detail-value">{{ blotter.complainant_name }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Complainant Contact</div>
-                        <div class="detail-value">{{ blotter.complainant_phone|default:"Not specified" }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Complainant Address</div>
-                        <div class="detail-value">{{ blotter.complainant_address|default:"Not specified" }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Complainant Email</div>
-                        <div class="detail-value">{{ blotter.complainant_email|default:"Not specified" }}</div>
-                    </div>
-                </div>
-                
-                <h3 style="margin-top: 20px;"><i class="fas fa-user"></i> Respondent Information</h3>
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Respondent Name</div>
-                        <div class="detail-value">{{ blotter.respondent_name|default:"Not specified" }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Respondent Contact</div>
-                        <div class="detail-value">{{ blotter.respondent_contact|default:"Not specified" }}</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Respondent Address</div>
-                        <div class="detail-value">{{ blotter.respondent_address|default:"Not specified" }}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Hearing Schedules Section -->
-            <div class="detail-section">
-                <h3><i class="fas fa-calendar-alt"></i> Katarungang Pambarangay Schedule</h3>
-                {% if schedules %}
-                    {% for hearing in schedules %}
-                    <div class="hearing-item">
-                        <div class="hearing-header">
-                            <div>
-                                <strong><i class="fas fa-gavel"></i> 
-                                    {% if hearing.hearing_type == 'initial_mediation' %}Initial Mediation
-                                    {% elif hearing.hearing_type == 'conciliation' %}Conciliation Conference
-                                    {% elif hearing.hearing_type == 'follow_up' %}Follow-up Mediation
-                                    {% elif hearing.hearing_type == 'settlement_meeting' %}Settlement Meeting
-                                    {% elif hearing.hearing_type == 'arbitration' %}Arbitration
-                                    {% elif hearing.hearing_type == 'rescheduled' %}Rescheduled Hearing
-                                    {% else %}{{ hearing.get_hearing_type_display }}{% endif %}
-                                </strong>
+                {% if evidences %}
+                <div class="evidence-gallery">
+                    {% for evidence in evidences %}
+                    <div class="evidence-item" onclick="previewFile('{{ evidence.file.url }}', '{{ evidence.file_type }}')">
+                        {% if evidence.file_type == 'image' %}
+                            <img src="{{ evidence.file.url }}" alt="{{ evidence.title }}" class="evidence-preview">
+                        {% else %}
+                            <div class="evidence-icon">
+                                <i class="fas fa-file-alt"></i>
                             </div>
-                            <div>
-                                <span class="hearing-status 
-                                    {% if hearing.outcome == 'pending' %}hearing-status-pending
-                                    {% elif hearing.outcome == 'completed' %}hearing-status-completed
-                                    {% elif hearing.outcome == 'settled' %}hearing-status-settled
-                                    {% elif hearing.outcome == 'unsettled' %}hearing-status-unsettled
-                                    {% elif hearing.outcome == 'rescheduled' %}hearing-status-rescheduled
-                                    {% elif hearing.outcome == 'failed_complainant' or hearing.outcome == 'failed_respondent' %}hearing-status-failed
-                                    {% endif %}">
-                                    {% if hearing.outcome == 'pending' %}Pending
-                                    {% elif hearing.outcome == 'completed' %}Completed
-                                    {% elif hearing.outcome == 'settled' %}✓ Settled
-                                    {% elif hearing.outcome == 'unsettled' %}Unsettled
-                                    {% elif hearing.outcome == 'rescheduled' %}Rescheduled
-                                    {% elif hearing.outcome == 'failed_complainant' %}❌ Complainant Absent
-                                    {% elif hearing.outcome == 'failed_respondent' %}❌ Respondent Absent
-                                    {% else %}{{ hearing.get_outcome_display }}{% endif %}
-                                </span>
+                        {% endif %}
+                        <div class="evidence-info">
+                            <div class="evidence-title">{{ evidence.title|truncatechars:20 }}</div>
+                            <div class="evidence-actions">
+                                <a href="{{ evidence.file.url }}" target="_blank" class="evidence-link" onclick="event.stopPropagation()">View</a>
                             </div>
-                        </div>
-                        <div>
-                            <i class="fas fa-calendar"></i> <strong>Date of Appearance:</strong> {{ hearing.hearing_date|date:"F d, Y h:i A" }}<br>
-                            <i class="fas fa-map-marker-alt"></i> <strong>Venue:</strong> {{ hearing.location }}<br>
-                            {% if hearing.outcome_notes %}
-                            <div class="outcome-notes">
-                                <i class="fas fa-sticky-note"></i> <strong>Outcome Notes:</strong> {{ hearing.outcome_notes }}
-                            </div>
-                            {% endif %}
-                            {% if hearing.notes %}
-                            <i class="fas fa-info-circle"></i> <strong>Remarks:</strong> {{ hearing.notes }}<br>
-                            {% endif %}
-                        </div>
-                        <div style="margin-top: 12px;">
-                            <a href="{% url 'staff_module:staff_update_hearing_status' hearing.id %}" class="btn-action btn-sm" style="padding: 5px 12px; font-size: 12px;">
-                                <i class="fas fa-edit"></i> Update Session Status
-                            </a>
                         </div>
                     </div>
                     {% endfor %}
+                </div>
                 {% else %}
-                    <p style="color: #999; text-align: center; padding: 20px;">
-                        <i class="fas fa-calendar-times"></i> No mediation/conciliation schedule yet.
-                    </p>
+                <div class="no-evidence">
+                    <i class="fas fa-folder-open"></i>
+                    <p>No supporting evidence uploaded</p>
+                </div>
                 {% endif %}
             </div>
-            
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <a href="{% url 'staff_module:staff_blotter_list' %}" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Back to List
-                </a>
-                <a href="{% url 'staff_module:staff_schedule_hearing' blotter.id %}" class="btn-action">
-                    <i class="fas fa-calendar-plus"></i> Schedule Mediation
-                </a>
-                <a href="{% url 'staff_module:staff_update_status' blotter.id %}" class="btn-action btn-warning">
-                    <i class="fas fa-exchange-alt"></i> Update Case Status
-                </a>
-                
-                <!-- Conditional Summon Button -->
-                {% if schedules %}
-                <a href="{% url 'staff_module:staff_generate_summon' blotter.id %}" class="btn-action">
-                    <i class="fas fa-envelope-open-text"></i> Generate Summon Letter
-                </a>
-                {% else %}
-                <button class="btn-action btn-disabled" disabled onclick="alert('Please schedule a mediation/conciliation hearing first before generating a summon letter.')">
-                    <i class="fas fa-envelope-open-text"></i> Generate Summon Letter (Schedule First)
-                </button>
-                {% endif %}
-                
-                <a href="{% url 'staff_module:staff_upload_evidence' blotter.id %}" class="btn-action">
-                    <i class="fas fa-upload"></i> Upload Evidence
-                </a>
+
+            <!-- Schedule Information -->
+            {% if schedules %}
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h3>Hearing Schedule</h3>
+                </div>
+                <div class="card-body">
+                    {% for schedule in schedules %}
+                    <div class="detail-row">
+                        <span class="detail-label">Hearing Type</span>
+                        <span class="detail-value">{{ schedule.get_hearing_type_display }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Date & Time</span>
+                        <span class="detail-value">{{ schedule.hearing_date|date:"F d, Y h:i A" }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value">{{ schedule.location }}</span>
+                    </div>
+                    {% if schedule.notes %}
+                    <div class="detail-row">
+                        <span class="detail-label">Notes</span>
+                        <span class="detail-value">{{ schedule.notes }}</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+            <!-- Approval Decision -->
+            {% if not blotter.is_approved %}
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-gavel"></i>
+                    <h3>Approval Decision</h3>
+                </div>
+                <div class="action-group">
+                    <button class="btn-action btn-approve" id="approveBlotterBtn">
+                        <i class="fas fa-check-circle"></i> Approve Blotter
+                    </button>
+                    <button class="btn-action btn-reject" id="rejectBlotterBtn">
+                        <i class="fas fa-times-circle"></i> Reject Blotter
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Case Management -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bolt"></i>
+                    <h3>Case Management</h3>
+                </div>
+                <div class="action-group">
+                    <a href="{% url 'staff_module:staff_update_status' blotter.id %}" class="btn-action btn-primary">
+                        <i class="fas fa-edit"></i> Update Status
+                    </a>
+                    <a href="{% url 'staff_module:staff_schedule_hearing' blotter.id %}" class="btn-action btn-success">
+                        <i class="fas fa-calendar-plus"></i> Schedule Hearing
+                    </a>
+                    <a href="{% url 'staff_module:staff_upload_evidence' blotter.id %}" class="btn-action btn-primary">
+                        <i class="fas fa-upload"></i> Upload Evidence
+                    </a>
+                    <a href="{% url 'staff_module:staff_generate_summon' blotter.id %}" class="btn-action btn-warning">
+                        <i class="fas fa-file-pdf"></i> Generate Summon
+                    </a>
+                </div>
+            </div>
+
+            <!-- Case Summary -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Case Summary</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="info-label">Blotter Number</div>
+                        <div class="info-value"><strong>{{ blotter.blotter_number }}</strong></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Verification Method</div>
+                        <div class="info-value">
+                            {% if blotter.verification_method == 'email' %}
+                                <i class="fas fa-envelope"></i> Email Verified
+                            {% elif blotter.verification_method == 'id_card' %}
+                                <i class="fas fa-id-card"></i> Valid ID
+                            {% else %}
+                                {{ blotter.verification_method|default:"N/A" }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Approval Status</div>
+                        <div class="info-value">
+                            {% if blotter.is_approved %}
+                                <span style="color: #10b981;"><i class="fas fa-check-circle"></i> Approved</span>
+                            {% else %}
+                                <span style="color: #f59e0b;"><i class="fas fa-clock"></i> Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Date Filed</div>
+                        <div class="info-value">{{ blotter.created_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<!-- Rejection Modal -->
+<div id="rejectionModal" class="modal-overlay">
+    <div class="rejection-modal">
+        <div class="modal-header">
+            <i class="fas fa-exclamation-triangle"></i> Reject Blotter
+        </div>
+        <div class="modal-body">
+            <p>Please provide a reason for rejecting this blotter:</p>
+            <textarea id="rejectionReason" rows="3" placeholder="Enter rejection reason..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-action btn-ghost" id="cancelRejectBtn">Cancel</button>
+            <button class="btn-action btn-reject" id="confirmRejectBtn">
+                <i class="fas fa-check"></i> Confirm Rejection
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Lightbox -->
+<div id="imageModal" class="image-modal" onclick="closeModal()">
+    <span class="close-modal">&times;</span>
+    <img id="modalImage" src="">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const approveBtn = document.getElementById('approveBlotterBtn');
+    if (approveBtn) {
+        approveBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Approve Blotter?',
+                html: `Are you sure you want to approve <strong>Blotter #{{ blotter.blotter_number }}</strong>?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#22c55e',
+                confirmButtonText: 'Yes, Approve',
+                cancelButtonText: 'Cancel',
+                showLoaderOnConfirm: true,
+                preConfirm: () => {
+                    return fetch(`/staff/blotters/{{ blotter.id }}/approve-action/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'approve' })
+                    }).then(async r => { if (!r.ok) throw new Error('Network error'); return r.json(); });
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Approved!', text: `Blotter #{{ blotter.blotter_number }} approved.`, icon: 'success' })
+                        .then(() => window.location.reload());
+                }
+            });
+        });
+    }
+
+    const rejectBtn = document.getElementById('rejectBlotterBtn');
+    const rejectModal = document.getElementById('rejectionModal');
+    const confirmReject = document.getElementById('confirmRejectBtn');
+    const cancelReject = document.getElementById('cancelRejectBtn');
+    const rejectReason = document.getElementById('rejectionReason');
+
+    if (rejectBtn) rejectBtn.addEventListener('click', () => rejectModal.classList.add('open'));
+    if (cancelReject) cancelReject.addEventListener('click', () => { rejectModal.classList.remove('open'); rejectReason.value = ''; });
+
+    if (confirmReject) {
+        confirmReject.addEventListener('click', function() {
+            const reason = rejectReason.value.trim();
+            if (!reason) { alert('Please provide a rejection reason.'); return; }
+            Swal.fire({
+                title: 'Reject Blotter?',
+                text: `Are you sure you want to reject Blotter #{{ blotter.blotter_number }}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                confirmButtonText: 'Yes, Reject',
+                preConfirm: () => {
+                    return fetch(`/staff/blotters/{{ blotter.id }}/approve-action/`, {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'reject', rejection_reason: reason })
+                    }).then(async r => { if (!r.ok) throw new Error('Network error'); return r.json(); });
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    Swal.fire({ title: 'Rejected!', text: `Blotter #{{ blotter.blotter_number }} rejected.`, icon: 'success' })
+                        .then(() => window.location.href = "{% url 'staff_module:staff_pending_approvals' %}");
+                }
+            });
+        });
+    }
+
+    window.addEventListener('click', e => { if (e.target === rejectModal) { rejectModal.classList.remove('open'); rejectReason.value = ''; } });
+
+    function previewFile(fileUrl, fileType) {
+        if (fileType === 'image') { showFullImage(fileUrl); }
+        else { window.open(fileUrl, '_blank'); }
+    }
+
+    function showFullImage(src) { document.getElementById('modalImage').src = src; document.getElementById('imageModal').classList.add('open'); }
+    function closeModal() { document.getElementById('imageModal').classList.remove('open'); }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); if (rejectModal) rejectModal.classList.remove('open'); } });
+</script>
+{% endblock %}

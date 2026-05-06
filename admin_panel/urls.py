@@ -10,4 +10,8 @@ urlpatterns = [
     path('users/edit/<int:user_id>/', views.user_edit, name='user_edit'),
     path('users/delete/<int:user_id>/', views.user_delete, name='user_delete'),
     path('settings/', views.system_settings, name='system_settings'),
+    path('audit-log/', views.audit_log, name='audit_log'),
+    path('audit-log/export/', views.export_audit_log, name='export_audit_log'),
+    path('backup/', views.backup_database, name='backup_database'),
+    path('health/', views.system_health, name='system_health'),
 ]

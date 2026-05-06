@@ -1,556 +1,151 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Staff Dashboard - BIMS</title>
-    <!-- Google Fonts + Font Awesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* ---------- RESET & BASE (BLACK & WHITE THEME) ---------- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #f4f5f7;
-            color: #1e1e2f;
-        }
+{% block title %}Staff Dashboard - BIMS{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
 
-        /* ---------- SIDEBAR (PURE B&W, NO GRADIENTS) ---------- */
-        .sidebar {
-            position: fixed;
-            left: 0;
-            top: 0;
-            width: 280px;
-            height: 100%;
-            background: #111111;
-            color: #e0e0e0;
-            box-shadow: 3px 0 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.2s ease;
-            z-index: 1000;
-            border-right: 1px solid #2c2c2c;
-        }
+{% block content %}
+<h2 class="page-heading">Dashboard</h2>
 
-        .sidebar-header {
-            padding: 28px 20px;
-            text-align: center;
-            border-bottom: 1px solid #2c2c2c;
-        }
-        .sidebar-header i {
-            font-size: 44px;
-            color: #dddddd;
-        }
-        .sidebar-header h3 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-top: 12px;
-            letter-spacing: -0.3px;
-            color: #ffffff;
-        }
-        .sidebar-header p {
-            font-size: 12px;
-            opacity: 0.7;
-            margin-top: 6px;
-            color: #aaa;
-        }
-
-        .nav-menu {
-            padding: 20px 0;
-        }
-        .nav-item {
-            padding: 12px 24px;
-            margin: 4px 0;
-            transition: 0.2s;
-        }
-        .nav-item a {
-            color: #e0e0e0;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 15px;
-            font-weight: 500;
-        }
-        .nav-item:hover {
-            background: #1f1f2b;
-            padding-left: 28px;
-        }
-        .nav-item.active {
-            background: #2a2a35;
-            border-left: 3px solid #ffffff;
-        }
-        .nav-item i {
-            width: 26px;
-            font-size: 1.2rem;
-        }
-
-        .logout-item {
-            position: absolute;
-            bottom: 24px;
-            width: 100%;
-            border-top: 1px solid #2c2c2c;
-            padding-top: 18px;
-        }
-
-        /* ---------- MAIN CONTENT AREA ---------- */
-        .main-content {
-            margin-left: 280px;
-            padding: 24px 32px;
-            min-height: 100vh;
-        }
-
-        /* Top header / navbar (light card) */
-        .top-header {
-            background: #ffffff;
-            padding: 16px 28px;
-            border-radius: 18px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
-            border: 1px solid #e9ecef;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 32px;
-        }
-        .page-title h2 {
-            font-size: 1.7rem;
-            font-weight: 700;
-            color: #000000;
-            letter-spacing: -0.3px;
-        }
-        .page-title h2 i {
-            color: #2c2c2c;
-            margin-right: 10px;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-        .user-details {
-            text-align: right;
-        }
-        .user-name {
-            font-weight: 700;
-            color: #111;
-            font-size: 1rem;
-        }
-        .user-role {
-            font-size: 12px;
-            color: #555;
-            margin-top: 2px;
-        }
-        .user-avatar {
-            width: 44px;
-            height: 44px;
-            background: #2c2c2c;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.3rem;
-        }
-
-        /* stats grid (monochrome) */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 22px;
-            margin-bottom: 32px;
-        }
-        .stat-card {
-            background: #ffffff;
-            padding: 22px 20px;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-            border: 1px solid #eef2f5;
-            transition: all 0.2s;
-        }
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.05);
-            border-color: #ccc;
-        }
-        .stat-icon {
-            width: 58px;
-            height: 58px;
-            background: #1f1f2b;
-            border-radius: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            color: white;
-        }
-        .stat-info h3 {
-            font-size: 30px;
-            font-weight: 800;
-            color: #000000;
-        }
-        .stat-info p {
-            color: #4a4a4a;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        /* welcome banner - solid dark/light B&W */
-        .welcome-banner {
-            background: #1e1e2a;
-            border-radius: 24px;
-            padding: 32px 34px;
-            color: #f0f0f0;
-            margin-bottom: 32px;
-            border: 1px solid #333;
-        }
-        .welcome-banner h2 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #ffffff;
-        }
-        .welcome-banner p {
-            opacity: 0.85;
-            font-size: 15px;
-        }
-
-        /* staff card (white cards) */
-        .staff-card {
-            background: #ffffff;
-            border-radius: 24px;
-            padding: 24px 28px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
-            border: 1px solid #eef2f5;
-            margin-bottom: 32px;
-        }
-        .staff-card h3 {
-            color: #111;
-            margin-bottom: 22px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .staff-card h3 i {
-            color: #2c2c2c;
-        }
-
-        /* info rows (for staff info) */
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #edf2f7;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #3a3a44;
-        }
-        .info-value {
-            color: #1a1a1a;
-        }
-
-        /* role badges B&W */
-        .role-badge {
-            display: inline-block;
-            padding: 5px 14px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .role-admin { background: #111; color: white; }
-        .role-barangay_official { background: #444; color: white; }
-        .role-secretary { background: #2c3e4e; color: white; }
-        .role-treasurer { background: #2d2d2d; color: white; }
-        .role-staff { background: #5a5a6e; color: white; }
-        .role-kapitan { background: #c9a03d; color: #1a2a3a; }
-
-        /* data tables */
-        .data-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-        .data-table thead tr {
-            background: #f8fafc;
-            border-bottom: 1px solid #dee2e6;
-        }
-        .data-table th {
-            text-align: left;
-            padding: 14px 12px;
-            font-weight: 700;
-            color: #1e293b;
-        }
-        .data-table td {
-            padding: 14px 12px;
-            border-bottom: 1px solid #f0f2f5;
-            color: #2d3e50;
-        }
-        .data-table tbody tr:hover {
-            background: #fbfdff;
-        }
-
-        /* status badges simplified B&W */
-        .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 40px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-pending { background: #efefef; color: #8b5e3c; border: 1px solid #ccc; }
-        .status-scheduled { background: #e9ecef; color: #1e466e; }
-        .status-in_progress { background: #e2e3e5; color: #2c3e50; }
-        .status-resolved { background: #eaf6ee; color: #1f4f2b; border: 1px solid #b9d8c1; }
-        .status-closed { background: #f1f3f5; color: #4b5563; }
-
-        /* view button */
-        .view-btn {
-            background: #1e1e2f;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: 0.2s;
-        }
-        .view-btn:hover {
-            background: #000000;
-        }
-
-        /* hearing item B&W */
-        .hearing-item {
-            background: #fefefe;
-            padding: 18px;
-            border-radius: 16px;
-            margin-bottom: 14px;
-            border: 1px solid #eef2f6;
-            transition: 0.1s;
-        }
-        .hearing-item strong {
-            color: #111;
-        }
-        .empty-state {
-            text-align: center;
-            padding: 48px 20px;
-            color: #7f8c8d;
-        }
-        .empty-state i {
-            font-size: 48px;
-            margin-bottom: 16px;
-            opacity: 0.7;
-        }
-
-        /* quick actions (monochrome style) */
-        .quick-actions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 18px;
-        }
-        .action-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 18px;
-            background: #f9fafc;
-            border-radius: 18px;
-            text-decoration: none;
-            color: #1f2937;
-            border: 1px solid #eef2f8;
-            transition: 0.2s;
-        }
-        .action-card:hover {
-            background: #ffffff;
-            border-color: #aaa;
-            transform: translateY(-2px);
-        }
-        .action-card i {
-            font-size: 28px;
-            color: #2d3748;
-        }
-        .action-card strong {
-            font-weight: 700;
-        }
-        .action-card p {
-            font-size: 12px;
-            margin-top: 4px;
-            color: #5e6f8d;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { left: -280px; }
-            .main-content { margin-left: 0; padding: 20px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .data-table { display: block; overflow-x: auto; white-space: nowrap; }
-        }
-
-        /* Additional small touches */
-        .fa, .fas, .far {
-            pointer-events: none;
-        }
-        hr {
-            border-color: #e2e8f0;
-        }
-    </style>
-    {% block extra_css %}{% endblock %}
-</head>
-<body>
-
-    <!-- Sidebar B&W No gradients -->
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <i class="fas fa-balance-scale"></i>
-            <h3>BIMS</h3>
-            <p>Barangay Management System</p>
-        </div>
-        <div class="nav-menu">
-            <!-- Show different menu for Kapitan vs Regular Staff -->
-            {% if staff.role == 'kapitan' %}
-            <div class="nav-item active">
-                <a href="{% url 'kapitan_portal:dashboard' %}">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Appointments</span>
-                </a>
-            </div>
-            {% else %}
-            <div class="nav-item {% block nav_dashboard %}{% endblock %}">
-                <a href="{% url 'staff_module:staff_dashboard' %}">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            <div class="nav-item {% block nav_blotters %}{% endblock %}">
-                <a href="{% url 'staff_module:staff_blotter_list' %}">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Blotter List</span>
-                </a>
-            </div>
-            <div class="nav-item">
-                <a href="{% url 'certificates:request_list' %}">
-                    <i class="fas fa-file-certificate"></i>
-                    <span>Certificate Requests</span>
-                </a>
-            </div>
-            <div class="nav-item {% block nav_pending %}{% endblock %}">
-                <a href="{% url 'staff_module:staff_pending_approvals' %}">
-                    <i class="fas fa-clock"></i>
-                    <span>Pending Approvals</span>
-                </a>
-            </div>
-            {% if staff.role == 'admin' %}
-            <div class="nav-item {% block nav_staff %}{% endblock %}">
-                <a href="{% url 'staff_module:staff_list' %}">
-                    <i class="fas fa-users"></i>
-                    <span>Manage Staff</span>
-                </a>
-            </div>
-            {% endif %}
-            {% endif %}
-            <div class="logout-item">
-                <div class="nav-item">
-                    <a href="{% url 'logout' %}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Logout</span>
-                    </a>
-                </div>
-            </div>
+<!-- Stats Row -->
+{% comment %} <div class="stats-row">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+        <div>
+            <div class="stat-label">Total Residents</div>
+            <div class="stat-value">{{ total_residents|default:"4,892" }}</div>
+            <div class="stat-sub">+1.2% this week</div>
         </div>
     </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-
-        <!-- Top Header (shared) -->
-        <div class="top-header">
-            <div class="page-title">
-                <h2>{% block page_heading %}<i class="fas fa-tachometer-alt"></i> Staff Dashboard{% endblock %}</h2>
-            </div>
-            <div class="user-info">
-                <div class="user-details">
-                    <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
-                    <div class="user-role">{{ staff.get_role_display }}</div>
-                </div>
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+        <div>
+            <div class="stat-label">Pending Requests</div>
+            <div class="stat-value">{{ pending|default:0 }}</div>
         </div>
-
-        {% block content %}
-        <!-- Default dashboard content (all sections remain, no deletions) -->
-        <div class="welcome-banner">
-            <h2>Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
-            <p>Manage blotter records and barangay cases efficiently from your dashboard.</p>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+        <div>
+            <div class="stat-label">"For Approval" Requests</div>
+            <div class="stat-value">{{ for_approval|default:0 }}</div>
         </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+        <div>
+            <div class="stat-label">Approved Today</div>
+            <div class="stat-value">{{ approved_today|default:0 }}</div>
+        </div>
+    </div>
+</div> {% endcomment %}
 
-        <!-- Recent Blotters Table -->
-        <div class="staff-card">
-            <h3><i class="fas fa-history"></i> Recent Blotters</h3>
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr><th>Blotter #</th><th>Complainant</th><th>Respondent</th><th>Incident Type</th><th>Status</th><th>Date Filed</th><th>Action</th></td>
-                    </thead>
-                    <tbody>
-                        {% for blotter in recent_blotters %}
-                        <tr>
-                            <td><strong>{{ blotter.blotter_number }}</strong></td>
-                            <td>{{ blotter.complainant_name|truncatechars:30 }}</td>
-                            <td>{{ blotter.respondent_name|default:"N/A"|truncatechars:30 }}</td>
-                            <tr>{{ blotter.get_incident_type_display|truncatechars:20 }}</div>
-                            <td><span class="status-badge status-{{ blotter.status }}">{{ blotter.get_status_display }}</span></td>
-                            <td>{{ blotter.created_at|date:"Y-m-d" }}</td>
-                            <td><a href="{% url 'staff_module:staff_blotter_detail' blotter.id %}" class="view-btn"><i class="fas fa-eye"></i> View</a></td>
-                        </tr>
-                        {% empty %}
-                        <tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><p>No blotter records found</p></td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<!-- Main Grid -->
+<div class="main-grid">
+    <!-- Table Card -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Certificate Requests Table</span>
+            <div class="card-actions">
+                <a href="{% url 'certificates:request_list' %}" class="btn-outline">View All</a>
             </div>
         </div>
-
-        <!-- Today's Hearings -->
-        <div class="staff-card">
-            <h3><i class="fas fa-calendar-day"></i> Today's Hearings</h3>
-            {% if today_hearings %}
-                {% for hearing in today_hearings %}
-                <div class="hearing-item">
-                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;">
-                        <div>
-                            <strong>{{ hearing.blotter.blotter_number }}</strong>
-                            <div style="margin-top:5px;"><i class="fas fa-user"></i> {{ hearing.blotter.complainant_name }} vs {{ hearing.blotter.respondent_name|default:"Respondent" }}</div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Reference No.</th>
+                    <th>Resident Name</th>
+                    <th>Certificate Type</th>
+                    <th>Date Requested</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in recent_certificates %}
+                <tr>
+                    <td class="ref-no">{{ req.reference_number }}</td>
+                    <td class="resident-name">{{ req.resident_name }}</td>
+                    <td>{{ req.certificate_type }}</td>
+                    <td>{{ req.date_requested|date:"M d, Y" }}</td>
+                    <td>
+                        {% if req.status == 'pending' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% elif req.status == 'processing' %}
+                            <span class="badge badge-processing">Processing</span>
+                        {% elif req.status == 'for_approval' %}
+                            <span class="badge badge-forapproval">For Approval</span>
+                        {% elif req.status == 'approved' %}
+                            <span class="badge badge-approved">Approved</span>
+                        {% elif req.status == 'released' %}
+                            <span class="badge badge-released">Released</span>
+                        {% else %}
+                            <span class="badge badge-pending">{{ req.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-group">
+                            <a href="{% url 'certificates:process' req.id %}" class="btn-action btn-dark">Process</a>
+                            {% if req.status == 'processing' %}
+                                <a href="{% url 'certificates:send_approval' req.id %}" class="btn-action btn-dark">Send for Approval</a>
+                            {% else %}
+                                <button class="btn-action btn-ghost" disabled>Send for Approval</button>
+                            {% endif %}
+                            <a href="{% url 'certificates:view' req.id %}" class="btn-action btn-ghost">View</a>
                         </div>
-                        <span style="background:#2c2c34; color:white; padding:5px 12px; border-radius:40px; font-size:12px;">
-                            <i class="fas fa-clock"></i> {{ hearing.hearing_date|time:"h:i A" }}
-                        </span>
-                    </div>
-                    <div style="margin-top:12px; font-size:14px;"><i class="fas fa-map-marker-alt"></i> {{ hearing.location }}</div>
-                    {% if hearing.notes %}
-                    <div style="margin-top:8px; font-size:13px; color:#5b6e8c;"><i class="fas fa-sticky-note"></i> {{ hearing.notes|truncatechars:100 }}</div>
-                    {% endif %}
-                </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <!-- Placeholder rows for empty state -->
+                <tr>
+                    <td colspan="6" style="text-align:center; padding:40px; color:var(--muted); font-size:0.82rem;">
+                        <i class="fas fa-inbox" style="font-size:1.5rem; display:block; margin-bottom:8px;"></i>
+                        No certificate requests found
+                    </td>
+                </tr>
                 {% endfor %}
-            {% else %}
-                <div class="empty-state">
-                    <i class="fas fa-calendar-check"></i>
-                    <p>No hearings scheduled for today.</p>
-                </div>
-            {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Actions Log -->
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">Recent Actions Log</span>
         </div>
-        {% endblock %}
-    </div><!-- end main-content -->
-</body>
-</html>
+        <div class="log-list">
+            {% for log in recent_logs %}
+            <div class="log-item">
+                <div class="log-dot"></div>
+                <div>
+                    <div class="log-text">{{ log.description }}</div>
+                    <div class="log-time">{{ log.timestamp|timesince }} ago</div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="log-item">
+                <div class="log-dot"></div>
+                <div>
+                    <div class="log-text">Processed Certificate for Juan D. Cruz</div>
+                    <div class="log-time">10 minutes ago</div>
+                </div>
+            </div>
+            <div class="log-item">
+                <div class="log-dot"></div>
+                <div>
+                    <div class="log-text">Sent Indigency for Approval (Jose L. Pangan)</div>
+                    <div class="log-time">10 minutes ago</div>
+                </div>
+            </div>
+            <div class="log-item">
+                <div class="log-dot"></div>
+                <div>
+                    <div class="log-text">Updated Resident Info for Maria S. Makiling</div>
+                    <div class="log-time">10 minutes ago</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

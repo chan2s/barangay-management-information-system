@@ -16,17 +16,16 @@
         padding: 40px;
         text-align: center;
         box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        border: 1px solid #e0e0e0;
     }
     .success-icon {
         width: 80px;
         height: 80px;
         background: #28a745;
         border-radius: 50%;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin: 0 auto 20px;
+        margin-bottom: 20px;
     }
     .success-icon i {
         font-size: 40px;
@@ -37,45 +36,25 @@
         padding: 20px;
         border-radius: 10px;
         margin: 25px 0;
-        border-left: 4px solid #667eea;
-    }
-    .tracking-label {
-        font-size: 12px;
-        text-transform: uppercase;
-        color: #666;
-        letter-spacing: 1px;
+        border-left: 4px solid #2c3e52;
     }
     .tracking-number {
         font-size: 24px;
         font-weight: bold;
-        color: #667eea;
+        color: #2c3e52;
         font-family: monospace;
-        letter-spacing: 1px;
     }
     .status-badge {
         display: inline-block;
         padding: 5px 15px;
         border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
         background: #ffeaa7;
         color: #d63031;
-    }
-    .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    .info-label {
+        font-size: 12px;
         font-weight: 600;
-        color: #555;
-    }
-    .info-value {
-        color: #333;
     }
     .btn-home {
-        background: #667eea;
+        background: #2c3e52;
         color: white;
         padding: 12px 30px;
         border-radius: 8px;
@@ -83,9 +62,15 @@
         display: inline-block;
         margin-top: 20px;
     }
-    .btn-home:hover {
-        background: #764ba2;
+    .btn-track {
+        background: #17a2b8;
         color: white;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 20px;
+        margin-left: 10px;
     }
     .note {
         margin-top: 20px;
@@ -95,6 +80,23 @@
         font-size: 13px;
         color: #856404;
     }
+    .upload-summary {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 15px;
+        text-align: left;
+    }
+    .upload-summary h4 {
+        font-size: 14px;
+        margin-bottom: 10px;
+        color: #2c3e52;
+    }
+    .upload-item {
+        font-size: 12px;
+        padding: 5px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
 </style>
 {% endblock %}
 
@@ -102,11 +104,11 @@
 <div class="confirmation-container">
     <div class="confirmation-card">
         <div class="success-icon">
-            <i class="bi bi-check-lg"></i>
+            <i class="fas fa-check"></i>
         </div>
         
         <h2>Request Submitted Successfully!</h2>
-        <p>Your certificate request has been received and is now pending review.</p>
+        <p>Your certificate request has been received.</p>
         
         <div class="tracking-box">
             <div class="tracking-label">YOUR TRACKING NUMBER</div>
@@ -115,29 +117,31 @@
             <div><span class="status-badge">{{ status|title }}</span></div>
         </div>
         
-        <div class="info-row">
-            <span class="info-label">Certificate Type:</span>
-            <span class="info-value">{{ request_type }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Submitted By:</span>
-            <span class="info-value">{{ full_name }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Date Submitted:</span>
-            <span class="info-value">{{ submitted_date }}</span>
+        <div class="upload-summary">
+            <h4>📎 Documents Submitted:</h4>
+            {% if valid_id %}
+            <div class="upload-item">✅ Valid ID - Uploaded</div>
+            {% endif %}
+            {% if proof_residency %}
+            <div class="upload-item">✅ Proof of Residency - Uploaded</div>
+            {% endif %}
+            {% if photo %}
+            <div class="upload-item">✅ 2x2 Photo - Uploaded</div>
+            {% endif %}
         </div>
         
         <div class="note">
-            <i class="bi bi-info-circle-fill me-2"></i>
+            <i class="fas fa-info-circle"></i>
             <strong>What's next?</strong><br>
-            Your request is pending staff approval. Once approved, you will be notified to claim your certificate at the Barangay Hall. 
+            Your request is pending staff review. Once processed, it will be sent for Kapitan approval.
+            You will be notified once your certificate is ready for claiming.
             Please present your tracking number when claiming.
         </div>
         
-        <a href="/" class="btn-home">
-            <i class="bi bi-house-door me-2"></i> Back to Home
-        </a>
+        <div>
+            <a href="/" class="btn-home">Back to Home</a>
+            <a href="{% url 'certificates:track_request' %}" class="btn-track">Track Request</a>
+        </div>
     </div>
 </div>
 {% endblock %}

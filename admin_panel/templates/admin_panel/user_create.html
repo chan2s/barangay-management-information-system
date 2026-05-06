@@ -1,0 +1,236 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+
+{% block title %}Create User - Admin Panel{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .form-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid var(--yellow);
+    }
+    
+    .card-header h2 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text);
+    }
+    
+    .card-header h2 i {
+        color: var(--yellow);
+    }
+    
+    .card-body {
+        padding: 24px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--slate);
+        margin-bottom: 6px;
+    }
+    
+    .form-group label i {
+        margin-right: 6px;
+        color: var(--yellow);
+    }
+    
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: var(--yellow);
+        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    
+    .help-text {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-top: 5px;
+    }
+    
+    .btn-submit {
+        background: var(--charcoal);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: var(--radius-sm);
+        font-weight: 700;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-submit:hover {
+        background: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    .btn-cancel {
+        background: transparent;
+        color: var(--slate);
+        border: 1px solid var(--border);
+        padding: 12px 24px;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    
+    .btn-cancel:hover {
+        background: var(--cream);
+        border-color: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    .required-star {
+        color: #ef4444;
+        margin-left: 3px;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="card-header">
+            <h2>
+                <i class="fas fa-user-plus"></i>
+                Create New User
+            </h2>
+        </div>
+        
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Username <span class="required-star">*</span></label>
+                        <input type="text" name="username" placeholder="Enter username" required>
+                        <div class="help-text">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email <span class="required-star">*</span></label>
+                        <input type="email" name="email" placeholder="user@example.com" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> First Name</label>
+                        <input type="text" name="first_name" placeholder="First name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Last Name</label>
+                        <input type="text" name="last_name" placeholder="Last name">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password <span class="required-star">*</span></label>
+                        <input type="password" name="password" placeholder="Enter password" required>
+                        <div class="help-text">Minimum 8 characters. Cannot be too common or entirely numeric.</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirm Password <span class="required-star">*</span></label>
+                        <input type="password" name="confirm_password" placeholder="Confirm password" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-tag"></i> Role</label>
+                        <select name="role">
+                            <option value="user">Resident / User</option>
+                            <option value="staff">Staff</option>
+                            <option value="kapitan">Kapitan</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-briefcase"></i> Position</label>
+                        <input type="text" name="position" placeholder="e.g., Barangay Secretary">
+                        <div class="help-text">Optional - for staff members</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> Contact Number</label>
+                    <input type="text" name="contact_number" placeholder="09123456789">
+                    <div class="help-text">Optional - format: 11 digits</div>
+                </div>
+                
+                <div style="margin-top: 24px; display: flex; gap: 16px;">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i> Create User
+                    </button>
+                    <a href="{% url 'admin_panel:user_list' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

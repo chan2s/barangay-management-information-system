@@ -1,0 +1,312 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Reports Dashboard - BIMS{% endblock %}
+{% block nav_reports %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reports-container {
+        padding: 20px;
+    }
+    
+    .report-header {
+        margin-bottom: 30px;
+    }
+    
+    .report-header h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+    
+    .report-header p {
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+    
+    .report-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+    
+    .report-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        padding: 24px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--yellow);
+    }
+    
+    .report-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--yellow-soft);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+    
+    .report-icon i {
+        font-size: 28px;
+        color: var(--yellow);
+    }
+    
+    .report-card h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+    
+    .report-card p {
+        color: var(--muted);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        margin-bottom: 16px;
+    }
+    
+    .report-stats {
+        display: flex;
+        gap: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+    
+    .report-stat {
+        flex: 1;
+    }
+    
+    .report-stat .label {
+        font-size: 0.7rem;
+        color: var(--muted);
+    }
+    
+    .report-stat .value {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+    
+    .date-range-form {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        padding: 20px;
+        margin-bottom: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: flex-end;
+    }
+    
+    .date-group {
+        flex: 1;
+        min-width: 180px;
+    }
+    
+    .date-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+    
+    .date-group input, .date-group select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+    }
+    
+    .btn-generate {
+        background: var(--charcoal);
+        color: var(--white);
+        border: none;
+        padding: 10px 24px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .btn-generate:hover {
+        background: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    @media (max-width: 768px) {
+        .date-range-form {
+            flex-direction: column;
+        }
+        .date-group {
+            width: 100%;
+        }
+        .report-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reports-container">
+    <div class="report-header">
+        <h2><i class="fas fa-chart-bar" style="color: var(--yellow);"></i> Reports Dashboard</h2>
+        <p>Generate and export reports for blotter cases, certificates, and hearings</p>
+    </div>
+    
+    <!-- Date Range Filter -->
+    <form method="get" class="date-range-form" id="dateRangeForm">
+        <div class="date-group">
+            <label><i class="fas fa-calendar-alt"></i> Date From</label>
+            <input type="date" name="date_from" id="date_from" value="{{ date_from }}">
+        </div>
+        <div class="date-group">
+            <label><i class="fas fa-calendar-alt"></i> Date To</label>
+            <input type="date" name="date_to" id="date_to" value="{{ date_to }}">
+        </div>
+        <div class="date-group">
+            <label><i class="fas fa-chart-line"></i> Report Type</label>
+            <select id="reportTypeSelect">
+                <option value="">-- Select Report --</option>
+                <option value="summary">Summary Report</option>
+                <option value="blotter">Blotter Report</option>
+                <option value="certificate">Certificate Report</option>
+                <option value="hearing">Hearing Report</option>
+            </select>
+        </div>
+        <div class="date-group">
+            <button type="button" class="btn-generate" onclick="generateReport()">
+                <i class="fas fa-chart-line"></i> Generate Report
+            </button>
+        </div>
+    </form>
+    
+    <!-- Report Cards -->
+    <div class="report-cards">
+        <a href="{% url 'staff_module:summary_report' %}" class="report-card">
+            <div class="report-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+            <h3>Summary Report</h3>
+            <p>Overall dashboard summary including blotters, certificates, and hearings statistics</p>
+            <div class="report-stats">
+                <div class="report-stat">
+                    <div class="label">Total Blotters</div>
+                    <div class="value">{{ total_blotters|default:"-" }}</div>
+                </div>
+                <div class="report-stat">
+                    <div class="label">Certificates</div>
+                    <div class="value">{{ total_certificates|default:"-" }}</div>
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'staff_module:blotter_report' %}" class="report-card">
+            <div class="report-icon">
+                <i class="fas fa-gavel"></i>
+            </div>
+            <h3>Blotter Report</h3>
+            <p>Detailed blotter cases analysis with incident types and status breakdown</p>
+            <div class="report-stats">
+                <div class="report-stat">
+                    <div class="label">Total Cases</div>
+                    <div class="value">{{ total_blotters|default:"-" }}</div>
+                </div>
+                <div class="report-stat">
+                    <div class="label">Resolved</div>
+                    <div class="value">{{ resolved_blotters|default:"-" }}</div>
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'staff_module:certificate_report' %}" class="report-card">
+            <div class="report-icon">
+                <i class="fas fa-file-certificate"></i>
+            </div>
+            <h3>Certificate Report</h3>
+            <p>Certificate requests analysis with approval rates and trends</p>
+            <div class="report-stats">
+                <div class="report-stat">
+                    <div class="label">Total Requests</div>
+                    <div class="value">{{ total_certificates|default:"-" }}</div>
+                </div>
+                <div class="report-stat">
+                    <div class="label">Approved</div>
+                    <div class="value">{{ approved_certificates|default:"-" }}</div>
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'staff_module:hearing_report' %}" class="report-card">
+            <div class="report-icon">
+                <i class="fas fa-gavel"></i>
+            </div>
+            <h3>Hearing Report</h3>
+            <p>Mediation and hearing outcomes analysis</p>
+            <div class="report-stats">
+                <div class="report-stat">
+                    <div class="label">Total Hearings</div>
+                    <div class="value">{{ total_hearings|default:"-" }}</div>
+                </div>
+                <div class="report-stat">
+                    <div class="label">Settled</div>
+                    <div class="value">{{ settled_hearings|default:"-" }}</div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<script>
+    function generateReport() {
+        const reportType = document.getElementById('reportTypeSelect').value;
+        const dateFrom = document.getElementById('date_from').value;
+        const dateTo = document.getElementById('date_to').value;
+        
+        if (!reportType) {
+            alert('Please select a report type');
+            return;
+        }
+        
+        let url = '';
+        switch(reportType) {
+            case 'summary':
+                url = "{% url 'staff_module:summary_report' %}";
+                break;
+            case 'blotter':
+                url = "{% url 'staff_module:blotter_report' %}";
+                break;
+            case 'certificate':
+                url = "{% url 'staff_module:certificate_report' %}";
+                break;
+            case 'hearing':
+                url = "{% url 'staff_module:hearing_report' %}";
+                break;
+        }
+        
+        if (dateFrom) url += `?date_from=${dateFrom}`;
+        if (dateTo) url += `${dateFrom ? '&' : '?'}date_to=${dateTo}`;
+        
+        window.location.href = url;
+    }
+</script>
+{% endblock %}

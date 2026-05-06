@@ -1,0 +1,165 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Appointment Details - BIMS{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+
+{% block content %}
+<div class="appointment-detail">
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <h2 class="page-heading">Appointment Details</h2>
+        <div style="display: flex; gap: 12px;">
+            <a href="{% url 'staff_module:appointment_list' %}" class="btn-outline" style="padding: 8px 16px; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <a href="{% url 'staff_module:appointment_update_status' appointment.id %}" class="btn-dark" style="padding: 8px 16px; text-decoration: none; background: var(--charcoal); color: white; border-radius: 6px;">
+                <i class="fas fa-edit"></i> Update Status
+            </a>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <span class="card-title">
+                {% if appointment.appointment_type == 'blotter_hearing' %}
+                    <i class="fas fa-gavel"></i> Blotter Hearing Appointment
+                {% else %}
+                    <i class="fas fa-calendar-check"></i> Kapitan Appointment
+                {% endif %}
+                - {{ appointment.reference_number }}
+            </span>
+        </div>
+        <div class="card-body" style="padding: 24px;">
+            
+            <!-- Status Banner -->
+            <div style="background: {{ appointment.get_status_color }}10; border-left: 4px solid {{ appointment.get_status_color }}; padding: 15px; margin-bottom: 24px; border-radius: 6px;">
+                <strong>Status:</strong> 
+                <span style="color: {{ appointment.get_status_color }}; font-weight: 600;">{{ appointment.get_status_display }}</span>
+                {% if appointment.approved_at %}
+                    | Approved on: {{ appointment.approved_at|date:"M d, Y h:i A" }}
+                {% endif %}
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Left Column -->
+                <div>
+                    <h4 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--yellow);">Appointment Information</h4>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Reference Number:</strong>
+                        <div>{{ appointment.reference_number }}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Type:</strong>
+                        <div>
+                            {% if appointment.appointment_type == 'blotter_hearing' %}
+                                <span style="background: #dbeafe; color: #1e40af; padding: 4px 10px; border-radius: 5px;">Blotter Hearing</span>
+                            {% else %}
+                                <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 5px;">Kapitan Appointment</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Date & Time:</strong>
+                        <div>{{ appointment.appointment_date|date:"F d, Y h:i A" }}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Duration:</strong>
+                        <div>{{ appointment.duration_minutes }} minutes</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Priority:</strong>
+                        <div>
+                            <span style="background: {{ appointment.get_priority_color }}20; color: {{ appointment.get_priority_color }}; padding: 4px 10px; border-radius: 5px;">
+                                {{ appointment.get_priority_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if appointment.hearing_type %}
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Hearing Type:</strong>
+                        <div>{{ appointment.get_hearing_type_display|default:appointment.hearing_type }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if appointment.location %}
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Location:</strong>
+                        <div>{{ appointment.location }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Purpose:</strong>
+                        <div style="background: var(--bg); padding: 12px; border-radius: 6px; margin-top: 5px;">
+                            {{ appointment.purpose|linebreaksbr }}
+                        </div>
+                    </div>
+                    
+                    {% if appointment.notes %}
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Notes:</strong>
+                        <div style="background: var(--bg); padding: 12px; border-radius: 6px; margin-top: 5px;">
+                            {{ appointment.notes|linebreaksbr }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Right Column -->
+                <div>
+                    <h4 style="margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--yellow);">Resident Information</h4>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Full Name:</strong>
+                        <div>{{ appointment.resident_name }}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Address:</strong>
+                        <div>{{ appointment.resident_address }}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Contact Number:</strong>
+                        <div>{{ appointment.resident_contact|default:"N/A" }}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Email:</strong>
+                        <div>{{ appointment.resident_email|default:"N/A" }}</div>
+                    </div>
+                    
+                    {% if appointment.blotter %}
+                    <h4 style="margin-top: 24px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid var(--yellow);">Related Blotter</h4>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Blotter Number:</strong>
+                        <div>{{ appointment.blotter.blotter_number }}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Incident Type:</strong>
+                        <div>{{ appointment.blotter.get_incident_type_display }}</div>
+                    </div>
+                    
+                    <div style="margin-bottom: 12px;">
+                        <strong style="color: var(--muted);">Respondent:</strong>
+                        <div>{{ appointment.blotter.respondent_name|default:"N/A" }}</div>
+                    </div>
+                    
+                    <a href="{% url 'staff_module:staff_blotter_detail' appointment.blotter.id %}" class="btn-dark" style="display: inline-block; padding: 8px 16px; text-decoration: none; background: var(--charcoal); color: white; border-radius: 6px; margin-top: 12px;">
+                        <i class="fas fa-file-alt"></i> View Blotter Details
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
