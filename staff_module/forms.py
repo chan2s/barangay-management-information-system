@@ -41,6 +41,7 @@ class AppointmentForm(forms.ModelForm):
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Barangay Poblacion Session Hall'}),
             'notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Additional notes...'}),
         }
+        
 class AppointmentStatusForm(forms.Form):
     status = forms.ChoiceField(choices=Appointment.STATUS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2}), required=False)

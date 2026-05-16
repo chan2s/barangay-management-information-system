@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <style>
+    /* Updated colors to match appointment list */
     .announcement-header {
         display: flex;
         justify-content: space-between;
@@ -27,7 +28,7 @@
         margin-right: 10px;
     }
     
-    /* View Toggle */
+    /* View Toggle - Updated colors */
     .view-toggle {
         display: flex;
         gap: 8px;
@@ -47,32 +48,34 @@
     }
     
     .view-btn.active {
-        background: var(--yellow);
-        color: var(--charcoal);
+        background: var(--sidebar-bg);
+        color: #fff;
     }
     
-    /* Create Button */
+    /* Create Button - Updated to match appointment list */
     .btn-create {
-        background: var(--yellow);
-        color: var(--charcoal);
-        padding: 10px 20px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
         border-radius: var(--radius-sm);
         text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        font-weight: 700;
-        transition: all 0.2s;
-        border: 2px solid var(--yellow);
+        gap: 6px;
+        transition: opacity 0.15s;
     }
     
     .btn-create:hover {
-        background: var(--yellow-accent);
-        border-color: var(--yellow-accent);
-        transform: translateY(-2px);
+        opacity: 0.85;
+        color: #fff;
+        transform: none;
     }
     
-    /* Filter Bar */
+    /* Filter Bar - Updated colors */
     .filter-bar {
         display: flex;
         gap: 10px;
@@ -93,22 +96,23 @@
         border-radius: 20px;
         text-decoration: none;
         font-size: 0.8rem;
-        font-weight: 600;
+        font-weight: 500;
+        transition: all 0.2s;
         background: var(--white);
         color: var(--slate);
         border: 1px solid var(--border);
-        transition: all 0.2s;
     }
     
     .filter-btn:hover {
         background: var(--yellow-soft);
         border-color: var(--yellow);
+        color: var(--charcoal);
     }
     
     .filter-btn.active {
-        background: var(--yellow);
-        color: var(--charcoal);
-        border-color: var(--yellow);
+        background: var(--sidebar-bg);
+        color: #fff;
+        border-color: var(--sidebar-bg);
     }
     
     /* Announcements Grid */
@@ -123,7 +127,7 @@
         grid-template-columns: 1fr;
     }
     
-    /* Announcement Card */
+    /* Announcement Card - Updated colors */
     .announcement-card {
         background: var(--white);
         border-radius: var(--radius);
@@ -137,7 +141,7 @@
     
     .announcement-card:hover {
         transform: translateY(-4px);
-        box-shadow: var(--shadow-md);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
     .announcement-priority {
@@ -156,9 +160,9 @@
     }
     
     .announcement-title {
-        font-family: 'DM Serif Display', serif;
-        font-size: 1.1rem;
-        color: var(--charcoal);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
         margin-bottom: 12px;
         display: flex;
         align-items: center;
@@ -167,19 +171,20 @@
         line-height: 1.3;
     }
     
+    /* Priority Badges - Updated colors */
     .priority-badge {
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        padding: 2px 10px;
+        padding: 3px 8px;
         border-radius: 20px;
-        font-size: 0.65rem;
+        font-size: 0.66rem;
         font-weight: 600;
     }
     
-    .priority-normal-badge { background: #e9ecef; color: #6c757d; }
-    .priority-important-badge { background: #fff3cd; color: #856404; }
-    .priority-urgent-badge { background: #f8d7da; color: #721c24; }
+    .priority-normal-badge { background: #f3f4f6; color: #6b7280; }
+    .priority-important-badge { background: #fef3c7; color: #92400e; }
+    .priority-urgent-badge { background: #fee2e2; color: #991b1b; }
     
     .announcement-meta {
         font-size: 0.7rem;
@@ -200,7 +205,7 @@
     
     .announcement-content {
         color: var(--slate);
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         line-height: 1.6;
         margin-bottom: 16px;
         flex: 1;
@@ -218,9 +223,10 @@
         margin-top: 12px;
     }
     
+    /* Action Buttons - Updated to match appointment list */
     .announcement-actions {
         display: flex;
-        gap: 10px;
+        gap: 8px;
         padding-top: 16px;
         margin-top: auto;
         border-top: 1px solid var(--border);
@@ -228,62 +234,57 @@
     }
     
     .btn-icon {
-        padding: 6px 12px;
-        border-radius: var(--radius-sm);
+        padding: 4px 10px;
+        border-radius: 5px;
         text-decoration: none;
         font-size: 0.7rem;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        transition: all 0.2s;
+        gap: 4px;
+        transition: opacity 0.15s;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .btn-icon:hover {
+        opacity: 0.8;
     }
     
     .btn-edit {
-        background: var(--charcoal);
-        color: var(--white);
-        border: 1px solid var(--charcoal);
+        background: #1a1d23;
+        color: #fff;
     }
     
-    .btn-edit:hover {
-        background: var(--yellow);
-        color: var(--charcoal);
-        border-color: var(--yellow);
+    .btn-toggle {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+    }
+    
+    .btn-toggle:hover {
+        color: var(--text);
     }
     
     .btn-delete {
         background: #dc3545;
-        color: white;
-        border: 1px solid #dc3545;
+        color: #fff;
     }
     
-    .btn-delete:hover {
-        background: #c82333;
-    }
-    
-    .btn-toggle {
-        background: #6c757d;
-        color: white;
-        border: 1px solid #6c757d;
-    }
-    
-    .btn-toggle:hover {
-        background: #5a6268;
-    }
-    
+    /* Status Badges - Updated colors */
     .status-badge {
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.65rem;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.66rem;
         font-weight: 600;
     }
     
     .status-inactive {
-        background: #e5e7eb;
-        color: #4b5563;
+        background: #f3f4f6;
+        color: #6b7280;
     }
     
     .status-expired {
@@ -293,7 +294,7 @@
     
     .empty-state {
         text-align: center;
-        padding: 60px 20px;
+        padding: 48px 20px;
         background: var(--white);
         border-radius: var(--radius);
         border: 1px solid var(--border);
@@ -301,45 +302,50 @@
     }
     
     .empty-state i {
-        font-size: 56px;
-        margin-bottom: 16px;
+        font-size: 2rem;
+        margin-bottom: 10px;
         display: block;
-        opacity: 0.5;
+        opacity: 0.4;
     }
     
-    /* Pagination */
+    .empty-state p {
+        font-size: 0.82rem;
+    }
+    
+    /* Pagination - Updated colors */
     .pagination {
         margin-top: 24px;
         display: flex;
         justify-content: center;
-        gap: 8px;
+        gap: 6px;
         align-items: center;
     }
     
     .pagination a {
-        padding: 6px 14px;
-        border-radius: var(--radius-sm);
+        padding: 5px 10px;
+        border-radius: 6px;
         text-decoration: none;
-        color: var(--slate);
+        color: var(--muted);
         background: var(--white);
         border: 1px solid var(--border);
-        font-size: 0.8rem;
-        transition: all 0.2s;
+        font-size: 0.75rem;
+        font-weight: 500;
+        transition: all 0.15s;
     }
     
     .pagination a:hover {
-        background: var(--yellow);
-        color: var(--charcoal);
-        border-color: var(--yellow);
+        background: var(--bg);
+        color: var(--text);
     }
     
     .pagination .current {
-        padding: 6px 14px;
-        background: var(--yellow);
-        color: var(--charcoal);
-        border-radius: var(--radius-sm);
-        font-weight: 600;
-        font-size: 0.8rem;
+        padding: 5px 10px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        border-color: var(--sidebar-bg);
     }
     
     /* List View Specific */
@@ -399,6 +405,15 @@
         
         .view-toggle {
             align-self: flex-start;
+        }
+        
+        .announcement-actions {
+            width: 100%;
+        }
+        
+        .btn-icon {
+            flex: 1;
+            justify-content: center;
         }
     }
 </style>
@@ -495,7 +510,7 @@
         <div class="empty-state">
             <i class="fas fa-bullhorn"></i>
             <p>No announcements yet.</p>
-            <p style="font-size: 0.8rem; margin-top: 8px;">Click "New Announcement" to create one.</p>
+            <p style="font-size: 0.75rem; margin-top: 8px;">Click "New Announcement" to create one.</p>
         </div>
         {% endfor %}
     </div>
@@ -510,7 +525,7 @@
         {% endif %}
         
         <span class="current">
-            Page {{ announcements.number }} of {{ announcements.paginator.num_pages }}
+            {{ announcements.number }} / {{ announcements.paginator.num_pages }}
         </span>
         
         {% if announcements.has_next %}

@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required  # ✅ FIX: added import
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.db.models import Q  # ✅ FIX: was missing, caused NameError in get_public_announcements
 from staff_module.models import Staff, AuditLog
 from staff_module.models import Announcement
 from django.utils import timezone
@@ -61,16 +63,18 @@ def login_view(request):
     return render(request, 'login.html', context)
 
 def logout_view(request):
-    if request.user.is_authenticated:
-        AuditLog.objects.create(
-            user=request.user,
-            user_role=request.user.staff_profile.role if hasattr(request.user, 'staff_profile') else 'public',
-            action='logout',
-            module='auth',
-            description=f'User {request.user.username} logged out',
-            ip_address=get_client_ip(request)
-        )
-    logout(request)
+    # ✅ FIX: only log out on POST — base.html logout is now a POST form
+    if request.method == 'POST':
+        if request.user.is_authenticated:
+            AuditLog.objects.create(
+                user=request.user,
+                user_role=request.user.staff_profile.role if hasattr(request.user, 'staff_profile') else 'public',
+                action='logout',
+                module='auth',
+                description=f'User {request.user.username} logged out',
+                ip_address=get_client_ip(request)
+            )
+        logout(request)
     return redirect('login')
 
 def signup_view(request):
@@ -105,6 +109,8 @@ def signup_view(request):
     
     return render(request, 'signup.html', context)
 
+# ✅ FIX: @login_required added — unauthenticated users are redirected to login
+@login_required(login_url='login')
 def dashboard(request):
     """Regular user dashboard (public)"""
     return render(request, 'dashboard.html')
@@ -117,7 +123,8 @@ def get_public_announcements(request):
         is_active=True,
         scheduled_date__lte=timezone.now()
     ).filter(
-        models.Q(expires_at__isnull=True) | models.Q(expires_at__gt=timezone.now())
+        # ✅ FIX: was models.Q which caused NameError — now uses Q imported from django.db.models
+        Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
     ).order_by('-priority', '-created_at')[:10]
     
     return announcements

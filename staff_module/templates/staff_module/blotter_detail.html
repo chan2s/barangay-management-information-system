@@ -81,8 +81,9 @@
     .badge-resolved { background: #dcfce7; color: #166534; }
     .badge-approved { background: #d1fae5; color: #065f46; }
     .badge-unapproved { background: #fef9c3; color: #854d0e; }
+    .badge-unsettled { background: #fee2e2; color: #991b1b; }
 
-    /* 2-Column Layout */
+    /* 2-Column Layout - Responsive */
     .detail-layout {
         display: grid;
         grid-template-columns: 1fr 320px;
@@ -108,6 +109,7 @@
         align-items: center;
         gap: 10px;
         background: var(--white);
+        flex-wrap: wrap;
     }
     
     .card-header i {
@@ -152,7 +154,7 @@
         word-break: break-word;
     }
 
-    /* Action Buttons - ALL VISIBLE WITHOUT HOVER */
+    /* Action Buttons */
     .action-group {
         display: flex;
         flex-direction: column;
@@ -176,21 +178,18 @@
         border: none;
     }
     
-    /* Primary button - Charcoal background, visible */
-/* Primary button - Charcoal background, visible */
-.btn-primary { 
-    background: #2d3748 !important; 
-    color: #ffffff !important;
-    border: 1px solid #2d3748 !important;
-}
-.btn-primary:hover { 
-    background: var(--yellow) !important; 
-    color: #2d3748 !important;
-    border-color: var(--yellow) !important;
-    transform: translateY(-1px);
-}
+    .btn-primary { 
+        background: #2d3748 !important; 
+        color: #ffffff !important;
+        border: 1px solid #2d3748 !important;
+    }
+    .btn-primary:hover { 
+        background: var(--yellow) !important; 
+        color: #2d3748 !important;
+        border-color: var(--yellow) !important;
+        transform: translateY(-1px);
+    }
     
-    /* Success button - Green, visible */
     .btn-success { 
         background: #10b981; 
         color: white;
@@ -201,7 +200,6 @@
         transform: translateY(-1px);
     }
     
-    /* Warning button - Orange, visible */
     .btn-warning { 
         background: #f59e0b; 
         color: white;
@@ -212,7 +210,6 @@
         transform: translateY(-1px);
     }
     
-    /* Approve button - Green, visible */
     .btn-approve { 
         background: #22c55e; 
         color: white;
@@ -223,7 +220,6 @@
         transform: translateY(-1px);
     }
     
-    /* Reject button - Red, visible */
     .btn-reject { 
         background: #ef4444; 
         color: white;
@@ -234,7 +230,6 @@
         transform: translateY(-1px);
     }
     
-    /* Ghost button - Light gray, visible */
     .btn-ghost { 
         background: var(--bg); 
         color: var(--slate);
@@ -243,6 +238,16 @@
     .btn-ghost:hover { 
         background: var(--cream);
         border-color: var(--yellow);
+    }
+    
+    .btn-hearing {
+        background: #f59e0b;
+        color: white;
+        border: 1px solid #f59e0b;
+    }
+    .btn-hearing:hover {
+        background: #d97706;
+        transform: translateY(-1px);
     }
 
     /* Sidebar info items */
@@ -271,7 +276,7 @@
         flex-wrap: wrap;
     }
 
-    /* Evidence gallery */
+    /* Evidence gallery - Responsive */
     .evidence-gallery {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
@@ -354,6 +359,7 @@
         border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         padding: 16px;
+        flex-wrap: wrap;
     }
     
     .valid-id-preview {
@@ -483,8 +489,50 @@
         gap: 10px;
         justify-content: flex-end;
     }
+    
+    /* Hearing Info Alert */
+    .hearing-alert {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 12px 16px;
+        margin: 16px;
+        border-radius: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .hearing-alert i {
+        color: #3b82f6;
+        font-size: 1rem;
+        margin-top: 2px;
+    }
+    
+    .hearing-alert-content {
+        flex: 1;
+    }
+    
+    .hearing-alert-content strong {
+        font-size: 0.75rem;
+        color: #1e40af;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .hearing-alert-content p {
+        font-size: 0.7rem;
+        color: #1e3a8a;
+        margin: 0;
+    }
+    
+    .hearing-alert-content a {
+        color: #1e40af;
+        text-decoration: underline;
+        margin-top: 5px;
+        display: inline-block;
+    }
 
-    /* Responsive */
+    /* Responsive Breakpoints */
     @media (max-width: 1000px) {
         .detail-layout {
             grid-template-columns: 1fr;
@@ -516,6 +564,8 @@
         
         .evidence-gallery {
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            padding: 12px 16px;
         }
         
         .valid-id-item {
@@ -526,6 +576,27 @@
         .action-group {
             padding: 12px;
         }
+        
+        .card-header {
+            padding: 10px 16px;
+        }
+        
+        .card-header h3 {
+            font-size: 0.8rem;
+        }
+        
+        .badge {
+            padding: 4px 10px;
+            font-size: 0.65rem;
+        }
+        
+        .info-item {
+            padding: 10px 14px;
+        }
+        
+        .info-value {
+            font-size: 0.8rem;
+        }
     }
     
     @media (max-width: 480px) {
@@ -535,11 +606,103 @@
         
         .meta-badges {
             flex-direction: column;
+            width: 100%;
+        }
+        
+        .badge {
+            justify-content: center;
         }
         
         .btn-action {
             padding: 8px 12px;
             font-size: 0.75rem;
+        }
+        
+        .page-title h1 {
+            font-size: 1.2rem;
+            word-break: break-word;
+        }
+        
+        .blotter-number {
+            font-size: 0.7rem;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .detail-row {
+            padding: 10px 14px;
+        }
+        
+        .detail-label {
+            font-size: 0.7rem;
+        }
+        
+        .detail-value {
+            font-size: 0.8rem;
+        }
+        
+        .evidence-item {
+            max-width: 100%;
+        }
+        
+        .evidence-preview,
+        .evidence-icon {
+            height: 100px;
+        }
+        
+        .rejection-modal .modal-header {
+            padding: 15px;
+            font-size: 1rem;
+        }
+        
+        .rejection-modal .modal-body {
+            padding: 15px;
+        }
+        
+        .rejection-modal textarea {
+            padding: 8px;
+        }
+        
+        .rejection-modal .modal-footer {
+            padding: 12px 15px;
+        }
+        
+        .modal-footer .btn-action {
+            padding: 6px 12px;
+            font-size: 0.7rem;
+        }
+        
+        .hearing-alert {
+            margin: 12px;
+            padding: 10px 12px;
+        }
+        
+        .hearing-alert-content strong {
+            font-size: 0.7rem;
+        }
+        
+        .hearing-alert-content p {
+            font-size: 0.65rem;
+        }
+    }
+    
+    @media (max-width: 360px) {
+        .page-title h1 {
+            font-size: 1rem;
+        }
+        
+        .btn-action {
+            padding: 6px 10px;
+            font-size: 0.7rem;
+        }
+        
+        .badge {
+            padding: 3px 8px;
+            font-size: 0.6rem;
+        }
+        
+        .detail-row {
+            padding: 8px 12px;
         }
     }
 </style>
@@ -722,12 +885,12 @@
                 {% endif %}
             </div>
 
-            <!-- Schedule Information -->
+            <!-- Hearing Schedule Information with UPDATE HEARING OUTCOME BUTTON -->
             {% if schedules %}
             <div class="card">
                 <div class="card-header">
                     <i class="fas fa-calendar-alt"></i>
-                    <h3>Hearing Schedule</h3>
+                    <h3>Hearing/Mediation Schedule</h3>
                 </div>
                 <div class="card-body">
                     {% for schedule in schedules %}
@@ -743,12 +906,61 @@
                         <span class="detail-label">Location</span>
                         <span class="detail-value">{{ schedule.location }}</span>
                     </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Outcome</span>
+                        <span class="detail-value">
+                            {% if schedule.outcome == 'settled' %}
+                                <span class="badge badge-resolved"><i class="fas fa-check-circle"></i> Settled</span>
+                            {% elif schedule.outcome == 'unsettled' %}
+                                <span class="badge badge-unsettled"><i class="fas fa-times-circle"></i> Unsettled</span>
+                            elif schedule.outcome == 'completed' %}
+                                <span class="badge badge-scheduled"><i class="fas fa-check"></i> Completed</span>
+                            {% else %}
+                                <span class="badge badge-pending"><i class="fas fa-clock"></i> {{ schedule.get_outcome_display }}</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if schedule.outcome_notes %}
+                    <div class="detail-row">
+                        <span class="detail-label">Outcome Notes</span>
+                        <span class="detail-value">{{ schedule.outcome_notes }}</span>
+                    </div>
+                    {% endif %}
                     {% if schedule.notes %}
                     <div class="detail-row">
-                        <span class="detail-label">Notes</span>
+                        <span class="detail-label">Schedule Notes</span>
                         <span class="detail-value">{{ schedule.notes }}</span>
                     </div>
                     {% endif %}
+                    
+                    <!-- UPDATE HEARING OUTCOME BUTTON -->
+                    {% if not schedule.outcome == 'settled' and not schedule.outcome == 'unsettled' %}
+                    <div style="padding: 12px 20px;">
+                        <a href="{% url 'staff_module:staff_update_hearing_status' schedule.id %}" class="btn-action btn-hearing">
+                            <i class="fas fa-check-circle"></i> Update Hearing Outcome
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Hearing completed alert -->
+                    {% if schedule.outcome == 'settled' %}
+                    <div class="hearing-alert">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="hearing-alert-content">
+                            <strong>✓ Hearing Completed - Settled</strong>
+                            <p>The blotter status has been automatically updated to RESOLVED.</p>
+                        </div>
+                    </div>
+                    {% elif schedule.outcome == 'unsettled' %}
+                    <div class="hearing-alert">
+                        <i class="fas fa-times-circle"></i>
+                        <div class="hearing-alert-content">
+                            <strong>✗ Hearing Completed - Unsettled</strong>
+                            <p>The blotter status has been automatically updated to UNSETTLED.</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
                     {% endfor %}
                 </div>
             </div>
@@ -787,9 +999,6 @@
                     </a>
                     <a href="{% url 'staff_module:staff_schedule_hearing' blotter.id %}" class="btn-action btn-success">
                         <i class="fas fa-calendar-plus"></i> Schedule Hearing
-                    </a>
-                    <a href="{% url 'staff_module:staff_upload_evidence' blotter.id %}" class="btn-action btn-primary">
-                        <i class="fas fa-upload"></i> Upload Evidence
                     </a>
                     <a href="{% url 'staff_module:staff_generate_summon' blotter.id %}" class="btn-action btn-warning">
                         <i class="fas fa-file-pdf"></i> Generate Summon

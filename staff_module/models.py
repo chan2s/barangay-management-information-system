@@ -146,6 +146,7 @@ class Appointment(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('completed', 'Completed'),
+        ('rejected', 'Rejected'),
         ('cancelled', 'Cancelled'),
         ('rescheduled', 'Rescheduled'),
     ]

@@ -807,7 +807,7 @@
                 <div class="user-pill">
                     <div class="user-pill-info">
                         <div class="user-pill-name">{{ user.get_full_name|default:user.username }}</div>
-                        <div class="user-pill-role">{{ staff.get_role_display|default:"Staff" }} <i class="fas fa-chevron-down" style="font-size:0.55rem;"></i></div>
+                        <div class="user-pill-role">{{ staff.get_role_display|default:"Staff" }}</div>
                     </div>
                     <div class="user-avatar-initials">{{ user.username|slice:":1"|upper }}</div>
                 </div>

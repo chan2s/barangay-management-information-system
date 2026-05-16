@@ -134,6 +134,38 @@
         border-color: var(--yellow);
     }
     
+    /* Quick Filter Buttons */
+    .quick-filters {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .quick-filter-btn {
+        padding: 6px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: var(--bg);
+        color: var(--slate);
+        border: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+    
+    .quick-filter-btn:hover {
+        background: var(--yellow-soft);
+        border-color: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    .quick-filter-btn.active {
+        background: var(--sidebar-bg);
+        color: white;
+        border-color: var(--sidebar-bg);
+    }
+    
     /* Result Count */
     .result-count {
         font-size: 0.8rem;
@@ -270,10 +302,10 @@
         color: #92400e;
     }
     
-    /* View Button - MADE VISIBLE */
+    /* View Button - FIXED: Always visible and stays in Kapitan portal */
     .view-btn {
-        background: var(--yellow);
-        color: var(--charcoal);
+        background: #1a1d23;
+        color: white;
         padding: 6px 16px;
         border-radius: var(--radius-sm);
         text-decoration: none;
@@ -283,12 +315,13 @@
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        border: 1px solid var(--yellow);
+        border: 1px solid #1a1d23;
     }
     
     .view-btn:hover {
-        background: var(--yellow-accent);
-        border-color: var(--yellow-accent);
+        background: #f5d300;
+        color: #1a1d23;
+        border-color: #f5d300;
         transform: translateY(-2px);
         box-shadow: var(--shadow-sm);
     }
@@ -366,7 +399,7 @@
         }
         
         table {
-            min-width: 700px;
+            min-width: 800px;
         }
         
         .view-btn {
@@ -385,6 +418,25 @@
             <i class="fas fa-gavel"></i> Katarungang Pambarangay Hearings
         </h2>
         <p class="page-description">Manage and monitor all scheduled mediation and conciliation hearings</p>
+    </div>
+    
+    <!-- Quick Filter Buttons -->
+    <div class="quick-filters">
+        <a href="?status=" class="quick-filter-btn {% if not status_filter %}active{% endif %}">
+            <i class="fas fa-list"></i> All
+        </a>
+        <a href="?status=pending" class="quick-filter-btn {% if status_filter == 'pending' %}active{% endif %}">
+            <i class="fas fa-clock"></i> Pending
+        </a>
+        <a href="?status=scheduled" class="quick-filter-btn {% if status_filter == 'scheduled' %}active{% endif %}">
+            <i class="fas fa-calendar"></i> Scheduled
+        </a>
+        <a href="?status=completed" class="quick-filter-btn {% if status_filter == 'completed' %}active{% endif %}">
+            <i class="fas fa-check-circle"></i> Completed
+        </a>
+        <a href="?status=settled" class="quick-filter-btn {% if outcome_filter == 'settled' %}active{% endif %}">
+            <i class="fas fa-handshake"></i> Settled
+        </a>
     </div>
     
     <!-- Filter Section -->
@@ -406,6 +458,15 @@
                         <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
                         <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
                         <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Outcome</label>
+                    <select name="outcome">
+                        <option value="">All Outcomes</option>
+                        <option value="settled" {% if outcome_filter == 'settled' %}selected{% endif %}>Settled</option>
+                        <option value="unsettled" {% if outcome_filter == 'unsettled' %}selected{% endif %}>Unsettled</option>
+                        <option value="pending" {% if outcome_filter == 'pending' %}selected{% endif %}>Pending</option>
                     </select>
                 </div>
                 <div class="filter-group filter-actions">
@@ -506,6 +567,7 @@
                             {% endif %}
                         </div>
                         <td>
+                            <!-- FIXED: Using kapitan_portal:hearing_detail instead of staff_module URL -->
                             <a href="{% url 'kapitan_portal:hearing_detail' hearing.id %}" class="view-btn">
                                 <i class="fas fa-eye"></i> View Details
                             </a>
@@ -530,10 +592,10 @@
         {% if hearings.has_other_pages %}
         <div class="pagination">
             {% if hearings.has_previous %}
-                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if outcome_filter %}&outcome={{ outcome_filter }}{% endif %}">
                     <i class="fas fa-angle-double-left"></i>
                 </a>
-                <a href="?page={{ hearings.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                <a href="?page={{ hearings.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if outcome_filter %}&outcome={{ outcome_filter }}{% endif %}">
                     <i class="fas fa-angle-left"></i> Prev
                 </a>
             {% endif %}
@@ -541,10 +603,10 @@
             <span class="current">{{ hearings.number }} / {{ hearings.paginator.num_pages }}</span>
             
             {% if hearings.has_next %}
-                <a href="?page={{ hearings.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                <a href="?page={{ hearings.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if outcome_filter %}&outcome={{ outcome_filter }}{% endif %}">
                     Next <i class="fas fa-angle-right"></i>
                 </a>
-                <a href="?page={{ hearings.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+                <a href="?page={{ hearings.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if outcome_filter %}&outcome={{ outcome_filter }}{% endif %}">
                     <i class="fas fa-angle-double-right"></i>
                 </a>
             {% endif %}

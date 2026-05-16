@@ -1,0 +1,266 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Delete Announcement - BIMS{% endblock %}
+{% block nav_announcements %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirm-container {
+        max-width: 600px;
+        margin: 40px auto;
+    }
+    
+    .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+    
+    .card-header {
+        padding: 20px 24px;
+        border-bottom: 2px solid #dc2626;
+        background: var(--white);
+    }
+    
+    .card-header h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #dc2626;
+    }
+    
+    .card-header h3 i {
+        color: #dc2626;
+    }
+    
+    .card-body {
+        padding: 24px;
+    }
+    
+    .warning-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 16px;
+        margin-bottom: 24px;
+        border-radius: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .warning-box i {
+        color: #f59e0b;
+        font-size: 1.2rem;
+    }
+    
+    .warning-content {
+        flex: 1;
+    }
+    
+    .warning-content strong {
+        display: block;
+        color: #92400e;
+        margin-bottom: 4px;
+    }
+    
+    .warning-content p {
+        color: #78350f;
+        font-size: 0.8rem;
+        margin: 0;
+    }
+    
+    .info-box {
+        background: #f9fafb;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+    }
+    
+    .info-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        width: 100px;
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+    }
+    
+    .info-value {
+        flex: 1;
+        font-size: 0.85rem;
+        color: var(--text);
+    }
+    
+    .priority-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+    
+    .priority-normal { background: #e9ecef; color: #6c757d; }
+    .priority-important { background: #fff3cd; color: #856404; }
+    .priority-urgent { background: #f8d7da; color: #721c24; }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+    
+    .btn-delete {
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    
+    .btn-delete:hover {
+        background: #b91c1c;
+        transform: translateY(-1px);
+    }
+    
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        color: #374151;
+    }
+    
+    @media (max-width: 768px) {
+        .confirm-container {
+            margin: 20px;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-delete, .btn-cancel {
+            justify-content: center;
+        }
+        
+        .info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-container">
+    <div class="card">
+        <div class="card-header">
+            <h3>
+                <i class="fas fa-exclamation-triangle"></i>
+                Delete Announcement
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="warning-box">
+                <i class="fas fa-trash-alt"></i>
+                <div class="warning-content">
+                    <strong>Warning: This action cannot be undone!</strong>
+                    <p>Deleting this announcement will permanently remove it from the system.</p>
+                </div>
+            </div>
+            
+            <div class="info-box">
+                <div class="info-row">
+                    <span class="info-label">Title:</span>
+                    <span class="info-value"><strong>{{ announcement.title }}</strong></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Priority:</span>
+                    <span class="info-value">
+                        <span class="priority-badge priority-{{ announcement.priority }}">
+                            <i class="fas {{ announcement.get_priority_icon }}"></i>
+                            {{ announcement.get_priority_display }}
+                        </span>
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Created By:</span>
+                    <span class="info-value">{{ announcement.created_by.get_full_name|default:announcement.created_by.username }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Created At:</span>
+                    <span class="info-value">{{ announcement.created_at|date:"F d, Y h:i A" }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status:</span>
+                    <span class="info-value">
+                        {% if announcement.is_active %}
+                            <span style="color: #166534;"><i class="fas fa-check-circle"></i> Active</span>
+                        {% else %}
+                            <span style="color: #6b7280;"><i class="fas fa-ban"></i> Inactive</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <p style="color: #6b7280; font-size: 0.8rem; margin-bottom: 20px;">
+                Are you sure you want to delete "<strong>{{ announcement.title }}</strong>"?
+            </p>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-actions">
+                    <button type="submit" class="btn-delete" onclick="return confirm('Are you absolutely sure you want to delete this announcement? This action cannot be undone.')">
+                        <i class="fas fa-trash"></i> Yes, Delete Announcement
+                    </button>
+                    <a href="{% url 'staff_module:announcement_list' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

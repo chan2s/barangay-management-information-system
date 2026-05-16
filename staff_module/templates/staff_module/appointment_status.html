@@ -1,0 +1,284 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Update Appointment Status - BIMS{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        background: var(--white);
+    }
+    
+    .card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .card-title i {
+        color: var(--yellow);
+    }
+    
+    .card-body {
+        padding: 24px;
+    }
+    
+    .appointment-info {
+        background: #f9fafb;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+    }
+    
+    .info-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        width: 130px;
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 0.75rem;
+    }
+    
+    .info-value {
+        flex: 1;
+        font-size: 0.85rem;
+        color: #374151;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 6px;
+    }
+    
+    .form-group label i {
+        margin-right: 6px;
+        color: var(--yellow);
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-family: inherit;
+        transition: all 0.15s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--yellow);
+        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+    }
+    
+    select.form-control {
+        cursor: pointer;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .help-text {
+        font-size: 0.7rem;
+        color: #6b7280;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .btn-submit {
+        background: var(--sidebar-bg);
+        color: #fff;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: opacity 0.15s;
+    }
+    
+    .btn-submit:hover {
+        opacity: 0.85;
+    }
+    
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.15s;
+    }
+    
+    .btn-cancel:hover {
+        color: #374151;
+    }
+    
+    @media (max-width: 768px) {
+        .info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            width: 100%;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-submit, .btn-cancel {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="page-heading">Update Appointment Status</h2>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-edit"></i>
+                Appointment: {{ appointment.reference_number }}
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Appointment Info -->
+            <div class="appointment-info">
+                <div class="info-row">
+                    <div class="info-label">Reference #:</div>
+                    <div class="info-value"><strong>{{ appointment.reference_number }}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Resident:</div>
+                    <div class="info-value">{{ appointment.resident_name }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Contact:</div>
+                    <div class="info-value">{{ appointment.resident_contact }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Appointment Date:</div>
+                    <div class="info-value">{{ appointment.appointment_date|date:"F d, Y h:i A" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Current Status:</div>
+                    <div class="info-value">
+                        {% if appointment.status == 'pending' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% elif appointment.status == 'approved' %}
+                            <span class="badge badge-approved">Approved</span>
+                        {% elif appointment.status == 'completed' %}
+                            <span class="badge badge-completed">Completed</span>
+                        {% elif appointment.status == 'cancelled' %}
+                            <span class="badge badge-cancelled">Cancelled</span>
+                        {% elif appointment.status == 'rejected' %}
+                            <span class="badge badge-rejected">Rejected</span>
+                        {% else %}
+                            <span class="badge">{{ appointment.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Update Form -->
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> New Status</label>
+                    {{ form.status }}
+                    <div class="help-text">Select the new status for this appointment</div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note"></i> Notes (Optional)</label>
+                    {{ form.notes }}
+                    <div class="help-text">Add any additional notes or comments about this status change</div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit" onclick="return confirm('Are you sure you want to update this appointment status?');">
+                        <i class="fas fa-save"></i> Update Status
+                    </button>
+                    <a href="{% url 'staff_module:appointment_list' %}" class="btn-cancel">
+                        <i class="fas fa-arrow-left"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+    }
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-approved { background: #dcfce7; color: #166534; }
+    .badge-completed { background: #dbeafe; color: #1e40af; }
+    .badge-cancelled { background: #fee2e2; color: #991b1b; }
+    .badge-rejected { background: #fecaca; color: #991b1b; }
+</style>
+{% endblock %}

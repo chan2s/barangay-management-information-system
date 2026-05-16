@@ -27,82 +27,39 @@
   --info: #17a2b8;
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+/* Override body background for this page */
 body {
-  font-family: 'DM Sans', sans-serif;
   background: var(--cream);
-  color: var(--charcoal);
-  min-height: 100vh;
 }
 
-/* ─── HEADER ─────────────────────────────────────────── */
-.gov-header {
-  background: var(--charcoal);
-  color: #fff;
-  padding: 0;
-  position: relative;
-  overflow: hidden;
-  border-bottom: 3px solid var(--yellow-mid);
+/* Page specific styles - remove duplicate header */
+.page-content {
+  margin-top: 76px;
 }
-.gov-header::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 15% 50%, rgba(245,211,0,0.08) 0%, transparent 60%);
-  pointer-events: none;
-}
-.header-inner {
-  max-width: 1280px; margin: 0 auto;
-  padding: 28px 40px;
-  display: flex; align-items: center; gap: 24px;
-  position: relative;
-}
-.header-seal {
-  width: 64px; height: 64px; flex-shrink: 0;
-  background: var(--yellow-soft);
-  border: 2px solid var(--yellow-mid);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-  color: var(--charcoal);
-}
-.header-text { flex: 1; }
-.header-text .republic {
-  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-  color: rgba(255,255,255,.55); margin-bottom: 4px;
-}
-.header-text h1 {
-  font-family: 'DM Serif Display', serif;
-  font-size: 24px; font-weight: 600; line-height: 1.2;
-  color: #fff; margin-bottom: 3px;
-}
-.header-text .sub {
-  font-size: 12.5px; color: rgba(255,255,255,.6);
-}
-.header-badge {
-  background: rgba(255,255,255,.08);
-  border: 1px solid var(--yellow-mid);
-  border-radius: var(--radius-sm);
-  padding: 10px 18px;
-  text-align: right;
-}
-.header-badge .label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.5); }
-.header-badge .value { font-family: 'DM Serif Display', serif; font-size: 15px; color: var(--yellow-mid); font-weight: 600; }
 
 /* ─── STICKY STEP BAR ────────────────────────────────── */
 .step-bar-wrap {
-  position: sticky; top: 76px; z-index: 100;
+  position: sticky;
+  top: 76px;
+  z-index: 100;
   background: var(--white);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  margin-top: 0;
 }
 .step-bar {
-  max-width: 1280px; margin: 0 auto;
+  max-width: 1280px;
+  margin: 0 auto;
   padding: 0 40px;
-  display: flex; align-items: stretch;
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
 }
 .step-item {
-  flex: 1; display: flex; align-items: center; gap: 12px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 16px 12px;
   border-bottom: 3px solid transparent;
   transition: all 0.25s;
@@ -111,39 +68,74 @@ body {
 }
 .step-item:not(:last-child)::after {
   content: '';
-  position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-  width: 1px; height: 24px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 24px;
   background: var(--border);
 }
 .step-num {
-  width: 28px; height: 28px; flex-shrink: 0;
-  border-radius: 50%; border: 2px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 600; color: var(--muted);
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
   transition: all 0.25s;
 }
-.step-label { font-size: 12px; font-weight: 500; color: var(--muted); line-height: 1.3; }
-.step-item.active { border-bottom-color: var(--yellow-mid); }
+.step-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.3;
+}
+.step-item.active {
+  border-bottom-color: var(--yellow-mid);
+}
 .step-item.active .step-num {
-  background: var(--yellow-mid); border-color: var(--yellow-mid); color: var(--charcoal);
+  background: var(--yellow-mid);
+  border-color: var(--yellow-mid);
+  color: var(--charcoal);
 }
-.step-item.active .step-label { color: var(--charcoal); font-weight: 600; }
+.step-item.active .step-label {
+  color: var(--charcoal);
+  font-weight: 600;
+}
 .step-item.done .step-num {
-  background: var(--success); border-color: var(--success); color: #fff;
+  background: var(--success);
+  border-color: var(--success);
+  color: #fff;
 }
-.step-item.done .step-label { color: var(--success); }
+.step-item.done .step-label {
+  color: var(--success);
+}
 .step-item.done::before {
   content: '✓';
-  position: absolute; left: 22px; top: 16px;
-  font-size: 11px; color: #fff;
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  z-index: 1; pointer-events: none;
+  position: absolute;
+  left: 22px;
+  top: 16px;
+  font-size: 11px;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* ─── LAYOUT ─────────────────────────────────────────── */
 .page-layout {
-  max-width: 1280px; margin: 0 auto;
+  max-width: 1280px;
+  margin: 0 auto;
   padding: 32px 40px 60px;
   display: grid;
   grid-template-columns: 1fr 300px;
@@ -168,34 +160,52 @@ body {
 }
 .form-card-header::after {
   content: '';
-  position: absolute; right: -30px; top: -30px;
-  width: 180px; height: 180px;
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 180px;
+  height: 180px;
   border-radius: 50%;
   border: 40px solid rgba(255,255,255,.03);
 }
 .form-card-header h2 {
   font-family: 'DM Serif Display', serif;
-  font-size: 26px; font-weight: 600; color: #fff;
-  margin-bottom: 6px; position: relative;
+  font-size: 26px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 6px;
+  position: relative;
 }
-.form-card-header p { font-size: 13.5px; color: rgba(255,255,255,.65); position: relative; }
+.form-card-header p {
+  font-size: 13.5px;
+  color: rgba(255,255,255,.65);
+  position: relative;
+}
 .step-pill {
   display: inline-block;
   background: rgba(245,211,0,.2);
   border: 1px solid var(--yellow-mid);
   color: var(--yellow-mid);
-  font-size: 11px; font-weight: 600;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  padding: 4px 12px; border-radius: 20px;
-  margin-bottom: 12px; position: relative;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 12px;
+  position: relative;
 }
 
-.form-body { padding: 36px; }
+.form-body {
+  padding: 36px;
+}
 
 /* ─── CERT CARDS ─────────────────────────────────────── */
 .cert-grid {
-  display: grid; grid-template-columns: 1fr 1fr;
-  gap: 20px; margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 8px;
 }
 .cert-card {
   border: 2px solid var(--border);
@@ -209,74 +219,152 @@ body {
 }
 .cert-card::before {
   content: '';
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: var(--yellow-soft);
-  opacity: 0; transition: all 0.25s;
+  opacity: 0;
+  transition: all 0.25s;
 }
-.cert-card:hover { 
-  border-color: var(--yellow-mid); 
-  transform: translateY(-4px); 
+.cert-card:hover {
+  border-color: var(--yellow-mid);
+  transform: translateY(-4px);
   box-shadow: var(--shadow-md);
 }
-.cert-card:hover::before { opacity: 0.5; }
+.cert-card:hover::before {
+  opacity: 0.5;
+}
 .cert-card.selected {
   border-color: var(--yellow-mid);
   box-shadow: 0 0 0 3px rgba(245,211,0,.2);
   background: var(--yellow-soft);
 }
-.cert-card.selected::before { opacity: 0.3; }
-.cert-card-inner { position: relative; z-index: 1; }
-.cert-icon { font-size: 32px; margin-bottom: 12px; display: block; }
-.cert-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 8px; color: var(--charcoal); }
-.cert-card p { font-size: 12px; color: var(--muted); margin-bottom: 12px; line-height: 1.5; }
-.cert-meta { display: flex; justify-content: space-between; align-items: center; }
-.cert-fee { font-size: 14px; font-weight: 700; color: var(--yellow-accent); }
-.cert-time { font-size: 10.5px; color: var(--muted); background: var(--cream); padding: 3px 8px; border-radius: 20px; }
-.cert-check {
-  position: absolute; top: 14px; right: 14px;
-  width: 22px; height: 22px; border-radius: 50%;
-  background: var(--yellow-mid); color: var(--charcoal);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; opacity: 0;
-  transition: all 0.25s; z-index: 1;
+.cert-card.selected::before {
+  opacity: 0.3;
 }
-.cert-card.selected .cert-check { opacity: 1; }
+.cert-card-inner {
+  position: relative;
+  z-index: 1;
+}
+.cert-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+  display: block;
+}
+.cert-card h4 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--charcoal);
+}
+.cert-card p {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.cert-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cert-fee {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--yellow-accent);
+}
+.cert-time {
+  font-size: 10.5px;
+  color: var(--muted);
+  background: var(--cream);
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+.cert-check {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--yellow-mid);
+  color: var(--charcoal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  opacity: 0;
+  transition: all 0.25s;
+  z-index: 1;
+}
+.cert-card.selected .cert-check {
+  opacity: 1;
+}
 
 /* ─── FORM SECTIONS ──────────────────────────────────── */
 .section-head {
   font-family: 'DM Serif Display', serif;
-  font-size: 18px; font-weight: 600; color: var(--charcoal);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--charcoal);
   margin-bottom: 22px;
   padding-bottom: 12px;
   border-bottom: 2px solid var(--yellow-mid);
-  display: flex; align-items: center; gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 .section-head .icon {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   background: var(--yellow-soft);
   border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
   border: 1px solid var(--border);
 }
-.form-section { margin-bottom: 32px; }
+.form-section {
+  margin-bottom: 32px;
+}
 
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.form-group { margin-bottom: 18px; }
-.form-group:last-child { margin-bottom: 0; }
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.form-group {
+  margin-bottom: 18px;
+}
+.form-group:last-child {
+  margin-bottom: 0;
+}
 
 label {
-  display: block; font-size: 12px; font-weight: 600;
-  color: var(--slate); margin-bottom: 7px; letter-spacing: .3px;
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--slate);
+  margin-bottom: 7px;
+  letter-spacing: .3px;
 }
-label .req { color: var(--yellow-accent); margin-left: 3px; }
+label .req {
+  color: var(--yellow-accent);
+  margin-left: 3px;
+}
 
 .form-control {
-  width: 100%; padding: 11px 15px;
+  width: 100%;
+  padding: 11px 15px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px; color: var(--charcoal);
+  font-size: 14px;
+  color: var(--charcoal);
   background: var(--white);
   transition: all 0.25s;
 }
@@ -285,16 +373,25 @@ label .req { color: var(--yellow-accent); margin-left: 3px; }
   border-color: var(--yellow-mid);
   box-shadow: 0 0 0 3px rgba(245,211,0,.1);
 }
-.form-control::placeholder { color: var(--muted); opacity: .6; }
-.form-control[readonly] { background: var(--cream); cursor: default; }
-select.form-control { cursor: pointer; }
+.form-control::placeholder {
+  color: var(--muted);
+  opacity: .6;
+}
+.form-control[readonly] {
+  background: var(--cream);
+  cursor: default;
+}
+select.form-control {
+  cursor: pointer;
+}
 
 /* ─── UPLOAD ZONES ───────────────────────────────────── */
 .upload-zone {
   border: 2px dashed var(--border);
   border-radius: var(--radius);
   padding: 28px 24px;
-  text-align: center; cursor: pointer;
+  text-align: center;
+  cursor: pointer;
   transition: all 0.25s;
   margin-bottom: 14px;
   position: relative;
@@ -303,19 +400,42 @@ select.form-control { cursor: pointer; }
   border-color: var(--yellow-mid);
   background: var(--yellow-soft);
 }
-.upload-zone .uz-icon { font-size: 32px; margin-bottom: 10px; display: block; color: var(--muted); }
-.upload-zone.has-file .uz-icon { color: var(--yellow-mid); }
-.upload-zone p { font-size: 13px; color: var(--muted); }
-.upload-zone strong { color: var(--charcoal); }
-.uploaded-name {
-  font-size: 12px; color: var(--success); font-weight: 600;
-  margin-top: 6px; display: none;
+.upload-zone .uz-icon {
+  font-size: 32px;
+  margin-bottom: 10px;
+  display: block;
+  color: var(--muted);
 }
-.upload-zone.has-file .uploaded-name { display: block; }
-.upload-zone.has-file p:not(.uploaded-name) { display: none; }
+.upload-zone.has-file .uz-icon {
+  color: var(--yellow-mid);
+}
+.upload-zone p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.upload-zone strong {
+  color: var(--charcoal);
+}
+.uploaded-name {
+  font-size: 12px;
+  color: var(--success);
+  font-weight: 600;
+  margin-top: 6px;
+  display: none;
+}
+.upload-zone.has-file .uploaded-name {
+  display: block;
+}
+.upload-zone.has-file p:not(.uploaded-name) {
+  display: none;
+}
 
 /* ─── REVIEW ─────────────────────────────────────────── */
-.review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.review-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
 .review-block {
   background: var(--cream);
   border-radius: var(--radius-sm);
@@ -323,19 +443,41 @@ select.form-control { cursor: pointer; }
   border: 1px solid var(--border);
 }
 .review-block h4 {
-  font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
-  color: var(--muted); margin-bottom: 14px; font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  font-weight: 700;
 }
 .review-row {
-  display: flex; justify-content: space-between; align-items: flex-start;
-  padding: 8px 0; border-bottom: 1px solid var(--border); gap: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
   font-size: 13px;
 }
-.review-row:last-child { border-bottom: none; padding-bottom: 0; }
-.review-row .rk { color: var(--muted); flex-shrink: 0; }
-.review-row .rv { font-weight: 600; color: var(--charcoal); text-align: right; }
-.rv.ok { color: var(--success); }
-.rv.missing { color: var(--danger); }
+.review-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.review-row .rk {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.review-row .rv {
+  font-weight: 600;
+  color: var(--charcoal);
+  text-align: right;
+}
+.rv.ok {
+  color: var(--success);
+}
+.rv.missing {
+  color: var(--danger);
+}
 
 /* ─── CONSENT ────────────────────────────────────────── */
 .consent-box {
@@ -343,15 +485,27 @@ select.form-control { cursor: pointer; }
   border: 1.5px solid var(--yellow-mid);
   border-radius: var(--radius-sm);
   padding: 20px;
-  display: flex; gap: 14px; align-items: flex-start;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
   margin: 24px 0;
 }
 .consent-box input[type=checkbox] {
-  width: 18px; height: 18px; flex-shrink: 0;
-  margin-top: 2px; cursor: pointer; accent-color: var(--yellow-mid);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: var(--yellow-mid);
 }
-.consent-box .ct { font-size: 12.5px; line-height: 1.6; color: var(--slate); }
-.consent-box .ct strong { color: var(--charcoal); }
+.consent-box .ct {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--slate);
+}
+.consent-box .ct strong {
+  color: var(--charcoal);
+}
 
 /* ─── INFO BOX ───────────────────────────────────────── */
 .info-box {
@@ -359,54 +513,88 @@ select.form-control { cursor: pointer; }
   border-left: 4px solid var(--info);
   border-radius: var(--radius-sm);
   padding: 14px 16px;
-  font-size: 12.5px; color: var(--slate);
-  line-height: 1.6; margin: 18px 0 0;
+  font-size: 12.5px;
+  color: var(--slate);
+  line-height: 1.6;
+  margin: 18px 0 0;
 }
 .warn-box {
   background: var(--yellow-soft);
   border-left: 4px solid var(--warning);
   border-radius: var(--radius-sm);
   padding: 14px 16px;
-  font-size: 12.5px; color: var(--slate);
-  line-height: 1.6; margin-top: 18px;
+  font-size: 12.5px;
+  color: var(--slate);
+  line-height: 1.6;
+  margin-top: 18px;
 }
 
 /* ─── BUTTONS ────────────────────────────────────────── */
 .form-actions {
-  display: flex; justify-content: space-between; align-items: center;
-  padding-top: 28px; margin-top: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 28px;
+  margin-top: 28px;
   border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 .btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  padding: 12px 28px; border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 28px;
+  border-radius: var(--radius-sm);
   font-family: 'DM Sans', sans-serif;
-  font-size: 14px; font-weight: 600; cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
   transition: all 0.25s;
   border: 2px solid;
 }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .btn-ghost {
   background: transparent;
   color: var(--slate);
   border-color: var(--border);
 }
-.btn-ghost:hover { background: var(--cream); border-color: var(--yellow-mid); transform: translateY(-2px); }
+.btn-ghost:hover {
+  background: var(--cream);
+  border-color: var(--yellow-mid);
+  transform: translateY(-2px);
+}
 .btn-primary {
   background: var(--charcoal);
   color: #fff;
   border-color: var(--charcoal);
 }
-.btn-primary:hover { background: var(--yellow-mid); color: var(--charcoal); border-color: var(--yellow-mid); transform: translateY(-2px); }
+.btn-primary:hover {
+  background: var(--yellow-mid);
+  color: var(--charcoal);
+  border-color: var(--yellow-mid);
+  transform: translateY(-2px);
+}
 .btn-submit {
   background: var(--charcoal);
   color: #fff;
   border-color: var(--charcoal);
 }
-.btn-submit:hover { background: var(--yellow-mid); color: var(--charcoal); border-color: var(--yellow-mid); transform: translateY(-2px); }
+.btn-submit:hover {
+  background: var(--yellow-mid);
+  color: var(--charcoal);
+  border-color: var(--yellow-mid);
+  transform: translateY(-2px);
+}
 
 /* ─── SIDEBAR ────────────────────────────────────────── */
-.sidebar { position: sticky; top: 72px; }
+.sidebar {
+  position: sticky;
+  top: 92px;
+}
 .side-card {
   background: var(--white);
   border: 1.5px solid var(--border);
@@ -419,441 +607,574 @@ select.form-control { cursor: pointer; }
 }
 .side-card::before {
   content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   background: var(--yellow-mid);
 }
 .side-card h3 {
   font-family: 'DM Serif Display', serif;
-  font-size: 15px; font-weight: 600; color: var(--charcoal);
-  margin-bottom: 16px; margin-top: 4px;
-  display: flex; align-items: center; gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--charcoal);
+  margin-bottom: 16px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .side-row {
-  display: flex; justify-content: space-between;
-  padding: 8px 0; font-size: 12.5px;
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 12.5px;
   border-bottom: 1px solid var(--border);
 }
-.side-row:last-child { border-bottom: none; }
-.side-row .sk { color: var(--muted); }
-.side-row .sv { font-weight: 600; color: var(--charcoal); }
-.side-divider { height: 1px; background: var(--border); margin: 10px 0; }
+.side-row:last-child {
+  border-bottom: none;
+}
+.side-row .sk {
+  color: var(--muted);
+}
+.side-row .sv {
+  font-weight: 600;
+  color: var(--charcoal);
+}
+.side-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 10px 0;
+}
 .contact-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 8px 0; font-size: 12.5px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 12.5px;
   border-bottom: 1px solid var(--border);
 }
-.contact-item:last-child { border-bottom: none; }
-.contact-item .ci { width: 30px; height: 30px; border-radius: var(--radius-sm); background: var(--cream); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
-.contact-item .cd .label { font-size: 10px; color: var(--muted); }
-.contact-item .cd .val { font-weight: 600; color: var(--charcoal); font-size: 13px; }
+.contact-item:last-child {
+  border-bottom: none;
+}
+.contact-item .ci {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.contact-item .cd .label {
+  font-size: 10px;
+  color: var(--muted);
+}
+.contact-item .cd .val {
+  font-weight: 600;
+  color: var(--charcoal);
+  font-size: 13px;
+}
 
 /* ─── ANIMATIONS ─────────────────────────────────────── */
 @keyframes slideIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.form-step { animation: slideIn .3s ease; }
+.form-step {
+  animation: slideIn .3s ease;
+}
 
 /* ─── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .page-layout {
+    grid-template-columns: 1fr 280px;
+    gap: 20px;
+    padding: 24px 30px 50px;
+  }
+  .form-card-header {
+    padding: 22px 28px;
+  }
+  .form-body {
+    padding: 28px;
+  }
+}
+
 @media (max-width: 900px) {
-  .page-layout { grid-template-columns: 1fr; padding: 20px 20px 50px; }
-  .sidebar { position: static; }
-  .cert-grid { grid-template-columns: 1fr; }
-  .form-row { grid-template-columns: 1fr; }
-  .review-grid { grid-template-columns: 1fr; }
-  .step-bar { overflow-x: auto; }
-  .step-label { display: none; }
-  .header-badge { display: none; }
-  .header-inner { padding: 20px; }
-  .form-body { padding: 24px 20px; }
+  .page-layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: static;
+  }
+  .cert-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+  .step-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .step-label {
+    display: none;
+  }
+  .step-bar {
+    padding: 0 20px;
+  }
+  .step-item:not(:last-child)::after {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .step-bar-wrap {
+    top: 60px;
+  }
+  .step-item {
+    justify-content: center;
+  }
+  .step-num {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .consent-box {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .page-layout {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .page-layout {
+    padding: 16px;
+  }
+  .form-card-header h2 {
+    font-size: 20px;
+  }
+  .form-card-header {
+    padding: 18px 20px;
+  }
+  .form-body {
+    padding: 20px;
+  }
+  .cert-card {
+    padding: 18px 16px;
+  }
+  .cert-card h4 {
+    font-size: 14px;
+  }
+  .section-head {
+    font-size: 16px;
+  }
+  .review-block {
+    padding: 14px;
+  }
+  .review-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .review-row .rv {
+    text-align: left;
+  }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-
-<!-- HEADER -->
-<header class="gov-header">
-  <div class="header-inner">
-    <div class="header-seal">⚖️</div>
-    <div class="header-text">
-      <div class="republic">Republic of the Philippines</div>
-      <h1>Barangay Santa Catalina</h1>
-      <div class="sub">Municipality of Santa Catalina, Negros Oriental</div>
-    </div>
-    <div class="header-badge">
-      <div class="label">Integrated System</div>
-      <div class="value">BIMS v2.0</div>
-    </div>
-  </div>
-</header>
-
-<!-- STICKY STEP BAR -->
-<div class="step-bar-wrap" id="stepBarWrap">
-  <div class="step-bar">
-    <div class="step-item" id="si1">
-      <div class="step-num">1</div>
-      <div class="step-label">Certificate Type</div>
-    </div>
-    <div class="step-item" id="si2">
-      <div class="step-num">2</div>
-      <div class="step-label">Applicant Info</div>
-    </div>
-    <div class="step-item" id="si3">
-      <div class="step-num">3</div>
-      <div class="step-label">Certificate Details</div>
-    </div>
-    <div class="step-item" id="si4">
-      <div class="step-num">4</div>
-      <div class="step-label">Requirements</div>
-    </div>
-    <div class="step-item" id="si5">
-      <div class="step-num">5</div>
-      <div class="step-label">Review & Submit</div>
+<div class="page-content">
+  <!-- STICKY STEP BAR -->
+  <div class="step-bar-wrap" id="stepBarWrap">
+    <div class="step-bar">
+      <div class="step-item" id="si1">
+        <div class="step-num">1</div>
+        <div class="step-label">Certificate Type</div>
+      </div>
+      <div class="step-item" id="si2">
+        <div class="step-num">2</div>
+        <div class="step-label">Applicant Info</div>
+      </div>
+      <div class="step-item" id="si3">
+        <div class="step-num">3</div>
+        <div class="step-label">Certificate Details</div>
+      </div>
+      <div class="step-item" id="si4">
+        <div class="step-num">4</div>
+        <div class="step-label">Requirements</div>
+      </div>
+      <div class="step-item" id="si5">
+        <div class="step-num">5</div>
+        <div class="step-label">Review & Submit</div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- PAGE LAYOUT -->
-<div class="page-layout">
+  <!-- PAGE LAYOUT -->
+  <div class="page-layout">
 
-  <!-- FORM CARD -->
-  <div class="form-card" id="formCard">
-    <div class="form-card-header" id="formCardHeader">
-      <div class="step-pill" id="stepPill">Step 1 of 5</div>
-      <h2 id="stepTitle">Select Certificate Type</h2>
-      <p id="stepSubtitle">Choose the certificate you need to request</p>
-    </div>
+    <!-- FORM CARD -->
+    <div class="form-card" id="formCard">
+      <div class="form-card-header" id="formCardHeader">
+        <div class="step-pill" id="stepPill">Step 1 of 5</div>
+        <h2 id="stepTitle">Select Certificate Type</h2>
+        <p id="stepSubtitle">Choose the certificate you need to request</p>
+      </div>
 
-    <div class="form-body">
-      <form id="certForm" method="post" enctype="multipart/form-data" action="{% url 'certificates:submit_request' %}">
-        {% csrf_token %}
-        <input type="hidden" id="requestType" name="requestType">
+      <div class="form-body">
+        <form id="certForm" method="post" enctype="multipart/form-data" action="{% url 'certificates:submit_request' %}">
+          {% csrf_token %}
+          <input type="hidden" id="requestType" name="requestType">
 
-        <!-- STEP 1 -->
-        <div class="form-step" id="step1Content">
-          <div class="cert-grid">
-            <div class="cert-card" data-type="Barangay Clearance">
-              <div class="cert-check">✓</div>
-              <div class="cert-card-inner">
-                <span class="cert-icon">📋</span>
-                <h4>Barangay Clearance</h4>
-                <p>For employment, business, travel, and other transactions</p>
-                <div class="cert-meta">
-                  <span class="cert-fee">₱50.00</span>
-                  <span class="cert-time">1–2 days</span>
+          <!-- STEP 1 -->
+          <div class="form-step" id="step1Content">
+            <div class="cert-grid">
+              <div class="cert-card" data-type="Barangay Clearance">
+                <div class="cert-check">✓</div>
+                <div class="cert-card-inner">
+                  <span class="cert-icon">📄</span>
+                  <h4>Barangay Clearance</h4>
+                  <p>For employment, business, travel, and other transactions</p>
+                  <div class="cert-meta">
+                    <span class="cert-fee">₱40.00</span>
+                    <span class="cert-time">1–2 days</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="cert-card" data-type="Certificate of Residency">
-              <div class="cert-check">✓</div>
-              <div class="cert-card-inner">
-                <span class="cert-icon">🏠</span>
-                <h4>Certificate of Residency</h4>
-                <p>Proof of residence for school, government, or private transactions</p>
-                <div class="cert-meta">
-                  <span class="cert-fee">₱50.00</span>
-                  <span class="cert-time">1–2 days</span>
+              <div class="cert-card" data-type="Certificate of Residency">
+                <div class="cert-check">✓</div>
+                <div class="cert-card-inner">
+                  <span class="cert-icon">🏠</span>
+                  <h4>Certificate of Residency</h4>
+                  <p>Proof of residence for school, government, or private transactions</p>
+                  <div class="cert-meta">
+                    <span class="cert-fee">₱40.00</span>
+                    <span class="cert-time">1–2 days</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="cert-card" data-type="Certificate of Indigency">
-              <div class="cert-check">✓</div>
-              <div class="cert-card-inner">
-                <span class="cert-icon">🤝</span>
-                <h4>Certificate of Indigency</h4>
-                <p>For financial assistance, medical aid, and social services</p>
-                <div class="cert-meta">
-                  <span class="cert-fee">Free</span>
-                  <span class="cert-time">2–3 days</span>
+              <div class="cert-card" data-type="Certificate of Indigency">
+                <div class="cert-check">✓</div>
+                <div class="cert-card-inner">
+                  <span class="cert-icon">🤝</span>
+                  <h4>Certificate of Indigency</h4>
+                  <p>For financial assistance, medical aid, and social services</p>
+                  <div class="cert-meta">
+                    <span class="cert-fee">₱40.00</span>
+                    <span class="cert-time">2–3 days</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="cert-card" data-type="Barangay ID">
-              <div class="cert-check">✓</div>
-              <div class="cert-card-inner">
-                <span class="cert-icon">🆔</span>
-                <h4>Barangay ID</h4>
-                <p>Official Barangay identification card for residents</p>
-                <div class="cert-meta">
-                  <span class="cert-fee">₱100.00</span>
-                  <span class="cert-time">3–5 days</span>
+              <div class="cert-card" data-type="Barangay ID">
+                <div class="cert-check">✓</div>
+                <div class="cert-card-inner">
+                  <span class="cert-icon">🪪</span>
+                  <h4>Barangay ID</h4>
+                  <p>Official Barangay identification card for residents</p>
+                  <div class="cert-meta">
+                    <span class="cert-fee">₱40.00</span>
+                    <span class="cert-time">3–5 days</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="info-box">
-            💡 <strong>Tip:</strong> Click on a certificate type to select it, then press <em>Next</em> to continue.
-          </div>
-        </div>
-
-        <!-- STEP 2 -->
-        <div class="form-step" id="step2Content" style="display:none">
-          <div class="form-section">
-            <div class="section-head">
-              <div class="icon">👤</div>
-              Personal Information
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Full Name<span class="req">*</span></label>
-                <input type="text" class="form-control" name="fullName" id="fullName" placeholder="Last Name, First Name Middle Name">
-              </div>
-              <div class="form-group">
-                <label>Contact Number</label>
-                <input type="tel" class="form-control" name="contactNumber" id="contactNumber" placeholder="09123456789">
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Date of Birth<span class="req">*</span></label>
-                <input type="date" class="form-control" name="dob" id="dob">
-              </div>
-              <div class="form-group">
-                <label>Age (auto-computed)</label>
-                <input type="text" class="form-control" name="age" id="age" readonly>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Gender<span class="req">*</span></label>
-                <select class="form-control" name="gender" id="gender">
-                  <option value="">Select Gender</option>
-                  <option>Male</option>
-                  <option>Female</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Civil Status<span class="req">*</span></label>
-                <select class="form-control" name="civilStatus" id="civilStatus">
-                  <option value="">Select Civil Status</option>
-                  <option>Single</option>
-                  <option>Married</option>
-                  <option>Widowed</option>
-                  <option>Divorced</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-section">
-            <div class="section-head">
-              <div class="icon">📍</div>
-              Address Information
-            </div>
-            <div class="form-group">
-              <label>Complete Address<span class="req">*</span></label>
-              <input type="text" class="form-control" name="address" id="address" placeholder="House No., Street, Barangay, City/Municipality, Province">
-            </div>
-            <div class="form-group">
-              <label>Sitio / Purok / Subdivision</label>
-              <input type="text" class="form-control" name="purok" id="purok" placeholder="e.g., Purok 1, Sitio Example">
-            </div>
-            <div class="form-group">
-              <label>Email Address <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-              <input type="email" class="form-control" name="email" id="email" placeholder="youremail@example.com">
-            </div>
-          </div>
-
-          <div class="warn-box">
-            ⚠️ <strong>Important:</strong> Ensure all information is accurate. False information may result in request denial.
-          </div>
-        </div>
-
-        <!-- STEP 3 -->
-        <div class="form-step" id="step3Content" style="display:none">
-          <!-- Clearance -->
-          <div id="clearanceFields" class="form-section" style="display:none">
-            <div class="section-head"><div class="icon">📄</div>Barangay Clearance Details</div>
-            <div class="form-group">
-              <label>Purpose of Request<span class="req">*</span></label>
-              <textarea class="form-control" name="purpose_clearance" id="purpose_clearance" rows="3" placeholder="e.g., Employment application, Business permit renewal, Travel abroad"></textarea>
-            </div>
-          </div>
-          <!-- Residency -->
-          <div id="residencyFields" class="form-section" style="display:none">
-            <div class="section-head"><div class="icon">🏠</div>Residency Details</div>
-            <div class="form-group">
-              <label>Purpose of Request<span class="req">*</span></label>
-              <textarea class="form-control" name="purpose_residency" id="purpose_residency" rows="3" placeholder="e.g., School enrollment, Government ID application"></textarea>
-            </div>
-            <div class="form-group">
-              <label>Years of Residency in Barangay</label>
-              <input type="text" class="form-control" name="years_residency" placeholder="e.g., 5 years">
-            </div>
-          </div>
-          <!-- Indigency -->
-          <div id="indigencyFields" class="form-section" style="display:none">
-            <div class="section-head"><div class="icon">🤝</div>Indigency Details</div>
-            <div class="form-group">
-              <label>Purpose of Request<span class="req">*</span></label>
-              <textarea class="form-control" name="purpose_indigency" id="purpose_indigency" rows="3" placeholder="e.g., Medical assistance, Educational aid, Financial assistance"></textarea>
-            </div>
-            <div class="form-group">
-              <label>Monthly Family Income <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-              <input type="text" class="form-control" name="monthly_income" placeholder="e.g., ₱5,000">
-            </div>
-          </div>
-          <!-- Barangay ID -->
-          <div id="idFields" class="form-section" style="display:none">
-            <div class="section-head"><div class="icon">🆔</div>Barangay ID Details</div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Birthplace</label>
-                <input type="text" class="form-control" name="birthplace" id="birthplace" placeholder="City/Municipality, Province">
-              </div>
-              <div class="form-group">
-                <label>Weight (kg)</label>
-                <input type="text" class="form-control" name="weight" id="weight" placeholder="e.g., 55">
-              </div>
-            </div>
-            <div class="form-group">
-              <label>Height</label>
-              <input type="text" class="form-control" name="height" id="height" placeholder="e.g., 5'4&quot;">
-            </div>
-            <div class="section-head" style="margin-top:24px"><div class="icon">📞</div>Emergency Contact</div>
-            <div class="form-group">
-              <label>Emergency Contact Name</label>
-              <input type="text" class="form-control" name="emergency_name" id="emergency_name" placeholder="Full name">
-            </div>
-            <div class="form-group">
-              <label>Emergency Contact Address</label>
-              <input type="text" class="form-control" name="emergency_address" id="emergency_address" placeholder="Complete address">
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Contact Number</label>
-                <input type="tel" class="form-control" name="emergency_contact" id="emergency_contact" placeholder="Contact number">
-              </div>
-              <div class="form-group">
-                <label>Relationship</label>
-                <input type="text" class="form-control" name="emergency_relationship" id="emergency_relationship" placeholder="e.g., Mother, Spouse">
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- STEP 4 -->
-        <div class="form-step" id="step4Content" style="display:none">
-          <div class="form-section">
-            <div class="section-head"><div class="icon">📎</div>Upload Required Documents</div>
-
-            <div class="upload-zone" id="validIdZone">
-              <input type="file" id="validIdInput" name="valid_id" style="display:none" accept="image/*,.pdf">
-              <span class="uz-icon">🪪</span>
-              <p><strong>Upload Valid Government ID</strong></p>
-              <p>Driver's License, Passport, UMID, Postal ID</p>
-              <p class="uploaded-name" id="validIdName"></p>
-            </div>
-
-            <div class="upload-zone" id="proofZone">
-              <input type="file" id="proofInput" name="proof_residency" style="display:none" accept="image/*,.pdf">
-              <span class="uz-icon">🏠</span>
-              <p><strong>Proof of Residency</strong></p>
-              <p>Utility bill, barangay certificate, or similar document</p>
-              <p class="uploaded-name" id="proofName"></p>
-            </div>
-
-            <div class="upload-zone" id="photoZone" style="display:none">
-              <input type="file" id="photoInput" name="photo" style="display:none" accept="image/*">
-              <span class="uz-icon">📷</span>
-              <p><strong>2×2 ID Picture</strong></p>
-              <p>Colored photo with white background</p>
-              <p class="uploaded-name" id="photoName"></p>
-            </div>
-
-            <div class="warn-box">
-              📁 <strong>Reminder:</strong> All uploaded files must be clear and readable. Maximum 5 MB per file.
-            </div>
-          </div>
-        </div>
-
-        <!-- STEP 5 -->
-        <div class="form-step" id="step5Content" style="display:none">
-          <div class="form-section">
-            <div class="section-head"><div class="icon">📋</div>Review Your Application</div>
-            <div class="review-grid" id="reviewContent"></div>
-
-            <div class="consent-box">
-              <input type="checkbox" id="dataConsent">
-              <div class="ct">
-                <strong>Data Privacy Consent</strong><br>
-                I hereby certify that all information provided is true and correct. I authorize the Barangay to collect and process my personal information for certificate issuance, in accordance with the Data Privacy Act of 2012 (RA 10173).
               </div>
             </div>
             <div class="info-box">
-              🏛️ <strong>Payment note:</strong> You agree to pay the corresponding fees upon claiming your certificate at the Barangay Hall.
+              💡 <strong>Tip:</strong> Click on a certificate type to select it, then press <em>Next</em> to continue.
             </div>
           </div>
-        </div>
 
-        <!-- ACTIONS -->
-        <div class="form-actions">
-          <button type="button" class="btn btn-ghost" id="prevBtn" style="visibility:hidden">
-            ← Back
-          </button>
-          <button type="button" class="btn btn-primary" id="nextBtn">
-            Continue →
-          </button>
-          <button type="submit" class="btn btn-submit" id="submitBtn" style="display:none">
-            ✓ Submit Application
-          </button>
-        </div>
-      </form>
-    </div>
-  </div><!-- /form-card -->
+          <!-- STEP 2 -->
+          <div class="form-step" id="step2Content" style="display:none">
+            <div class="form-section">
+              <div class="section-head">
+                <div class="icon">👤</div>
+                Personal Information
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Full Name<span class="req">*</span></label>
+                  <input type="text" class="form-control" name="fullName" id="fullName" placeholder="Last Name, First Name Middle Name">
+                </div>
+                <div class="form-group">
+                  <label>Contact Number</label>
+                  <input type="tel" class="form-control" name="contactNumber" id="contactNumber" placeholder="09123456789">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Date of Birth<span class="req">*</span></label>
+                  <input type="date" class="form-control" name="dob" id="dob">
+                </div>
+                <div class="form-group">
+                  <label>Age (auto-computed)</label>
+                  <input type="text" class="form-control" name="age" id="age" readonly>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Gender<span class="req">*</span></label>
+                  <select class="form-control" name="gender" id="gender">
+                    <option value="">Select Gender</option>
+                    <option>Male</option>
+                    <option>Female</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Civil Status<span class="req">*</span></label>
+                  <select class="form-control" name="civilStatus" id="civilStatus">
+                    <option value="">Select Civil Status</option>
+                    <option>Single</option>
+                    <option>Married</option>
+                    <option>Widowed</option>
+                    <option>Divorced</option>
+                  </select>
+                </div>
+              </div>
+            </div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="side-card">
-      <h3>⏱ Processing Time</h3>
-      <div class="side-row"><span class="sk">Barangay Clearance</span><span class="sv">1–2 days</span></div>
-      <div class="side-row"><span class="sk">Cert. of Residency</span><span class="sv">1–2 days</span></div>
-      <div class="side-row"><span class="sk">Cert. of Indigency</span><span class="sv">2–3 days</span></div>
-      <div class="side-row"><span class="sk">Barangay ID</span><span class="sv">3–5 days</span></div>
-    </div>
-    <div class="side-card">
-      <h3>💰 Fees</h3>
-      <div class="side-row"><span class="sk">Barangay Clearance</span><span class="sv">₱50.00</span></div>
-      <div class="side-row"><span class="sk">Cert. of Residency</span><span class="sv">₱50.00</span></div>
-      <div class="side-row"><span class="sk">Cert. of Indigency</span><span class="sv">Free</span></div>
-      <div class="side-row"><span class="sk">Barangay ID</span><span class="sv">₱100.00</span></div>
-      <div class="side-divider"></div>
-      <p style="font-size:11.5px;color:var(--muted);text-align:center">Payment upon claiming at the Barangay Hall</p>
-    </div>
-    <div class="side-card">
-      <h3>🕐 Office Hours</h3>
-      <div class="side-row"><span class="sk">Mon – Fri</span><span class="sv">8:00 AM – 5:00 PM</span></div>
-      <div class="side-row"><span class="sk">Saturday</span><span class="sv">8:00 AM – 12:00 PM</span></div>
-      <div class="side-row"><span class="sk">Sunday</span><span class="sv">Closed</span></div>
-    </div>
-    <div class="side-card">
-      <h3>📬 Contact Us</h3>
-      <div class="contact-item">
-        <div class="ci">📞</div>
-        <div class="cd">
-          <div class="label">Barangay Hall</div>
-          <div class="val">(032) 123-4567</div>
+            <div class="form-section">
+              <div class="section-head">
+                <div class="icon">📍</div>
+                Address Information
+              </div>
+              <div class="form-group">
+                <label>Complete Address<span class="req">*</span></label>
+                <input type="text" class="form-control" name="address" id="address" placeholder="House No., Street, Barangay, City/Municipality, Province">
+              </div>
+              <div class="form-group">
+                <label>Sitio / Purok / Subdivision</label>
+                <input type="text" class="form-control" name="purok" id="purok" placeholder="e.g., Purok 1, Sitio Example">
+              </div>
+              <div class="form-group">
+                <label>Email Address <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="youremail@example.com">
+              </div>
+            </div>
+
+            <div class="warn-box">
+              ⚠️ <strong>Important:</strong> Ensure all information is accurate. False information may result in request denial.
+            </div>
+          </div>
+
+          <!-- STEP 3 -->
+          <div class="form-step" id="step3Content" style="display:none">
+            <!-- Clearance -->
+            <div id="clearanceFields" class="form-section" style="display:none">
+              <div class="section-head"><div class="icon">📄</div>Barangay Clearance Details</div>
+              <div class="form-group">
+                <label>Purpose of Request<span class="req">*</span></label>
+                <textarea class="form-control" name="purpose_clearance" id="purpose_clearance" rows="3" placeholder="e.g., Employment application, Business permit renewal, Travel abroad"></textarea>
+              </div>
+            </div>
+            <!-- Residency -->
+            <div id="residencyFields" class="form-section" style="display:none">
+              <div class="section-head"><div class="icon">🏠</div>Residency Details</div>
+              <div class="form-group">
+                <label>Purpose of Request<span class="req">*</span></label>
+                <textarea class="form-control" name="purpose_residency" id="purpose_residency" rows="3" placeholder="e.g., School enrollment, Government ID application"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Years of Residency in Barangay</label>
+                <input type="text" class="form-control" name="years_residency" placeholder="e.g., 5 years">
+              </div>
+            </div>
+            <!-- Indigency -->
+            <div id="indigencyFields" class="form-section" style="display:none">
+              <div class="section-head"><div class="icon">🤝</div>Indigency Details</div>
+              <div class="form-group">
+                <label>Purpose of Request<span class="req">*</span></label>
+                <textarea class="form-control" name="purpose_indigency" id="purpose_indigency" rows="3" placeholder="e.g., Medical assistance, Educational aid, Financial assistance"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Monthly Family Income <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+                <input type="text" class="form-control" name="monthly_income" placeholder="e.g., ₱5,000">
+              </div>
+            </div>
+            <!-- Barangay ID -->
+            <div id="idFields" class="form-section" style="display:none">
+              <div class="section-head"><div class="icon">🆔</div>Barangay ID Details</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Birthplace</label>
+                  <input type="text" class="form-control" name="birthplace" id="birthplace" placeholder="City/Municipality, Province">
+                </div>
+                <div class="form-group">
+                  <label>Weight (kg)</label>
+                  <input type="text" class="form-control" name="weight" id="weight" placeholder="e.g., 55">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Height</label>
+                <input type="text" class="form-control" name="height" id="height" placeholder="e.g., 5'4&quot;">
+              </div>
+              <div class="section-head" style="margin-top:24px"><div class="icon">📞</div>Emergency Contact</div>
+              <div class="form-group">
+                <label>Emergency Contact Name</label>
+                <input type="text" class="form-control" name="emergency_name" id="emergency_name" placeholder="Full name">
+              </div>
+              <div class="form-group">
+                <label>Emergency Contact Address</label>
+                <input type="text" class="form-control" name="emergency_address" id="emergency_address" placeholder="Complete address">
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Contact Number</label>
+                  <input type="tel" class="form-control" name="emergency_contact" id="emergency_contact" placeholder="Contact number">
+                </div>
+                <div class="form-group">
+                  <label>Relationship</label>
+                  <input type="text" class="form-control" name="emergency_relationship" id="emergency_relationship" placeholder="e.g., Mother, Spouse">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 4 -->
+          <div class="form-step" id="step4Content" style="display:none">
+            <div class="form-section">
+              <div class="section-head"><div class="icon">📎</div>Upload Required Documents</div>
+
+              <div class="upload-zone" id="validIdZone">
+                <input type="file" id="validIdInput" name="valid_id" style="display:none" accept="image/*,.pdf">
+                <span class="uz-icon">🪪</span>
+                <p><strong>Upload Valid Government ID</strong></p>
+                <p>Driver's License, Passport, UMID, Postal ID</p>
+                <p class="uploaded-name" id="validIdName"></p>
+              </div>
+
+              <div class="upload-zone" id="proofZone">
+                <input type="file" id="proofInput" name="proof_residency" style="display:none" accept="image/*,.pdf">
+                <span class="uz-icon">🏠</span>
+                <p><strong>Proof of Residency</strong></p>
+                <p>Utility bill, barangay certificate, or similar document</p>
+                <p class="uploaded-name" id="proofName"></p>
+              </div>
+
+              <div class="upload-zone" id="photoZone" style="display:none">
+                <input type="file" id="photoInput" name="photo" style="display:none" accept="image/*">
+                <span class="uz-icon">📷</span>
+                <p><strong>2×2 ID Picture</strong></p>
+                <p>Colored photo with white background</p>
+                <p class="uploaded-name" id="photoName"></p>
+              </div>
+
+              <div class="warn-box">
+                📁 <strong>Reminder:</strong> All uploaded files must be clear and readable. Maximum 5 MB per file.
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 5 -->
+          <div class="form-step" id="step5Content" style="display:none">
+            <div class="form-section">
+              <div class="section-head"><div class="icon">📋</div>Review Your Application</div>
+              <div class="review-grid" id="reviewContent"></div>
+
+              <div class="consent-box">
+                <input type="checkbox" id="dataConsent">
+                <div class="ct">
+                  <strong>Data Privacy Consent</strong><br>
+                  I hereby certify that all information provided is true and correct. I authorize the Barangay to collect and process my personal information for certificate issuance, in accordance with the Data Privacy Act of 2012 (RA 10173).
+                </div>
+              </div>
+              <div class="info-box">
+                🏛️ <strong>Payment note:</strong> You agree to pay the corresponding fees upon claiming your certificate at the Barangay Hall.
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="prevBtn" style="visibility:hidden">
+              ← Back
+            </button>
+            <button type="button" class="btn btn-primary" id="nextBtn">
+              Continue →
+            </button>
+            <button type="submit" class="btn btn-submit" id="submitBtn" style="display:none">
+              ✓ Submit Application
+            </button>
+          </div>
+        </form>
+      </div>
+    </div><!-- /form-card -->
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="side-card">
+        <h3>⏱️ Processing Time</h3>
+        <div class="side-row"><span class="sk">Barangay Clearance</span><span class="sv">1–2 days</span></div>
+        <div class="side-row"><span class="sk">Cert. of Residency</span><span class="sv">1–2 days</span></div>
+        <div class="side-row"><span class="sk">Cert. of Indigency</span><span class="sv">2–3 days</span></div>
+        <div class="side-row"><span class="sk">Barangay ID</span><span class="sv">3–5 days</span></div>
+      </div>
+      <div class="side-card">
+        <h3>💰 Fees</h3>
+        <div class="side-row"><span class="sk">Barangay Clearance</span><span class="sv">₱40.00</span></div>
+        <div class="side-row"><span class="sk">Cert. of Residency</span><span class="sv">₱40.00</span></div>
+        <div class="side-row"><span class="sk">Cert. of Indigency</span><span class="sv">₱40.00</span></div>
+        <div class="side-row"><span class="sk">Barangay ID</span><span class="sv">₱40.00</span></div>
+        <div class="side-divider"></div>
+        <p style="font-size:11.5px;color:var(--muted);text-align:center">Payment upon claiming at the Barangay Hall</p>
+      </div>
+      <div class="side-card">
+        <h3>🕒 Office Hours</h3>
+        <div class="side-row"><span class="sk">Mon – Fri</span><span class="sv">8:00 AM – 5:00 PM</span></div>
+        <div class="side-row"><span class="sk">Saturday</span><span class="sv">8:00 AM – 12:00 PM</span></div>
+        <div class="side-row"><span class="sk">Sunday</span><span class="sv">Closed</span></div>
+      </div>
+      <div class="side-card">
+        <h3>📬 Contact Us</h3>
+        <div class="contact-item">
+          <div class="ci">📞</div>
+          <div class="cd">
+            <div class="label">Barangay Hall</div>
+            <div class="val">(032) 123-4567</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="ci">📱</div>
+          <div class="cd">
+            <div class="label">Mobile</div>
+            <div class="val">09123456789</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="ci">✉️</div>
+          <div class="cd">
+            <div class="label">Email</div>
+            <div class="val" style="word-break:break-all">brgy.santacatalina@bims.gov.ph</div>
+          </div>
         </div>
       </div>
-      <div class="contact-item">
-        <div class="ci">📱</div>
-        <div class="cd">
-          <div class="label">Mobile</div>
-          <div class="val">09123456789</div>
-        </div>
-      </div>
-      <div class="contact-item">
-        <div class="ci">✉️</div>
-        <div class="cd">
-          <div class="label">Email</div>
-          <div class="val" style="word-break:break-all">brgy.santacatalina@bims.gov.ph</div>
-        </div>
-      </div>
-    </div>
-  </aside>
+    </aside>
 
-</div><!-- /page-layout -->
+  </div><!-- /page-layout -->
+</div>
 
 <script>
 (function () {
@@ -885,27 +1206,31 @@ select.form-control { cursor: pointer; }
       document.querySelectorAll('.cert-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
       requestTypeInput.value = card.dataset.type;
-      nextBtn.disabled = false;
+      if (nextBtn) nextBtn.disabled = false;
     });
   });
 
   /* ── Age auto-calc ─────────────────────────────── */
-  $('dob').addEventListener('change', function () {
-    if (!this.value) { $('age').value = ''; return; }
-    const b = new Date(this.value), today = new Date();
-    let age = today.getFullYear() - b.getFullYear();
-    const m = today.getMonth() - b.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
-    $('age').value = age;
-  });
+  const dobField = $('dob');
+  if (dobField) {
+    dobField.addEventListener('change', function () {
+      if (!this.value) { if($('age')) $('age').value = ''; return; }
+      const b = new Date(this.value), today = new Date();
+      let age = today.getFullYear() - b.getFullYear();
+      const m = today.getMonth() - b.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
+      if($('age')) $('age').value = age;
+    });
+  }
 
   /* ── File uploads ──────────────────────────────── */
   function setupUpload(zoneId, inputId, nameId) {
     const zone = $(zoneId), input = $(inputId), nameEl = $(nameId);
+    if (!zone || !input) return;
     zone.addEventListener('click', () => input.click());
     input.addEventListener('change', () => {
       if (input.files.length) {
-        nameEl.textContent = '✓ ' + input.files[0].name;
+        if (nameEl) nameEl.textContent = '✓ ' + input.files[0].name;
         zone.classList.add('has-file');
       }
     });
@@ -916,107 +1241,135 @@ select.form-control { cursor: pointer; }
 
   /* ── Conditional step-3 fields ─────────────────── */
   function applyConditionalFields() {
-    const t = requestTypeInput.value;
-    $('clearanceFields').style.display = t === 'Barangay Clearance'      ? 'block' : 'none';
-    $('residencyFields').style.display  = t === 'Certificate of Residency' ? 'block' : 'none';
-    $('indigencyFields').style.display  = t === 'Certificate of Indigency' ? 'block' : 'none';
-    $('idFields').style.display         = t === 'Barangay ID'              ? 'block' : 'none';
-    $('photoZone').style.display        = t === 'Barangay ID'              ? 'block' : 'none';
+    const t = requestTypeInput ? requestTypeInput.value : '';
+    const clearance = $('clearanceFields');
+    const residency = $('residencyFields');
+    const indigency = $('indigencyFields');
+    const idFields = $('idFields');
+    const photoZone = $('photoZone');
+    
+    if (clearance) clearance.style.display = t === 'Barangay Clearance' ? 'block' : 'none';
+    if (residency) residency.style.display = t === 'Certificate of Residency' ? 'block' : 'none';
+    if (indigency) indigency.style.display = t === 'Certificate of Indigency' ? 'block' : 'none';
+    if (idFields) idFields.style.display = t === 'Barangay ID' ? 'block' : 'none';
+    if (photoZone) photoZone.style.display = t === 'Barangay ID' ? 'block' : 'none';
   }
 
   /* ── Validation ────────────────────────────────── */
   function validate() {
-    if (step === 1 && !requestTypeInput.value) { toast('Please select a certificate type.'); return false; }
+    if (step === 1 && (!requestTypeInput || !requestTypeInput.value)) { toast('Please select a certificate type.'); return false; }
     if (step === 2) {
-      if (!$('fullName').value.trim())    { toast('Please enter your full name.');     $('fullName').focus();    return false; }
-      if (!$('address').value.trim())     { toast('Please enter your address.');       $('address').focus();     return false; }
-      if (!$('gender').value)             { toast('Please select your gender.');       $('gender').focus();      return false; }
-      if (!$('civilStatus').value)        { toast('Please select your civil status.'); $('civilStatus').focus(); return false; }
+      const fullName = $('fullName');
+      const address = $('address');
+      const gender = $('gender');
+      const civilStatus = $('civilStatus');
+      if (!fullName || !fullName.value.trim())    { toast('Please enter your full name.');     if(fullName) fullName.focus();    return false; }
+      if (!address || !address.value.trim())     { toast('Please enter your address.');       if(address) address.focus();     return false; }
+      if (!gender || !gender.value)             { toast('Please select your gender.');       if(gender) gender.focus();      return false; }
+      if (!civilStatus || !civilStatus.value)    { toast('Please select your civil status.'); if(civilStatus) civilStatus.focus(); return false; }
     }
     if (step === 3) {
-      const t = requestTypeInput.value;
+      const t = requestTypeInput ? requestTypeInput.value : '';
       const pMap = { 'Barangay Clearance': 'purpose_clearance', 'Certificate of Residency': 'purpose_residency', 'Certificate of Indigency': 'purpose_indigency' };
-      if (pMap[t] && !$(pMap[t]).value.trim()) { toast('Please state the purpose of your request.'); $(pMap[t]).focus(); return false; }
+      const purposeField = $(pMap[t]);
+      if (pMap[t] && purposeField && !purposeField.value.trim()) { toast('Please state the purpose of your request.'); purposeField.focus(); return false; }
     }
     if (step === 4) {
-      if (!$('validIdInput').files.length)  { toast('Please upload a valid ID.');              return false; }
-      if (!$('proofInput').files.length)    { toast('Please upload proof of residency.');      return false; }
-      if (requestTypeInput.value === 'Barangay ID' && !$('photoInput').files.length) { toast('Please upload your 2×2 photo.'); return false; }
+      const validId = $('validIdInput');
+      const proof = $('proofInput');
+      if (!validId || !validId.files.length)  { toast('Please upload a valid ID.');              return false; }
+      if (!proof || !proof.files.length)    { toast('Please upload proof of residency.');      return false; }
+      const t = requestTypeInput ? requestTypeInput.value : '';
+      const photo = $('photoInput');
+      if (t === 'Barangay ID' && (!photo || !photo.files.length)) { toast('Please upload your 2×2 photo.'); return false; }
     }
-    if (step === 5 && !$('dataConsent').checked) { toast('Please check the Data Privacy Consent.'); return false; }
+    if (step === 5) {
+      const consent = $('dataConsent');
+      if (!consent || !consent.checked) { toast('Please check the Data Privacy Consent.'); return false; }
+    }
     return true;
   }
 
   /* ── Toast notification ────────────────────────── */
   function toast(msg) {
-    const t = document.createElement('div');
-    t.textContent = msg;
-    Object.assign(t.style, {
-      position: 'fixed', bottom: '28px', left: '50%', transform: 'translateX(-50%) translateY(20px)',
-      background: 'var(--charcoal)', color: '#fff', padding: '12px 24px',
-      borderRadius: '10px', fontSize: '13.5px', fontFamily: "'DM Sans',sans-serif",
-      boxShadow: 'var(--shadow-lg)', zIndex: 9999,
-      opacity: '0', transition: 'all .3s ease', whiteSpace: 'nowrap'
-    });
-    document.body.appendChild(t);
-    requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)'; });
-    setTimeout(() => {
-      t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(10px)';
-      setTimeout(() => t.remove(), 350);
-    }, 3000);
+    if (window.toast) {
+      window.toast.warning(msg);
+    } else {
+      const t = document.createElement('div');
+      t.textContent = msg;
+      Object.assign(t.style, {
+        position: 'fixed', bottom: '28px', left: '50%', transform: 'translateX(-50%) translateY(20px)',
+        background: 'var(--charcoal)', color: '#fff', padding: '12px 24px',
+        borderRadius: '10px', fontSize: '13.5px', fontFamily: "'DM Sans',sans-serif",
+        boxShadow: 'var(--shadow-lg)', zIndex: 9999,
+        opacity: '0', transition: 'all .3s ease', whiteSpace: 'nowrap'
+      });
+      document.body.appendChild(t);
+      requestAnimationFrame(() => { t.style.opacity = '1'; t.style.transform = 'translateX(-50%) translateY(0)'; });
+      setTimeout(() => {
+        t.style.opacity = '0'; t.style.transform = 'translateX(-50%) translateY(10px)';
+        setTimeout(() => t.remove(), 350);
+      }, 3000);
+    }
   }
 
   /* ── Scroll to form top ────────────────────────── */
   function scrollToForm() {
     const barH = stepBarWrap ? stepBarWrap.offsetHeight : 0;
     const top = formCard.getBoundingClientRect().top + window.scrollY - barH - 12;
-    window.scrollTo({ top, behavior: 'smooth' });
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
   }
 
   /* ── Review generator ──────────────────────────── */
   function buildReview() {
-    const t   = requestTypeInput.value;
-    const fn  = $('fullName').value    || '—';
-    const gen = $('gender').value      || '—';
-    const cs  = $('civilStatus').value || '—';
-    const adr = $('address').value     || '—';
-    const prk = $('purok').value       || '—';
-    const tel = $('contactNumber').value || '—';
-    const em  = $('email').value       || '—';
-    const age = $('age').value         || '—';
+    const t = requestTypeInput ? requestTypeInput.value : '';
+    const fn = ($('fullName') ? $('fullName').value : '') || '—';
+    const age = ($('age') ? $('age').value : '') || '—';
+    const gen = ($('gender') ? $('gender').value : '') || '—';
+    const cs = ($('civilStatus') ? $('civilStatus').value : '') || '—';
+    const adr = ($('address') ? $('address').value : '') || '—';
+    const prk = ($('purok') ? $('purok').value : '') || '—';
+    const tel = ($('contactNumber') ? $('contactNumber').value : '') || '—';
+    const em = ($('email') ? $('email').value : '') || '—';
 
     const pMap = { 'Barangay Clearance': 'purpose_clearance', 'Certificate of Residency': 'purpose_residency', 'Certificate of Indigency': 'purpose_indigency' };
-    const purp = pMap[t] ? ($(pMap[t]).value || '—') : '—';
+    const purposeField = $(pMap[t]);
+    const purp = (purposeField ? purposeField.value : '') || '—';
 
-    const fmtFile = (inp, label) =>
-      `<div class="review-row"><span class="rk">${label}</span><span class="rv ${$(inp).files.length ? 'ok' : 'missing'}">${$(inp).files.length ? '✓ Uploaded' : '✗ Missing'}</span></div>`;
+    const fmtFile = (inpId, label) => {
+      const inp = $(inpId);
+      return `<div class="review-row"><span class="rk">${label}</span><span class="rv ${inp && inp.files && inp.files.length ? 'ok' : 'missing'}">${inp && inp.files && inp.files.length ? '✓ Uploaded' : '✗ Missing'}</span></div>`;
+    };
 
-    $('reviewContent').innerHTML = `
-      <div class="review-block">
-        <h4>Certificate</h4>
-        <div class="review-row"><span class="rk">Type</span><span class="rv">${t}</span></div>
-        <div class="review-row"><span class="rk">Purpose</span><span class="rv">${purp}</span></div>
-      </div>
-      <div class="review-block">
-        <h4>Personal Info</h4>
-        <div class="review-row"><span class="rk">Full Name</span><span class="rv">${fn}</span></div>
-        <div class="review-row"><span class="rk">Age</span><span class="rv">${age}</span></div>
-        <div class="review-row"><span class="rk">Gender</span><span class="rv">${gen}</span></div>
-        <div class="review-row"><span class="rk">Civil Status</span><span class="rv">${cs}</span></div>
-      </div>
-      <div class="review-block">
-        <h4>Contact & Address</h4>
-        <div class="review-row"><span class="rk">Address</span><span class="rv">${adr}</span></div>
-        <div class="review-row"><span class="rk">Purok/Sitio</span><span class="rv">${prk}</span></div>
-        <div class="review-row"><span class="rk">Contact</span><span class="rv">${tel}</span></div>
-        <div class="review-row"><span class="rk">Email</span><span class="rv">${em}</span></div>
-      </div>
-      <div class="review-block">
-        <h4>Documents</h4>
-        ${fmtFile('validIdInput', 'Valid ID')}
-        ${fmtFile('proofInput', 'Proof of Residency')}
-        ${t === 'Barangay ID' ? fmtFile('photoInput', '2×2 Photo') : ''}
-      </div>`;
+    const reviewContent = $('reviewContent');
+    if (reviewContent) {
+      reviewContent.innerHTML = `
+        <div class="review-block">
+          <h4>Certificate</h4>
+          <div class="review-row"><span class="rk">Type</span><span class="rv">${t}</span></div>
+          <div class="review-row"><span class="rk">Purpose</span><span class="rv">${purp}</span></div>
+        </div>
+        <div class="review-block">
+          <h4>Personal Info</h4>
+          <div class="review-row"><span class="rk">Full Name</span><span class="rv">${fn}</span></div>
+          <div class="review-row"><span class="rk">Age</span><span class="rv">${age}</span></div>
+          <div class="review-row"><span class="rk">Gender</span><span class="rv">${gen}</span></div>
+          <div class="review-row"><span class="rk">Civil Status</span><span class="rv">${cs}</span></div>
+        </div>
+        <div class="review-block">
+          <h4>Contact & Address</h4>
+          <div class="review-row"><span class="rk">Address</span><span class="rv">${adr}</span></div>
+          <div class="review-row"><span class="rk">Purok/Sitio</span><span class="rv">${prk}</span></div>
+          <div class="review-row"><span class="rk">Contact</span><span class="rv">${tel}</span></div>
+          <div class="review-row"><span class="rk">Email</span><span class="rv">${em}</span></div>
+        </div>
+        <div class="review-block">
+          <h4>Documents</h4>
+          ${fmtFile('validIdInput', 'Valid ID')}
+          ${fmtFile('proofInput', 'Proof of Residency')}
+          ${t === 'Barangay ID' ? fmtFile('photoInput', '2×2 Photo') : ''}
+        </div>`;
+    }
   }
 
   /* ── Render step ───────────────────────────────── */
@@ -1032,33 +1385,57 @@ select.form-control { cursor: pointer; }
     }
 
     const [pill, title, sub] = stepTitles[step - 1];
-    $('stepPill').textContent    = pill;
-    $('stepTitle').textContent   = title;
-    $('stepSubtitle').textContent = sub;
+    const stepPill = $('stepPill');
+    const stepTitle = $('stepTitle');
+    const stepSubtitle = $('stepSubtitle');
+    if (stepPill) stepPill.textContent = pill;
+    if (stepTitle) stepTitle.textContent = title;
+    if (stepSubtitle) stepSubtitle.textContent = sub;
 
-    prevBtn.style.visibility = step === 1 ? 'hidden' : 'visible';
+    if (prevBtn) prevBtn.style.visibility = step === 1 ? 'hidden' : 'visible';
     const isLast = step === TOTAL;
-    nextBtn.style.display   = isLast ? 'none'  : 'inline-flex';
-    submitBtn.style.display = isLast ? 'inline-flex' : 'none';
-    nextBtn.disabled = step === 1 && !requestTypeInput.value;
+    if (nextBtn) nextBtn.style.display   = isLast ? 'none'  : 'inline-flex';
+    if (submitBtn) submitBtn.style.display = isLast ? 'inline-flex' : 'none';
+    if (nextBtn) nextBtn.disabled = step === 1 && (!requestTypeInput || !requestTypeInput.value);
 
     if (isLast) buildReview();
   }
 
   /* ── Navigation ────────────────────────────────── */
-  nextBtn.addEventListener('click', () => {
-    if (!validate()) return;
-    if (step === 1) applyConditionalFields();
-    step++;
-    render();
-    scrollToForm();
-  });
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (!validate()) return;
+      if (step === 1) applyConditionalFields();
+      step++;
+      render();
+      scrollToForm();
+    });
+  }
 
-  prevBtn.addEventListener('click', () => {
-    step--;
-    render();
-    scrollToForm();
-  });
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      step--;
+      render();
+      scrollToForm();
+    });
+  }
+
+  /* ── Handle form submission with toast ──────────── */
+  const certForm = $('certForm');
+  if (certForm) {
+    certForm.addEventListener('submit', function(e) {
+      const consent = $('dataConsent');
+      if (!consent || !consent.checked) {
+        e.preventDefault();
+        toast('Please check the Data Privacy Consent before submitting.');
+        return false;
+      }
+      if (window.toast) {
+        window.toast.info('Submitting your request...', 'Processing');
+      }
+      return true;
+    });
+  }
 
   /* ── Init ──────────────────────────────────────── */
   render();

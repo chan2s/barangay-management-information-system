@@ -44,20 +44,18 @@ def kapitan_dashboard(request):
             is_completed=True
         ).select_related('blotter').order_by('-hearing_date')[:10]
         
-        # ===== NEW: Appointment statistics for Kapitan =====
-        # Appointments pending Kapitan approval (blotter hearings that need Kapitan's attention)
+        # ===== FIXED: Appointment statistics for Kapitan =====
+        # Show ALL pending appointments (both blotter_hearing AND kapitan types)
         pending_appointments = Appointment.objects.filter(
-            appointment_type='blotter_hearing',
-            status='pending'
+            status='pending'  # Removed appointment_type filter to show all pending appointments
         ).order_by('appointment_date')[:10]
+        
         pending_appointments_count = Appointment.objects.filter(
-            appointment_type='blotter_hearing',
-            status='pending'
+            status='pending'  # Removed appointment_type filter
         ).count()
         
-        # Upcoming appointments (approved)
+        # Upcoming appointments (approved) - show all types
         upcoming_appointments = Appointment.objects.filter(
-            appointment_type='blotter_hearing',
             status='approved',
             appointment_date__gte=timezone.now()
         ).order_by('appointment_date')[:10]
@@ -68,7 +66,7 @@ def kapitan_dashboard(request):
         approved_certificates = CertificateRequest.objects.filter(status='approved').count()
         released_certificates = CertificateRequest.objects.filter(status='released').count()
         pending_cert_requests = CertificateRequest.objects.filter(status='for_approval').order_by('-date_submitted')[:10]
-
+    
         # Pending certificate requests awaiting Kapitan approval
         pending_cert_requests = CertificateRequest.objects.filter(status='for_approval').order_by('-date_submitted')[:10]
         
@@ -82,7 +80,7 @@ def kapitan_dashboard(request):
             'today_hearings': today_hearings,
             'upcoming_hearings': upcoming_hearings,
             'past_hearings': past_hearings,
-            # Appointment data
+            # Appointment data - FIXED
             'pending_appointments': pending_appointments,
             'pending_appointments_count': pending_appointments_count,
             'upcoming_appointments': upcoming_appointments,
@@ -99,25 +97,32 @@ def kapitan_dashboard(request):
         messages.error(request, 'Access denied. Staff only area.')
         return redirect('dashboard')
 
-
 # ====================== APPOINTMENT MANAGEMENT (NEW) ======================
 
 @login_required
 @role_required(['kapitan', 'admin'])
 def appointment_list(request):
-    """Kapitan view: List all appointments (blotter hearings)"""
+    """Kapitan view: List all appointments"""
     try:
         staff_profile = request.user.staff_profile
         if staff_profile.role != 'kapitan' and not request.user.is_superuser:
             messages.error(request, 'Access denied. Kapitan only area.')
             return redirect('staff_module:staff_dashboard')
         
-        appointments = Appointment.objects.filter(appointment_type='blotter_hearing').order_by('-appointment_date')
+        appointments = Appointment.objects.all().order_by('-appointment_date')
+        
+        # Get pending count for the badge
+        pending_count = Appointment.objects.filter(status='pending').count()
         
         # Filter by status
         status_filter = request.GET.get('status', '')
         if status_filter:
             appointments = appointments.filter(status=status_filter)
+        
+        # Filter by type (optional)
+        type_filter = request.GET.get('type', '')
+        if type_filter:
+            appointments = appointments.filter(appointment_type=type_filter)
         
         # Search
         search_query = request.GET.get('search', '')
@@ -136,6 +141,8 @@ def appointment_list(request):
             'appointments': page_obj,
             'search_query': search_query,
             'status_filter': status_filter,
+            'type_filter': type_filter,
+            'pending_count': pending_count,  # Add this line
             'staff': staff_profile,
             'user': request.user,
         }
@@ -193,8 +200,9 @@ def appointment_approve(request, appt_id):
             appointment.notes = request.POST.get('notes', appointment.notes or '')
             appointment.save()
             
-            # Also update the related blotter schedule if exists
-            if appointment.blotter:
+            # If this is a blotter hearing, update the blotter schedule
+            if appointment.appointment_type == 'blotter_hearing' and appointment.blotter:
+                # Update the schedule with approved status
                 schedule = appointment.blotter.schedules.filter(hearing_date=appointment.appointment_date).first()
                 if schedule:
                     schedule.notes = f"Approved by Kapitan. {schedule.notes or ''}"
@@ -233,7 +241,7 @@ def appointment_reject(request, appt_id):
         
         if request.method == 'POST':
             rejection_reason = request.POST.get('rejection_reason', '')
-            appointment.status = 'cancelled'
+            appointment.status = 'rejected'  # Change from 'cancelled' to 'rejected'
             appointment.notes = f"Rejected: {rejection_reason}"
             appointment.save()
             
@@ -251,7 +259,6 @@ def appointment_reject(request, appt_id):
         messages.error(request, 'Access denied.')
         return redirect('dashboard')
 
-
 @login_required
 @role_required(['kapitan', 'admin'])
 def for_approval_appointments(request):
@@ -262,17 +269,18 @@ def for_approval_appointments(request):
             messages.error(request, 'Access denied. Kapitan only area.')
             return redirect('staff_module:staff_dashboard')
         
+        # FIX: Include BOTH blotter_hearing AND kapitan appointment types
         pending_appointments = Appointment.objects.filter(
-            appointment_type='blotter_hearing',
             status='pending'
-        ).order_by('appointment_date')
+        ).order_by('appointment_date')  # Remove the appointment_type filter
         
         # Search functionality
         search_query = request.GET.get('search', '')
         if search_query:
             pending_appointments = pending_appointments.filter(
                 Q(reference_number__icontains=search_query) |
-                Q(resident_name__icontains=search_query)
+                Q(resident_name__icontains=search_query) |
+                Q(blotter__blotter_number__icontains=search_query)
             )
         
         paginator = Paginator(pending_appointments, 20)

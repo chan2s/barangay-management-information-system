@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>{% block title %}BIMS Kapitan Portal{% endblock %}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -16,6 +16,7 @@
             --sidebar-text-active: #ffffff;
             --sidebar-accent: #f5d300;
             --sidebar-width: 260px;
+            --sidebar-width-mobile: 260px;
             --bg: #f4f6f9;
             --white: #ffffff;
             --border: #e5e7eb;
@@ -36,6 +37,49 @@
             color: var(--text);
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Mobile Menu Toggle Button */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .mobile-menu-toggle:hover {
+            background: var(--yellow);
+            color: var(--sidebar-bg);
+        }
+        
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active {
+            display: block;
         }
 
         /* Toast Container */
@@ -156,6 +200,7 @@
             height: 100%;
             z-index: 100;
             overflow-y: auto;
+            transition: transform 0.3s ease;
         }
 
         .sidebar-brand {
@@ -240,6 +285,7 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            transition: margin-left 0.3s ease;
         }
 
         /* Top Bar */
@@ -285,18 +331,161 @@
         }
 
         /* Content */
-        .content { padding: 24px 28px; flex: 1; }
-        .page-heading { font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; }
+        .content { 
+            padding: 24px 28px; 
+            flex: 1; 
+        }
+        .page-heading { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 24px; 
+        }
+
+        /* Mobile Sidebar */
+        .mobile-menu-toggle {
+            display: none;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 992px) {
+            .content {
+                padding: 20px 24px;
+            }
+            .page-heading {
+                font-size: 1.3rem;
+            }
+        }
 
         @media (max-width: 768px) {
-            .kapitan-sidebar { left: -260px; }
-            .kapitan-main { margin-left: 0; }
-            .content { padding: 20px; }
+            body {
+                padding-top: 60px;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .kapitan-sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+            
+            .kapitan-sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .kapitan-main {
+                margin-left: 0;
+            }
+            
+            .topbar {
+                padding: 0 16px;
+            }
+            
+            .topbar-title {
+                font-size: 0.85rem;
+            }
+            
+            .user-pill {
+                padding: 4px 12px;
+                gap: 8px;
+            }
+            
+            .user-pill-name {
+                font-size: 0.75rem;
+            }
+            
+            .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: 0.75rem;
+            }
+            
+            .content {
+                padding: 16px;
+            }
+            
+            .page-heading {
+                font-size: 1.2rem;
+                margin-bottom: 16px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .topbar-title span {
+                display: none;
+            }
+            
+            .user-pill .user-pill-info {
+                display: none;
+            }
+            
+            .user-pill {
+                background: transparent;
+                padding: 0;
+            }
+            
+            .topbar {
+                justify-content: flex-end;
+            }
+            
+            .content {
+                padding: 12px;
+            }
+            
+            .page-heading {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content {
+                padding: 10px;
+            }
+            
+            .page-heading {
+                font-size: 1rem;
+                margin-bottom: 12px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-menu-toggle {
+                display: none !important;
+            }
+        }
+        
+        /* Scrollbar styling */
+        .kapitan-sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .kapitan-sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .kapitan-sidebar::-webkit-scrollbar-thumb {
+            background: var(--yellow);
+            border-radius: 5px;
+        }
+        
+        /* Loading state for buttons */
+        .btn-loading {
+            opacity: 0.6;
+            pointer-events: none;
         }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+
+    <!-- Mobile Menu Toggle Button -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 
     <!-- Global Toast Container -->
     <div id="toast-container" class="toast-container"></div>
@@ -318,7 +507,7 @@
         document.body.setAttribute('data-django-messages', JSON.stringify(djangoMessages));
     </script>
 
-    <aside class="kapitan-sidebar">
+    <aside class="kapitan-sidebar" id="kapitanSidebar">
         <div class="sidebar-brand">
             <div class="brand-icon"><i class="fas fa-balance-scale"></i></div>
             <div class="brand-text">BIMS Kapitan<span>Barangay Poblacion</span></div>
@@ -331,15 +520,9 @@
             <a href="{% url 'kapitan_portal:appointment_list' %}" class="nav-link {% block nav_appointments %}{% endblock %}">
                 <i class="fas fa-calendar-alt"></i> Appointments
             </a>
-            <a href="{% url 'kapitan_portal:for_approval_appointments' %}" class="nav-link {% block nav_pending_appointments %}{% endblock %}">
-                <i class="fas fa-clock"></i> Pending Appointments
-            </a>
             <div class="nav-divider"></div>
             <a href="{% url 'kapitan_portal:certificate_list' %}" class="nav-link {% block nav_certificates %}{% endblock %}">
                 <i class="fas fa-file-certificate"></i> Certificates
-            </a>
-            <a href="{% url 'kapitan_portal:for_approval_list' %}" class="nav-link {% block nav_pending_certs %}{% endblock %}">
-                <i class="fas fa-check-double"></i> For Approval
             </a>
             <div class="nav-divider"></div>
             <a href="{% url 'kapitan_portal:hearing_list' %}" class="nav-link {% block nav_hearings %}{% endblock %}">
@@ -352,7 +535,9 @@
 
     <div class="kapitan-main">
         <header class="topbar">
-            <div class="topbar-left"><span class="topbar-title">Kapitan Portal <span>| Barangay Poblacion</span></span></div>
+            <div class="topbar-left">
+                <span class="topbar-title">Kapitan Portal <span>| Barangay Poblacion</span></span>
+            </div>
             <div class="user-pill">
                 <div class="user-pill-info">
                     <div class="user-pill-name">{{ user.get_full_name|default:user.username }}</div>
@@ -361,8 +546,72 @@
                 <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
             </div>
         </header>
-        <div class="content">{% block content %}{% endblock %}</div>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
     </div>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('kapitanSidebar');
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            
+            function closeSidebar() {
+                if (sidebar) sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('active');
+            }
+            
+            function openSidebar() {
+                if (sidebar) sidebar.classList.add('open');
+                if (overlay) overlay.classList.add('active');
+            }
+            
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (sidebar && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+            
+            // Close sidebar when clicking a link on mobile
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
+            
+            // Close sidebar on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
+                    closeSidebar();
+                }
+            });
+            
+            // Handle window resize
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (window.innerWidth > 768 && sidebar && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    }
+                }, 250);
+            });
+        });
+    </script>
 
     <!-- Toast Notification System Script -->
     <script>

@@ -906,11 +906,11 @@
           Serves You
         </h1>
         <p class="hero-sub fade-up d3">
-          A modern, transparent, and community-focused Barangay Integrated Management System — built to serve every resident of Santa Catalina.
+          A modern, transparent, and community-focused Barangay Integrated Management System — built to serve every resident of Barangay Poblacion, Santa Catalina.
         </p>
-        <div class="hero-actions fade-up d4">
+        {% comment %} <div class="hero-actions fade-up d4">
           <a href="/blotter/verify-email/" class="btn-primary-hero">
-            <i class="bi bi-file-earmark-plus-fill"></i> Report a Blotter
+            <i class="bi bi-file-earmark-plus-fill"></i> File Blotter
           </a>
           <a href="/certificates/" class="btn-primary-hero btn-certificate">
             <i class="bi bi-file-text-fill"></i> Request Certificate
@@ -918,7 +918,7 @@
           <a href="/blotter/track/" class="btn-outline-hero">
             <i class="bi bi-search"></i> Track Your Blotter
           </a>
-        </div>
+        </div> {% endcomment %}
       </div>
     </div>
   </div>
@@ -976,12 +976,12 @@
 
     <div class="mv-grid">
       <div class="mv-card reveal reveal-delay-1">
-        <div class="mv-card-icon">🎯</div>
+        {% comment %} <div class="mv-card-icon">🎯</div> {% endcomment %}
         <h3>Our Mission</h3>
         <p>To provide accessible, efficient, and transparent government services to every resident of Barangay Poblacion. We are committed to maintaining peace, order, and sustainable community development through inclusive governance and active citizen participation.</p>
       </div>
       <div class="mv-card reveal reveal-delay-2">
-        <div class="mv-card-icon">🌟</div>
+        {% comment %} <div class="mv-card-icon">🌟</div> {% endcomment %}
         <h3>Our Vision</h3>
         <p>A progressive, peaceful, and prosperous Barangay Poblacion where every resident enjoys a high quality of life, supported by a responsive local government that upholds justice, unity, and community empowerment.</p>
       </div>
@@ -1000,22 +1000,27 @@
 
     <div class="features-grid">
       <div class="feature-card reveal">
-        <div class="feature-icon">📝</div>
+        {% comment %} <div class="feature-icon">📝</div> {% endcomment %}
         <h4>Online Blotter Filing</h4>
         <p>File incident reports online at any time, from anywhere. No need to visit the barangay hall to report an incident.</p>
       </div>
       <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon">📄</div>
+        {% comment %} <div class="feature-icon">📄</div> {% endcomment %}
         <h4>Certificate Requests</h4>
         <p>Request Barangay Clearance, Certificate of Indigency, Residency Certificate, and Barangay ID online.</p>
       </div>
+        <div class="feature-card reveal">
+        {% comment %} <div class="feature-icon">📝</div> {% endcomment %}
+        <h4>Certificate Tracking</h4>
+        <p>Track the status of your certificate requests in real-time. Get updates on processing and availability.</p>
+      </div>
       <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon">🔍</div>
+        {% comment %} <div class="feature-icon">🔍</div> {% endcomment %}
         <h4>Blotter Case Tracking</h4>
         <p>Monitor the real-time status of your filed blotter using your reference number. Stay informed every step of the way.</p>
       </div>
       <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon">📊</div>
+        {% comment %} <div class="feature-icon">📊</div> {% endcomment %}
         <h4>Admin Dashboard</h4>
         <p>Full administrative control over the system — manage officials, generate reports, and monitor barangay operations.</p>
       </div>
@@ -1024,7 +1029,7 @@
 </section>
 
 <!-- ===== HOW IT WORKS ===== -->
-<section class="section">
+{% comment %} <section class="section">
   <div class="container">
     <div class="reveal" style="text-align:center;">
       <div class="section-eyebrow" style="justify-content:center;">How It Works</div>
@@ -1055,7 +1060,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> {% endcomment %}
 
 <!-- ===== OFFICIALS SECTION - PYRAMID LAYOUT ===== -->
 <section class="section section-alt">
@@ -1130,14 +1135,16 @@
           <h5>Hon. Richard Ike Electona</h5>
           <span>Kagawad</span>
         </div>
-        <div class="official-card reveal reveal-delay-3">
+        {% comment %} <div class="official-card reveal reveal-delay-3">
           <div class="official-avatar">
             <i class="fas fa-user-graduate"></i>
           </div>
           <h5>SK Chairperson</h5>
           <span>SK Chairperson</span>
-        </div>
+        </div> {% endcomment %}
       </div>
+
+
     </div>
   </div>
 </section>
@@ -1147,16 +1154,16 @@
   <div class="container">
     <div class="emergency-inner">
       <div style="display:flex;align-items:center;gap:16px;">
-        <div class="emergency-icon">🚨</div>
+        {% comment %} <div class="emergency-icon">🚨</div> {% endcomment %}
         <div class="emergency-text">
-          <h4>Emergency Hotlines</h4>
+          <h4>Hotlines</h4>
           <p>Available 24 hours a day, 7 days a week</p>
         </div>
       </div>
       <div class="emergency-numbers">
         <div class="emergency-num">
           <span>Barangay Hall</span>
-          <strong>(032) 000-0000</strong>
+          <strong>092834221</strong>
         </div>
         <div class="emergency-num">
           <span>Police (PNP)</span>
@@ -1164,7 +1171,7 @@
         </div>
         <div class="emergency-num">
           <span>Fire Station</span>
-          <strong>(032) 000-0001</strong>
+          <strong>0968993251</strong>
         </div>
         <div class="emergency-num">
           <span>NDRRMC</span>
@@ -1176,7 +1183,7 @@
 </section>
 
 <!-- ===== CONTACT ===== -->
-<section class="section" id="contact">
+{% comment %} <section class="section" id="contact">
   <div class="container">
     <div class="reveal">
       <div class="section-eyebrow">Get in Touch</div>
@@ -1188,28 +1195,24 @@
       <div class="reveal reveal-delay-1">
         <div class="contact-info-list">
           <div class="contact-info-item">
-            <div class="contact-info-icon">📍</div>
             <div>
               <h6>Barangay Hall Address</h6>
               <p>Barangay Poblacion, Santa Catalina, Negros Oriental, Philippines</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-info-icon">📞</div>
             <div>
               <h6>Phone Number</h6>
-              <p>(032) 000-0000<br>Available Mon–Fri, 8AM–5PM</p>
+              <p>09123456789<br>Available Mon–Fri, 8AM–5PM</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-info-icon">✉️</div>
             <div>
               <h6>Email Address</h6>
               <p>brgy.poblacion@bims.gov.ph</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-info-icon">🕐</div>
             <div>
               <h6>Office Hours</h6>
               <p>Monday to Friday: 8:00 AM – 5:00 PM<br>Saturday: 8:00 AM – 12:00 PM</p>
@@ -1240,7 +1243,7 @@
       </div>
     </div>
   </div>
-</section>
+</section> {% endcomment %}
 
 {% endblock %}
 

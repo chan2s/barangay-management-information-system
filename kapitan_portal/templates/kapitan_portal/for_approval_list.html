@@ -227,29 +227,30 @@
     .status-for_approval {
         background: var(--yellow-soft);
         color: #856404;
-        border: 1px solid var(--warning);
+        border: 1px solid #ffc107;
     }
     
-    /* View Button */
-    .view-btn {
-        background: var(--charcoal);
-        color: var(--white);
-        padding: 5px 14px;
-        border-radius: var(--radius-sm);
+    /* Review Button - FIXED: Always visible */
+    .review-btn {
+        background: #1a1d23;
+        color: #ffffff;
+        padding: 6px 14px;
+        border-radius: 6px;
         text-decoration: none;
         font-size: 0.7rem;
         font-weight: 600;
         transition: all 0.2s;
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        border: 1px solid var(--charcoal);
+        gap: 6px;
+        border: 1px solid #1a1d23;
     }
     
-    .view-btn:hover {
-        background: var(--yellow);
-        color: var(--charcoal);
-        border-color: var(--yellow);
+    .review-btn:hover {
+        background: #f5d300;
+        color: #1a1d23;
+        border-color: #f5d300;
+        transform: translateY(-1px);
     }
     
     /* Empty State */
@@ -330,6 +331,11 @@
         
         table {
             min-width: 600px;
+        }
+        
+        .review-btn {
+            padding: 4px 10px;
+            font-size: 0.65rem;
         }
     }
 </style>
@@ -412,12 +418,12 @@
                         <td>{{ req.get_request_type_display }}</td>
                         <td>{{ req.date_submitted|date:"M d, Y" }}</td>
                         <td>
-                            <span class="status-badge status-{{ req.status }}">
+                            <span class="status-badge status-for_approval">
                                 <i class="fas fa-clock"></i> {{ req.get_status_display }}
                             </span>
                         </td>
                         <td>
-                            <a href="{% url 'kapitan_portal:certificate_detail' req.id %}" class="view-btn">
+                            <a href="{% url 'kapitan_portal:certificate_detail' req.id %}" class="review-btn">
                                 <i class="fas fa-eye"></i> Review
                             </a>
                         </td>

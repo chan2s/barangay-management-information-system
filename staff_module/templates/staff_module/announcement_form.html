@@ -6,12 +6,14 @@
 
 {% block extra_css %}
 <style>
+    /* Matching Appointment Form Design */
     .form-container {
-        max-width: 900px;
+        max-width: 800px;
         margin: 0 auto;
     }
     
-    .form-card {
+    /* Card Styles */
+    .card {
         background: var(--white);
         border-radius: var(--radius);
         border: 1px solid var(--border);
@@ -21,44 +23,44 @@
     
     .card-header {
         padding: 20px 24px;
-        border-bottom: 2px solid var(--yellow);
+        border-bottom: 2px solid var(--sidebar-bg);
         background: var(--white);
     }
     
-    .card-header h2 {
-        font-size: 1.2rem;
+    .card-title {
+        font-size: 1.1rem;
         font-weight: 700;
-        margin: 0;
+        color: var(--text);
         display: flex;
         align-items: center;
         gap: 10px;
-        color: var(--text);
     }
     
-    .card-header h2 i {
-        color: var(--yellow);
+    .card-title i {
+        color: var(--sidebar-bg);
+        font-size: 1.2rem;
     }
     
     .card-body {
-        padding: 28px;
+        padding: 28px 24px;
     }
     
     /* Form Groups */
     .form-group {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
     
-    label {
+    .form-group label {
         display: block;
         font-size: 0.8rem;
-        font-weight: 700;
+        font-weight: 600;
         color: var(--slate);
         margin-bottom: 8px;
     }
     
-    label i {
-        margin-right: 8px;
-        color: var(--yellow);
+    .form-group label i {
+        margin-right: 6px;
+        color: var(--sidebar-bg);
         width: 18px;
     }
     
@@ -82,8 +84,8 @@
     
     .form-control:focus {
         outline: none;
-        border-color: var(--yellow);
-        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+        border-color: var(--sidebar-bg);
+        box-shadow: 0 0 0 3px rgba(26, 29, 35, 0.1);
     }
     
     select.form-control {
@@ -97,22 +99,27 @@
     
     textarea.form-control {
         resize: vertical;
-        min-height: 150px;
+        min-height: 100px;
     }
     
     input[type="datetime-local"].form-control {
         padding: 8px 12px;
     }
     
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    
     /* Help Text */
     .help-text {
         font-size: 0.7rem;
         color: var(--muted);
-        margin-top: 6px;
-        line-height: 1.4;
+        margin-top: 5px;
     }
     
-    /* Priority Preview */
+    /* Priority Preview - Badge style */
     .priority-preview {
         display: inline-flex;
         align-items: center;
@@ -124,9 +131,20 @@
         margin-top: 10px;
     }
     
-    .priority-preview-normal { background: #e9ecef; color: #6c757d; }
-    .priority-preview-important { background: #fff3cd; color: #856404; }
-    .priority-preview-urgent { background: #f8d7da; color: #721c24; }
+    .priority-preview-normal {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    .priority-preview-important {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .priority-preview-urgent {
+        background: #fee2e2;
+        color: #991b1b;
+    }
     
     /* Image Preview */
     .image-preview {
@@ -142,7 +160,7 @@
     }
     
     .image-preview img {
-        max-width: 120px;
+        max-width: 100px;
         max-height: 80px;
         object-fit: cover;
         border-radius: var(--radius-sm);
@@ -166,39 +184,75 @@
         font-weight: 600;
     }
     
-    /* Live Preview */
-    .live-preview {
-        background: var(--cream);
-        border-radius: var(--radius);
-        padding: 20px;
-        margin-top: 28px;
-        border: 1px solid var(--border);
+    .remove-image:hover {
+        background: #c82333;
     }
     
-    .live-preview-title {
-        font-size: 0.8rem;
-        font-weight: 700;
+    .current-image {
+        margin-top: 10px;
+        padding: 10px;
+        background: var(--cream);
+        border-radius: var(--radius-sm);
+    }
+    
+    .current-image strong {
+        font-size: 0.7rem;
         color: var(--muted);
-        margin-bottom: 16px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        display: block;
+        margin-bottom: 8px;
+    }
+    
+    .current-image img {
+        max-width: 150px;
+        border-radius: var(--radius-sm);
+    }
+    
+    /* Info Box */
+    .info-box {
+        background: var(--cream);
+        border-left: 4px solid var(--sidebar-bg);
+        padding: 14px 16px;
+        margin-bottom: 24px;
+        border-radius: var(--radius-sm);
         display: flex;
-        align-items: center;
-        gap: 8px;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .info-box i {
+        color: var(--sidebar-bg);
+        font-size: 1.1rem;
+        margin-top: 2px;
+    }
+    
+    .info-box-content {
+        flex: 1;
+    }
+    
+    .info-box-content strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--charcoal);
+    }
+    
+    .info-box-content p {
+        font-size: 0.8rem;
+        color: var(--slate);
+        margin: 0;
     }
     
     .preview-card {
         background: var(--white);
+        border: 1px solid var(--border);
         border-radius: var(--radius-sm);
         padding: 16px;
-        border: 1px solid var(--border);
     }
     
     .preview-card .preview-title {
-        font-size: 1rem;
+        font-size: 0.9rem;
         font-weight: 700;
         margin-bottom: 8px;
-        color: var(--charcoal);
+        color: var(--text);
     }
     
     .preview-card .preview-content {
@@ -207,27 +261,27 @@
         line-height: 1.5;
     }
     
-    /* Button Group */
-    .btn-group {
+    /* Form Actions */
+    .form-actions {
         display: flex;
         gap: 16px;
         margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
     }
     
     .btn-submit {
-        flex: 1;
-        background: var(--charcoal);
-        color: var(--white);
+        background: var(--sidebar-bg);
+        color: white;
+        padding: 12px 28px;
         border: none;
-        padding: 12px 24px;
         border-radius: var(--radius-sm);
+        cursor: pointer;
         font-weight: 700;
         font-size: 0.85rem;
-        cursor: pointer;
         transition: all 0.2s;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
         gap: 8px;
     }
     
@@ -237,38 +291,50 @@
         transform: translateY(-2px);
     }
     
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
     .btn-cancel {
-        flex: 1;
         background: transparent;
         color: var(--slate);
+        padding: 12px 28px;
         border: 1.5px solid var(--border);
-        padding: 12px 24px;
         border-radius: var(--radius-sm);
+        text-decoration: none;
         font-weight: 600;
         font-size: 0.85rem;
-        text-decoration: none;
-        text-align: center;
         transition: all 0.2s;
         display: inline-flex;
         align-items: center;
-        justify-content: center;
         gap: 8px;
     }
     
     .btn-cancel:hover {
         background: var(--cream);
-        border-color: var(--yellow);
+        border-color: var(--sidebar-bg);
         color: var(--charcoal);
     }
     
     /* Responsive */
     @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        
         .card-body {
             padding: 20px;
         }
         
-        .btn-group {
+        .form-actions {
             flex-direction: column;
+        }
+        
+        .btn-submit, .btn-cancel {
+            justify-content: center;
         }
         
         .image-preview {
@@ -281,21 +347,29 @@
 
 {% block content %}
 <div class="form-container">
-    <div class="form-card">
+    <div class="card">
         <div class="card-header">
-            <h2>
-                <i class="fas fa-{% if is_edit %}edit{% else %}plus-circle{% endif %}"></i>
-                {% if is_edit %}Edit Announcement{% else %}Create New Announcement{% endif %}
-            </h2>
+            <div class="card-title">
+                <i class="fas fa-{% if is_edit %}edit{% else %}bullhorn{% endif %}"></i>
+                {% if is_edit %}Edit Announcement{% else %}Schedule New Announcement{% endif %}
+            </div>
         </div>
-        
         <div class="card-body">
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i>
+                <div class="info-box-content">
+                    <strong>Announcement Information</strong>
+                    <p>Fill out the form below to {% if is_edit %}update the announcement{% else %}create a new announcement{% endif %}. All fields marked with <span style="color: #ef4444;">*</span> are required.</p>
+                </div>
+            </div>
+            
             <form method="post" enctype="multipart/form-data" id="announcementForm">
                 {% csrf_token %}
                 
                 <!-- Title -->
                 <div class="form-group">
-                    <label><i class="fas fa-heading"></i> Title <span class="required-star">*</span></label>
+                    <label><i class="fas fa-heading"></i> Announcement Title <span class="required-star">*</span></label>
                     {{ form.title }}
                     <div class="help-text">A clear, descriptive title for your announcement (max 200 characters)</div>
                 </div>
@@ -304,7 +378,7 @@
                 <div class="form-group">
                     <label><i class="fas fa-align-left"></i> Content <span class="required-star">*</span></label>
                     {{ form.content }}
-                    <div class="help-text">Write the full announcement details here. Support for line breaks and formatting.</div>
+                    <div class="help-text">Write the full announcement details here</div>
                 </div>
                 
                 <!-- Priority Level -->
@@ -313,11 +387,26 @@
                     {{ form.priority }}
                     <div class="help-text">
                         <strong>Normal:</strong> Regular announcements<br>
-                        <strong>Important:</strong> Highly important information (yellow badge)<br>
-                        <strong>Urgent:</strong> Requires immediate attention (red badge)
+                        <strong>Important:</strong> Highly important information<br>
+                        <strong>Urgent:</strong> Requires immediate attention
                     </div>
                     <div id="priorityPreview" class="priority-preview priority-preview-normal">
                         <i class="fas fa-info-circle"></i> Normal Priority
+                    </div>
+                </div>
+                
+                <!-- Form Row for Dates -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-calendar-alt"></i> Schedule Date (Optional)</label>
+                        {{ form.scheduled_date }}
+                        <div class="help-text">Set a future date to schedule this announcement</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-hourglass-end"></i> Expiration Date (Optional)</label>
+                        {{ form.expires_at }}
+                        <div class="help-text">Set when this announcement should expire</div>
                     </div>
                 </div>
                 
@@ -334,42 +423,29 @@
                         <button type="button" class="remove-image" onclick="removeImage()">Remove</button>
                     </div>
                     {% if is_edit and announcement.image %}
-                    <div class="current-image" style="margin-top: 10px; padding: 10px; background: var(--cream); border-radius: var(--radius-sm);">
+                    <div class="current-image">
                         <strong>Current Image:</strong>
-                        <img src="{{ announcement.image.url }}" alt="Current image" style="max-width: 200px; border-radius: var(--radius-sm); margin-top: 8px;">
+                        <img src="{{ announcement.image.url }}" alt="Current image">
                     </div>
                     {% endif %}
                 </div>
                 
-                <!-- Schedule Date -->
-                <div class="form-group">
-                    <label><i class="fas fa-calendar-alt"></i> Schedule Date (Optional)</label>
-                    {{ form.scheduled_date }}
-                    <div class="help-text">Set a future date to schedule this announcement. Leave empty to publish immediately.</div>
-                </div>
-                
-                <!-- Expiration Date -->
-                <div class="form-group">
-                    <label><i class="fas fa-hourglass-end"></i> Expiration Date (Optional)</label>
-                    {{ form.expires_at }}
-                    <div class="help-text">Set when this announcement should expire. After expiration, it won't appear on the public page.</div>
-                </div>
-                
-                <!-- Live Preview -->
-                <div class="live-preview">
-                    <div class="live-preview-title">
-                        <i class="fas fa-eye"></i> Live Preview
+                <!-- Live Preview Box -->
+                {% comment %} <div class="info-box" style="margin-top: 24px;">
+                    <i class="fas fa-eye"></i>
+                    <div class="info-box-content">
+                        <strong>Live Preview</strong>
+                        <div class="preview-card" style="margin-top: 12px;">
+                            <div class="preview-title" id="previewTitle">Your announcement title will appear here</div>
+                            <div class="preview-content" id="previewContent">Your announcement content will appear here...</div>
+                        </div>
                     </div>
-                    <div class="preview-card">
-                        <div class="preview-title" id="previewTitle">Your announcement title will appear here</div>
-                        <div class="preview-content" id="previewContent">Your announcement content will appear here...</div>
-                    </div>
-                </div>
+                </div> {% endcomment %}
                 
-                <!-- Buttons -->
-                <div class="btn-group">
+                <!-- Form Actions -->
+                <div class="form-actions">
                     <button type="submit" class="btn-submit" id="submitBtn">
-                        <i class="fas fa-save"></i> {% if is_edit %}Update{% else %}Publish{% endif %} Announcement
+                        <i class="fas fa-save"></i> {% if is_edit %}Update Announcement{% else %}Publish Announcement{% endif %}
                     </button>
                     <a href="{% url 'staff_module:announcement_list' %}" class="btn-cancel">
                         <i class="fas fa-times"></i> Cancel
@@ -388,27 +464,28 @@
     const previewContent = document.getElementById('previewContent');
     
     function updatePreview() {
-        if (titleInput.value.trim()) {
+        if (titleInput && titleInput.value.trim()) {
             previewTitle.textContent = titleInput.value;
         } else {
             previewTitle.textContent = 'Your announcement title will appear here';
         }
         
-        if (contentInput.value.trim()) {
+        if (contentInput && contentInput.value.trim()) {
             previewContent.textContent = contentInput.value;
         } else {
             previewContent.textContent = 'Your announcement content will appear here...';
         }
     }
     
-    titleInput.addEventListener('input', updatePreview);
-    contentInput.addEventListener('input', updatePreview);
+    if (titleInput) titleInput.addEventListener('input', updatePreview);
+    if (contentInput) contentInput.addEventListener('input', updatePreview);
     
     // Priority Preview
     const prioritySelect = document.querySelector('select[name="priority"]');
     const priorityPreview = document.getElementById('priorityPreview');
     
     function updatePriorityPreview() {
+        if (!prioritySelect) return;
         const value = prioritySelect.value;
         const icon = value === 'urgent' ? 'fa-bell' : (value === 'important' ? 'fa-exclamation-circle' : 'fa-info-circle');
         const text = value === 'urgent' ? 'Urgent Priority' : (value === 'important' ? 'Important Priority' : 'Normal Priority');
@@ -418,8 +495,10 @@
         priorityPreview.innerHTML = `<i class="fas ${icon}"></i> ${text}`;
     }
     
-    prioritySelect.addEventListener('change', updatePriorityPreview);
-    updatePriorityPreview();
+    if (prioritySelect) {
+        prioritySelect.addEventListener('change', updatePriorityPreview);
+        updatePriorityPreview();
+    }
     
     // Image Preview
     const imageInput = document.querySelector('input[type="file"]');
@@ -427,47 +506,56 @@
     const imagePreview = document.getElementById('imagePreview');
     const imageName = document.getElementById('imageName');
     
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                imagePreview.src = event.target.result;
-                imageName.textContent = file.name;
-                imagePreviewContainer.style.display = 'flex';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreviewContainer.style.display = 'none';
-        }
-    });
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    imagePreview.src = event.target.result;
+                    imageName.textContent = file.name;
+                    imagePreviewContainer.style.display = 'flex';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                imagePreviewContainer.style.display = 'none';
+            }
+        });
+    }
     
     function removeImage() {
-        imageInput.value = '';
-        imagePreviewContainer.style.display = 'none';
+        if (imageInput) imageInput.value = '';
+        if (imagePreviewContainer) imagePreviewContainer.style.display = 'none';
     }
     
     // Form Validation
-    document.getElementById('announcementForm').addEventListener('submit', function(e) {
-        const submitBtn = document.getElementById('submitBtn');
-        if (!titleInput.value.trim()) {
-            e.preventDefault();
-            alert('Please enter an announcement title.');
-            titleInput.focus();
-            return false;
-        }
-        
-        if (!contentInput.value.trim()) {
-            e.preventDefault();
-            alert('Please enter announcement content.');
-            contentInput.focus();
-            return false;
-        }
-        
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {% if is_edit %}Updating...{% else %}Publishing...{% endif %}';
-        submitBtn.disabled = true;
-        
-        return true;
-    });
+    const announcementForm = document.getElementById('announcementForm');
+    if (announcementForm) {
+        announcementForm.addEventListener('submit', function(e) {
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (!titleInput.value.trim()) {
+                e.preventDefault();
+                alert('Please enter an announcement title.');
+                titleInput.focus();
+                return false;
+            }
+            
+            if (!contentInput.value.trim()) {
+                e.preventDefault();
+                alert('Please enter announcement content.');
+                contentInput.focus();
+                return false;
+            }
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> {% if is_edit %}Updating...{% else %}Publishing...{% endif %}';
+            submitBtn.disabled = true;
+            
+            return true;
+        });
+    }
+    
+    // Initial preview update
+    updatePreview();
 </script>
 {% endblock %}

@@ -238,14 +238,13 @@ def staff_schedule_hearing(request, blotter_id):
                 priority='important',
                 hearing_type=hearing_type,
                 location=location,
-                status='approved',
+                status='pending',  # CHANGED FROM 'approved' TO 'pending'
                 created_by=request.user,
-                approved_by=request.user,
-                approved_at=timezone.now(),
+                # approved_by and approved_at removed - will be set when Kapitan approves
                 notes=f"Schedule notes: {notes}"
             )
 
-            messages.success(request, f'Hearing scheduled successfully! Appointment reference: {appointment.reference_number}')
+            messages.success(request, f'Hearing scheduled successfully! Appointment reference: {appointment.reference_number}. Waiting for Kapitan approval.')
             return redirect('staff_module:staff_blotter_detail', blotter_id=blotter.id)
         else:
             form = ScheduleForm()
@@ -274,10 +273,41 @@ def staff_update_status(request, blotter_id):
             new_status = request.POST.get('status')
             reason = request.POST.get('reason', '')
             
+            # ===== PREVENT DIRECT RESOLUTION WITHOUT HEARING =====
+            if new_status == 'resolved':
+                # Check if there's a settled hearing
+                has_settled_hearing = blotter.schedules.filter(outcome='settled').exists()
+                if not has_settled_hearing:
+                    messages.error(
+                        request, 
+                        'Cannot mark as Resolved. Please schedule and complete a hearing first, or mark as Settled in the hearing outcome.'
+                    )
+                    return redirect('staff_module:staff_blotter_detail', blotter_id=blotter.id)
+            
+            # ===== PREVENT DIRECT UNSETTLED WITHOUT HEARING =====
+            if new_status == 'unsettled':
+                has_hearing = blotter.schedules.filter(outcome__in=['unsettled', 'pending']).exists()
+                if not has_hearing:
+                    messages.error(
+                        request,
+                        'Cannot mark as Unsettled. Please schedule and complete a hearing first.'
+                    )
+                    return redirect('staff_module:staff_blotter_detail', blotter_id=blotter.id)
+            
+            # Update status
             blotter.status = new_status
             if new_status == 'resolved':
                 blotter.resolution_notes = reason
             blotter.save()
+            
+            # Create audit log
+            BlotterAuditLog.objects.create(
+                blotter=blotter,
+                action='status_change',
+                old_value=old_status,
+                new_value=new_status,
+                performed_by=request.user
+            )
             
             messages.success(request, f'Status updated to {new_status}')
             return redirect('staff_module:staff_blotter_detail', blotter_id=blotter.id)
@@ -796,6 +826,11 @@ def appointment_create(request):
             appointment.save()
             messages.success(request, f'Appointment created successfully! Reference: {appointment.reference_number}')
             return redirect('staff_module:appointment_list')
+        else:
+            # Display form errors
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = AppointmentForm()
     

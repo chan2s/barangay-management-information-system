@@ -15,10 +15,15 @@
     }
 
     .back-link {
-        display: inline-flex; align-items: center; gap: 7px;
-        font-size: 0.78rem; font-weight: 600;
-        color: var(--muted); text-decoration: none;
-        margin-bottom: 16px; transition: color 0.15s;
+        display: inline-flex; 
+        align-items: center; 
+        gap: 7px;
+        font-size: 0.78rem; 
+        font-weight: 600;
+        color: var(--muted); 
+        text-decoration: none;
+        margin-bottom: 16px; 
+        transition: color 0.15s;
     }
     .back-link:hover { color: var(--text); }
 
@@ -33,15 +38,30 @@
         padding: 13px 20px;
         border-bottom: 1px solid var(--border);
         background: var(--bg);
-        display: flex; align-items: center; gap: 8px;
+        display: flex; 
+        align-items: center; 
+        gap: 8px;
     }
-    .form-card-title { font-size: 0.85rem; font-weight: 700; color: var(--text); }
-    .form-card-head i { color: var(--muted); font-size: 0.85rem; }
+    .form-card-title { 
+        font-size: 0.85rem; 
+        font-weight: 700; 
+        color: var(--text); 
+    }
+    .form-card-head i { 
+        color: var(--muted); 
+        font-size: 0.85rem; 
+    }
 
-    .form-body { padding: 20px; }
+    .form-body { 
+        padding: 20px; 
+    }
 
-    .form-group { margin-bottom: 18px; }
-    .form-group:last-child { margin-bottom: 0; }
+    .form-group { 
+        margin-bottom: 18px; 
+    }
+    .form-group:last-child { 
+        margin-bottom: 0; 
+    }
 
     .form-label {
         display: block;
@@ -66,40 +86,98 @@
         transition: border-color 0.15s;
         appearance: none;
     }
-    .form-control:focus { border-color: #6b7280; background: var(--white); }
-    textarea.form-control { resize: vertical; min-height: 100px; line-height: 1.6; }
+    .form-control:focus { 
+        border-color: #6b7280; 
+        background: var(--white); 
+    }
+    textarea.form-control { 
+        resize: vertical; 
+        min-height: 100px; 
+        line-height: 1.6; 
+    }
 
     .form-footer {
-        display: flex; gap: 10px; align-items: center;
+        display: flex; 
+        gap: 10px; 
+        align-items: center;
         padding: 16px 20px;
         border-top: 1px solid var(--border);
         background: var(--bg);
     }
 
     .btn-submit {
-        background: var(--sidebar-bg); color: #fff;
-        border: none; padding: 9px 20px;
+        background: var(--sidebar-bg); 
+        color: #fff;
+        border: none; 
+        padding: 9px 20px;
         border-radius: var(--radius-sm);
-        font-size: 0.82rem; font-weight: 700;
+        font-size: 0.82rem; 
+        font-weight: 700;
         font-family: 'Inter', sans-serif;
         cursor: pointer;
-        display: flex; align-items: center; gap: 7px;
+        display: flex; 
+        align-items: center; 
+        gap: 7px;
         transition: opacity 0.15s;
     }
-    .btn-submit:hover { opacity: 0.85; }
+    .btn-submit:hover { 
+        opacity: 0.85; 
+    }
 
     .btn-cancel {
-        background: var(--bg); color: var(--muted);
+        background: var(--bg); 
+        color: var(--muted);
         border: 1px solid var(--border);
         padding: 9px 16px;
         border-radius: var(--radius-sm);
-        font-size: 0.82rem; font-weight: 600;
+        font-size: 0.82rem; 
+        font-weight: 600;
         font-family: 'Inter', sans-serif;
         text-decoration: none;
-        display: flex; align-items: center; gap: 7px;
+        display: flex; 
+        align-items: center; 
+        gap: 7px;
         transition: all 0.15s;
     }
-    .btn-cancel:hover { color: var(--text); }
+    .btn-cancel:hover { 
+        color: var(--text); 
+    }
+
+    /* Warning Box */
+    .warning-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    
+    .warning-box i {
+        color: #f59e0b;
+        font-size: 1rem;
+        margin-top: 2px;
+    }
+    
+    .warning-box-content {
+        flex: 1;
+    }
+    
+    .warning-box-content strong {
+        font-size: 0.75rem;
+        color: #92400e;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    .warning-box-content p {
+        font-size: 0.7rem;
+        color: #78350f;
+        margin: 0;
+        line-height: 1.4;
+    }
 
     /* Info side card */
     .info-card {
@@ -110,23 +188,44 @@
     }
     .info-card-head {
         padding: 12px 16px;
-        background: var(--sidebar-bg); color: #fff;
-        font-size: 0.8rem; font-weight: 700;
+        background: var(--sidebar-bg); 
+        color: #fff;
+        font-size: 0.8rem; 
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
     .info-row {
-        display: flex; flex-direction: column;
+        display: flex; 
+        flex-direction: column;
         padding: 10px 16px;
         border-bottom: 1px solid var(--border);
         font-size: 0.78rem;
     }
-    .info-row:last-child { border-bottom: none; }
-    .info-label { font-size: 0.67rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
-    .info-value { color: var(--text); font-weight: 600; }
+    .info-row:last-child { 
+        border-bottom: none; 
+    }
+    .info-label { 
+        font-size: 0.67rem; 
+        font-weight: 600; 
+        color: var(--muted); 
+        text-transform: uppercase; 
+        letter-spacing: 0.04em; 
+        margin-bottom: 3px; 
+    }
+    .info-value { 
+        color: var(--text); 
+        font-weight: 600; 
+    }
 
     .badge {
-        display: inline-flex; align-items: center;
-        padding: 3px 9px; border-radius: 20px;
-        font-size: 0.68rem; font-weight: 600;
+        display: inline-flex; 
+        align-items: center;
+        padding: 3px 9px; 
+        border-radius: 20px;
+        font-size: 0.68rem; 
+        font-weight: 600;
     }
     .badge-pending      { background: #fef3c7; color: #92400e; }
     .badge-scheduled    { background: #dbeafe; color: #1e40af; }
@@ -134,8 +233,37 @@
     .badge-resolved     { background: #dcfce7; color: #166534; }
     .badge-unsettled    { background: #fee2e2; color: #991b1b; }
     .badge-closed       { background: #f3f4f6; color: #6b7280; }
+    .badge-dismissed    { background: #e5e7eb; color: #4b5563; }
 
-    @media (max-width: 900px) { .form-layout { grid-template-columns: 1fr; } }
+    /* Hearing info box */
+    .hearing-info {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 12px 16px;
+        margin-top: 16px;
+        border-radius: 8px;
+    }
+    
+    .hearing-info i {
+        color: #3b82f6;
+    }
+    
+    .hearing-info strong {
+        font-size: 0.75rem;
+        color: #1e40af;
+    }
+    
+    .hearing-info p {
+        font-size: 0.7rem;
+        color: #1e3a8a;
+        margin: 4px 0 0 0;
+    }
+
+    @media (max-width: 900px) { 
+        .form-layout { 
+            grid-template-columns: 1fr; 
+        } 
+    }
 </style>
 {% endblock %}
 
@@ -156,21 +284,69 @@
         <form method="POST">
             {% csrf_token %}
             <div class="form-body">
+                <!-- Warning Box -->
+                <div class="warning-box">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="warning-box-content">
+                        <strong>Important: Status Update Rules</strong>
+                        <p>
+                            • <strong>Resolved</strong> - Only available if there is a completed hearing with "Settled" outcome.<br>
+                            • <strong>Unsettled</strong> - Only available if there is a completed hearing.<br>
+                            • For cases without hearings, use: Pending, Scheduled, In Progress, Closed, or Dismissed.<br>
+                            • To mark as Resolved/Unsettled, first schedule a hearing and update the hearing outcome.
+                        </p>
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <label class="form-label">New Status</label>
                     <select name="status" class="form-control" required>
                         {% for status_code, status_label in status_choices %}
-                        <option value="{{ status_code }}" {% if blotter.status == status_code %}selected{% endif %}>
-                            {{ status_label }}
-                        </option>
+                            {% if status_code == 'resolved' %}
+                                <option value="{{ status_code }}" {% if blotter.status == status_code %}selected{% endif %} 
+                                        title="Requires a completed hearing with 'Settled' outcome">
+                                    {{ status_label }} ⚠️ (requires settled hearing)
+                                </option>
+                            {% elif status_code == 'unsettled' %}
+                                <option value="{{ status_code }}" {% if blotter.status == status_code %}selected{% endif %}
+                                        title="Requires a completed hearing">
+                                    {{ status_label }} ⚠️ (requires hearing)
+                                </option>
+                            {% else %}
+                                <option value="{{ status_code }}" {% if blotter.status == status_code %}selected{% endif %}>
+                                    {{ status_label }}
+                                </option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
+                
                 <div class="form-group">
                     <label class="form-label">Reason / Notes</label>
                     <textarea name="reason" class="form-control"
-                              placeholder="Enter reason for status change..."></textarea>
+                              placeholder="Enter reason for status change (required for Resolved/Unsettled)..."></textarea>
                 </div>
+                
+                <!-- Show hearing info if exists -->
+                {% if blotter.schedules.all %}
+                <div class="hearing-info">
+                    <i class="fas fa-gavel"></i>
+                    <strong>Hearing Information</strong>
+                    <p>
+                        This case has {{ blotter.schedules.count }} hearing record(s).<br>
+                        Latest hearing outcome: 
+                        {% with latest_hearing=blotter.schedules.last %}
+                            {% if latest_hearing.outcome == 'settled' %}
+                                <span style="color: #166534;">✓ Settled</span> - You can mark as Resolved
+                            {% elif latest_hearing.outcome == 'unsettled' %}
+                                <span style="color: #991b1b;">✗ Unsettled</span> - You can mark as Unsettled
+                            {% else %}
+                                <span>{{ latest_hearing.get_outcome_display }}</span> - Complete hearing first
+                            {% endif %}
+                        {% endwith %}
+                    </p>
+                </div>
+                {% endif %}
             </div>
             <div class="form-footer">
                 <button type="submit" class="btn-submit">
@@ -185,7 +361,9 @@
 
     <!-- Case Info -->
     <div class="info-card">
-        <div class="info-card-head"><i class="fas fa-info-circle"></i> Case Summary</div>
+        <div class="info-card-head">
+            <i class="fas fa-info-circle"></i> Case Summary
+        </div>
         <div class="info-row">
             <span class="info-label">Blotter No.</span>
             <span class="info-value">{{ blotter.blotter_number }}</span>
@@ -193,12 +371,23 @@
         <div class="info-row">
             <span class="info-label">Current Status</span>
             <span class="info-value">
-                {% if blotter.status == 'pending' %}<span class="badge badge-pending">Pending</span>
-                {% elif blotter.status == 'scheduled' %}<span class="badge badge-scheduled">Scheduled</span>
-                {% elif blotter.status == 'in_progress' %}<span class="badge badge-in_progress">In Progress</span>
-                {% elif blotter.status == 'resolved' %}<span class="badge badge-resolved">Resolved</span>
-                {% elif blotter.status == 'unsettled' %}<span class="badge badge-unsettled">Unsettled</span>
-                {% else %}<span class="badge badge-closed">{{ blotter.get_status_display }}</span>{% endif %}
+                {% if blotter.status == 'pending' %}
+                    <span class="badge badge-pending">Pending</span>
+                {% elif blotter.status == 'scheduled' %}
+                    <span class="badge badge-scheduled">Scheduled</span>
+                {% elif blotter.status == 'in_progress' %}
+                    <span class="badge badge-in_progress">In Progress</span>
+                {% elif blotter.status == 'resolved' %}
+                    <span class="badge badge-resolved">Resolved</span>
+                {% elif blotter.status == 'unsettled' %}
+                    <span class="badge badge-unsettled">Unsettled</span>
+                {% elif blotter.status == 'closed' %}
+                    <span class="badge badge-closed">Closed</span>
+                {% elif blotter.status == 'dismissed' %}
+                    <span class="badge badge-dismissed">Dismissed</span>
+                {% else %}
+                    <span class="badge badge-closed">{{ blotter.get_status_display }}</span>
+                {% endif %}
             </span>
         </div>
         <div class="info-row">
@@ -217,6 +406,41 @@
             <span class="info-label">Incident Date</span>
             <span class="info-value">{{ blotter.incident_date|date:"M d, Y" }}</span>
         </div>
+        <div class="info-row">
+            <span class="info-label">Date Filed</span>
+            <span class="info-value">{{ blotter.created_at|date:"M d, Y" }}</span>
+        </div>
     </div>
 </div>
+
+<script>
+    // Add client-side validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const statusSelect = document.querySelector('select[name="status"]');
+        const reasonTextarea = document.querySelector('textarea[name="reason"]');
+        const selectedStatus = statusSelect.value;
+        
+        // Require reason for Resolved or Unsettled
+        if ((selectedStatus === 'resolved' || selectedStatus === 'unsettled') && !reasonTextarea.value.trim()) {
+            e.preventDefault();
+            alert('Please provide a reason/notes for changing status to ' + 
+                  statusSelect.options[statusSelect.selectedIndex].text.split(' ')[0]);
+            reasonTextarea.focus();
+            return false;
+        }
+        
+        // Show confirmation for important status changes
+        if (selectedStatus === 'resolved' || selectedStatus === 'unsettled' || selectedStatus === 'closed') {
+            const confirmMsg = confirm('Are you sure you want to mark this case as ' + 
+                                       statusSelect.options[statusSelect.selectedIndex].text.split('⚠')[0] + 
+                                       '?\n\nThis action will update the case status and cannot be undone easily.');
+            if (!confirmMsg) {
+                e.preventDefault();
+                return false;
+            }
+        }
+        
+        return true;
+    });
+</script>
 {% endblock %}

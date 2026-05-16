@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <style>
+    /* ── Layout ─────────────────────────────────────────── */
     .filter-card {
         background: var(--white);
         border: 1px solid var(--border);
@@ -87,9 +88,12 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 10px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
     .result-count { font-size: 0.78rem; color: var(--muted); }
 
+    /* ── Table card ─────────────────────────────────────── */
     .table-card {
         background: var(--white);
         border: 1px solid var(--border);
@@ -102,6 +106,8 @@
         justify-content: space-between;
         padding: 14px 18px;
         border-bottom: 1px solid var(--border);
+        flex-wrap: wrap;
+        gap: 10px;
     }
     .table-card-title { font-size: 0.88rem; font-weight: 600; color: var(--text); }
     .total-badge {
@@ -113,7 +119,18 @@
         border-radius: 20px;
     }
 
-    .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    /* ── Desktop table ──────────────────────────────────── */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        width: 100%;
+    }
+    .data-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+    }
     .data-table thead th {
         background: var(--bg);
         padding: 10px 14px;
@@ -128,12 +145,12 @@
     .data-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
     .data-table tbody tr:last-child { border-bottom: none; }
     .data-table tbody tr:hover { background: #f9fafb; }
-    .data-table td { padding: 10px 14px; vertical-align: middle; }
-
+    .data-table td { padding: 10px 14px; vertical-align: middle; white-space: nowrap; }
     .blotter-no { font-weight: 700; font-size: 0.78rem; color: var(--muted); }
 
+    /* ── Badges ─────────────────────────────────────────── */
     .badge {
-        display: inline-flex; align-items: center;
+        display: inline-flex; align-items: center; gap: 4px;
         padding: 3px 8px;
         border-radius: 20px;
         font-size: 0.66rem;
@@ -152,6 +169,7 @@
     .badge-email        { background: #eff6ff; color: #1e40af; }
     .badge-id           { background: #fff7ed; color: #c2410c; }
 
+    /* ── Action button ──────────────────────────────────── */
     .btn-action {
         padding: 4px 10px;
         border-radius: 5px;
@@ -162,18 +180,22 @@
         text-decoration: none;
         display: inline-flex; align-items: center; gap: 4px;
         transition: opacity 0.15s;
+        white-space: nowrap;
     }
     .btn-action:hover { opacity: 0.8; }
     .btn-dark  { background: #1a1d23; color: #fff; }
 
+    /* ── Empty state ────────────────────────────────────── */
     .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
     .empty-state i { font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.4; }
     .empty-state p { font-size: 0.82rem; }
 
+    /* ── Pagination ─────────────────────────────────────── */
     .pagination-bar {
         display: flex; justify-content: center; align-items: center;
         gap: 6px; padding: 14px 18px;
         border-top: 1px solid var(--border);
+        flex-wrap: wrap;
     }
     .pagination-bar a, .pagination-bar span {
         padding: 5px 10px;
@@ -187,6 +209,109 @@
     }
     .pagination-bar a:hover { background: var(--bg); color: var(--text); }
     .pagination-bar .current { background: var(--sidebar-bg); color: #fff; border-color: var(--sidebar-bg); }
+
+    /* ── Mobile card list (hidden by default) ───────────── */
+    .blotter-cards { display: none; }
+
+    .blotter-card {
+        border-bottom: 1px solid var(--border);
+        padding: 14px 16px;
+        transition: background 0.1s;
+    }
+    .blotter-card:last-child { border-bottom: none; }
+    .blotter-card:hover { background: #f9fafb; }
+
+    .blotter-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .blotter-card-no {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+    }
+    .blotter-card-badges {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .blotter-card-body {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 12px;
+        margin-bottom: 12px;
+    }
+    .blotter-card-field {}
+    .blotter-card-label {
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 2px;
+    }
+    .blotter-card-value {
+        font-size: 0.78rem;
+        color: var(--text);
+        word-break: break-word;
+    }
+    .blotter-card-value.muted {
+        color: var(--muted);
+        font-size: 0.73rem;
+    }
+
+    .blotter-card-footer {
+        display: flex;
+        justify-content: flex-end;
+    }
+    .blotter-card-footer .btn-action {
+        padding: 6px 14px;
+        font-size: 0.72rem;
+    }
+
+    /* ── Responsive breakpoints ─────────────────────────── */
+    @media (max-width: 900px) {
+        .filter-row { flex-direction: column; }
+        .filter-group { width: 100%; }
+        .filter-actions { width: 100%; }
+        .btn-filter, .btn-reset { flex: 1; justify-content: center; }
+        .result-bar { flex-direction: column; align-items: flex-start; }
+        .table-card-header { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* Switch to card view at 700px */
+    @media (max-width: 700px) {
+        .table-responsive { display: none; }
+        .blotter-cards { display: block; }
+
+        .filter-card { padding: 12px 14px; }
+        .filter-group input,
+        .filter-group select { padding: 7px 10px; font-size: 0.75rem; }
+        .btn-filter, .btn-reset { padding: 7px 12px; font-size: 0.72rem; }
+
+        .table-card-header { padding: 10px 14px; }
+        .table-card-title { font-size: 0.82rem; }
+
+        .pagination-bar { gap: 4px; padding: 10px 12px; }
+        .pagination-bar a, .pagination-bar span { padding: 4px 8px; font-size: 0.7rem; }
+    }
+
+    @media (max-width: 420px) {
+        .blotter-card { padding: 12px; }
+        .blotter-card-body { grid-template-columns: 1fr; gap: 6px; }
+        .blotter-card-badges { gap: 4px; }
+        .badge { font-size: 0.6rem; padding: 2px 7px; }
+        .filter-card { padding: 10px 12px; }
+        .filter-card-title { font-size: 0.65rem; }
+        .filter-group label { font-size: 0.6rem; }
+        .filter-group input,
+        .filter-group select { font-size: 0.7rem; }
+    }
 </style>
 {% endblock %}
 
@@ -259,36 +384,93 @@
     <span class="result-count">Showing {{ blotters|length }} of {{ total_count }} blotter records</span>
 </div>
 
-<!-- Table -->
+<!-- Table Card -->
 <div class="table-card">
     <div class="table-card-header">
         <span class="table-card-title">Blotter Cases</span>
         <span class="total-badge">{{ total_count }} total</span>
     </div>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Blotter #</th>
-                <th>Complainant</th>
-                <th>Respondent</th>
-                <th>Incident Type</th>
-                <th>Incident Date</th>
-                <th>Status</th>
-                <th>Approval</th>
-                <th>Verification</th>
-                <th>Date Filed</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for blotter in blotters %}
-            <tr>
-                <td class="blotter-no">{{ blotter.blotter_number }}</td>
-                <td>{{ blotter.complainant_name|truncatechars:22 }}</td>
-                <td>{{ blotter.respondent_name|default:"—"|truncatechars:22 }}</td>
-                <td>{{ blotter.get_incident_type_display|truncatechars:20 }}</td>
-                <td>{{ blotter.incident_date|date:"M d, Y" }}</td>
-                <td>
+
+    <!-- ── Desktop Table (hidden on mobile) ───────────── -->
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Blotter #</th>
+                    <th>Complainant</th>
+                    <th>Respondent</th>
+                    <th>Incident Type</th>
+                    <th>Incident Date</th>
+                    <th>Status</th>
+                    <th>Approval</th>
+                    <th>Verification</th>
+                    <th>Date Filed</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blotter in blotters %}
+                <tr>
+                    <td class="blotter-no">{{ blotter.blotter_number }}</td>
+                    <td>{{ blotter.complainant_name|truncatechars:22 }}</td>
+                    <td>{{ blotter.respondent_name|default:"—"|truncatechars:22 }}</td>
+                    <td>{{ blotter.get_incident_type_display|truncatechars:20 }}</td>
+                    <td>{{ blotter.incident_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if blotter.status == 'pending' %}<span class="badge badge-pending">Pending</span>
+                        {% elif blotter.status == 'scheduled' %}<span class="badge badge-scheduled">Scheduled</span>
+                        {% elif blotter.status == 'in_progress' %}<span class="badge badge-in_progress">In Progress</span>
+                        {% elif blotter.status == 'resolved' %}<span class="badge badge-resolved">Resolved</span>
+                        {% elif blotter.status == 'unsettled' %}<span class="badge badge-unsettled">Unsettled</span>
+                        {% elif blotter.status == 'closed' %}<span class="badge badge-closed">Closed</span>
+                        {% elif blotter.status == 'dismissed' %}<span class="badge badge-dismissed">Dismissed</span>
+                        {% else %}<span class="badge badge-closed">{{ blotter.get_status_display }}</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if blotter.is_approved %}
+                            <span class="badge badge-approved"><i class="fas fa-check"></i> Approved</span>
+                        {% else %}
+                            <span class="badge badge-waiting"><i class="fas fa-clock"></i> Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if blotter.verification_method == 'email' %}
+                            <span class="badge badge-email"><i class="fas fa-envelope"></i> Email</span>
+                        {% elif blotter.verification_method == 'id_card' %}
+                            <span class="badge badge-id"><i class="fas fa-id-card"></i> Valid ID</span>
+                        {% else %}
+                            <span style="color:var(--muted); font-size:0.75rem;">—</span>
+                        {% endif %}
+                    </td>
+                    <td style="color:var(--muted); font-size:0.75rem;">{{ blotter.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="{% url 'staff_module:staff_blotter_detail' blotter.id %}" class="btn-action btn-dark">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No blotter records found</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ── Mobile Card List (hidden on desktop) ───────── -->
+    <div class="blotter-cards">
+        {% for blotter in blotters %}
+        <div class="blotter-card">
+            <div class="blotter-card-top">
+                <span class="blotter-card-no">{{ blotter.blotter_number }}</span>
+                <div class="blotter-card-badges">
+                    <!-- Status badge -->
                     {% if blotter.status == 'pending' %}<span class="badge badge-pending">Pending</span>
                     {% elif blotter.status == 'scheduled' %}<span class="badge badge-scheduled">Scheduled</span>
                     {% elif blotter.status == 'in_progress' %}<span class="badge badge-in_progress">In Progress</span>
@@ -297,43 +479,63 @@
                     {% elif blotter.status == 'closed' %}<span class="badge badge-closed">Closed</span>
                     {% elif blotter.status == 'dismissed' %}<span class="badge badge-dismissed">Dismissed</span>
                     {% else %}<span class="badge badge-closed">{{ blotter.get_status_display }}</span>{% endif %}
-                </td>
-                <td>
+                    <!-- Approval badge -->
                     {% if blotter.is_approved %}
                         <span class="badge badge-approved"><i class="fas fa-check"></i> Approved</span>
                     {% else %}
                         <span class="badge badge-waiting"><i class="fas fa-clock"></i> Pending</span>
                     {% endif %}
-                </td>
-                <td>
-                    {% if blotter.verification_method == 'email' %}
-                        <span class="badge badge-email"><i class="fas fa-envelope"></i> Email</span>
-                    {% elif blotter.verification_method == 'id_card' %}
-                        <span class="badge badge-id"><i class="fas fa-id-card"></i> Valid ID</span>
-                    {% else %}
-                        <span style="color:var(--muted); font-size:0.75rem;">—</span>
-                    {% endif %}
-                </td>
-                <td style="color:var(--muted); font-size:0.75rem;">{{ blotter.created_at|date:"M d, Y" }}</td>
-                <td>
-                    <a href="{% url 'staff_module:staff_blotter_detail' blotter.id %}" class="btn-action btn-dark">
-                        <i class="fas fa-eye"></i> View
-                    </a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="10">
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>No blotter records found</p>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </div>
 
+            <div class="blotter-card-body">
+                <div class="blotter-card-field">
+                    <div class="blotter-card-label">Complainant</div>
+                    <div class="blotter-card-value">{{ blotter.complainant_name|truncatechars:30 }}</div>
+                </div>
+                <div class="blotter-card-field">
+                    <div class="blotter-card-label">Respondent</div>
+                    <div class="blotter-card-value">{{ blotter.respondent_name|default:"—"|truncatechars:30 }}</div>
+                </div>
+                <div class="blotter-card-field">
+                    <div class="blotter-card-label">Incident Type</div>
+                    <div class="blotter-card-value">{{ blotter.get_incident_type_display|truncatechars:28 }}</div>
+                </div>
+                <div class="blotter-card-field">
+                    <div class="blotter-card-label">Incident Date</div>
+                    <div class="blotter-card-value">{{ blotter.incident_date|date:"M d, Y" }}</div>
+                </div>
+                <div class="blotter-card-field">
+                    <div class="blotter-card-label">Verification</div>
+                    <div class="blotter-card-value">
+                        {% if blotter.verification_method == 'email' %}
+                            <span class="badge badge-email"><i class="fas fa-envelope"></i> Email</span>
+                        {% elif blotter.verification_method == 'id_card' %}
+                            <span class="badge badge-id"><i class="fas fa-id-card"></i> Valid ID</span>
+                        {% else %}—{% endif %}
+                    </div>
+                </div>
+                <div class="blotter-card-field">
+                    <div class="blotter-card-label">Date Filed</div>
+                    <div class="blotter-card-value muted">{{ blotter.created_at|date:"M d, Y" }}</div>
+                </div>
+            </div>
+
+            <div class="blotter-card-footer">
+                <a href="{% url 'staff_module:staff_blotter_detail' blotter.id %}" class="btn-action btn-dark">
+                    <i class="fas fa-eye"></i> View Details
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <p>No blotter records found</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
     {% if blotters.has_other_pages %}
     <div class="pagination-bar">
         {% if blotters.has_previous %}

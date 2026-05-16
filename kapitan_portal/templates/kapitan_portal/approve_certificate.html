@@ -92,6 +92,9 @@
         display: inline-block;
         font-weight: 600;
     }
+    .btn-cancel:hover {
+        background: #5a6268;
+    }
     .file-link {
         background: var(--yellow);
         color: #1a1d23;
@@ -113,6 +116,128 @@
         display: flex;
         gap: 15px;
         margin-top: 20px;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 450px;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-overlay.active .modal-container {
+        transform: scale(1);
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .modal-header i {
+        font-size: 24px;
+        color: #22c55e;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        color: #111827;
+    }
+    
+    .modal-body {
+        padding: 24px;
+    }
+    
+    .modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+        line-height: 1.5;
+    }
+    
+    .modal-body .success-text {
+        background: #dcfce7;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 16px;
+        font-size: 0.8rem;
+        color: #166534;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+    
+    .modal-btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .modal-btn-confirm {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .modal-btn-confirm:hover {
+        background: #16a34a;
+    }
+    
+    .modal-btn-cancel:hover {
+        background: #e5e7eb;
+    }
+    
+    .btn-approve:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 </style>
 {% endblock %}
@@ -211,7 +336,7 @@
             <i class="fas fa-info-circle" style="color: var(--yellow);"></i> Please review the application carefully before approving.
         </div>
         
-        <form method="post">
+        <form method="post" id="approveForm">
             {% csrf_token %}
             <div class="form-group">
                 <label>Remarks (Optional)</label>
@@ -219,11 +344,82 @@
             </div>
             
             <div class="action-buttons">
-                <button type="submit" class="btn-approve">
+                <button type="button" class="btn-approve" id="showModalBtn">
                     <i class="fas fa-check"></i> Approve Certificate
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<!-- Modal -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <i class="fas fa-question-circle"></i>
+            <h3>Confirm Approval</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to approve this certificate request?</p>
+            <p style="font-size: 0.85rem; color: #6b7280;">This action will:</p>
+            <ul style="margin: 8px 0 0 20px; color: #6b7280; font-size: 0.8rem;">
+                <li>Approve the certificate request</li>
+                <li>Notify the resident via email (if provided)</li>
+                <li>The resident can claim the certificate within 7 days</li>
+            </ul>
+            <div class="success-text">
+                <i class="fas fa-info-circle"></i> Approval will be recorded with your name and timestamp.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-btn-cancel" id="closeModalBtn">Cancel</button>
+            <button type="button" class="modal-btn-confirm" id="confirmApproveBtn">
+                <i class="fas fa-check"></i> Yes, Approve
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('confirmModal');
+    const showModalBtn = document.getElementById('showModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const confirmApproveBtn = document.getElementById('confirmApproveBtn');
+    const approveForm = document.getElementById('approveForm');
+    
+    // Show modal
+    showModalBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        modal.classList.add('active');
+    });
+    
+    // Close modal
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    
+    // Confirm approval
+    confirmApproveBtn.addEventListener('click', function() {
+        const submitBtn = document.getElementById('showModalBtn');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+        approveForm.submit();
+    });
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+</script>
 {% endblock %}
