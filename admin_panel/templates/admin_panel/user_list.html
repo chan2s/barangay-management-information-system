@@ -456,11 +456,9 @@
                     <label>Role</label>
                     <select name="role">
                         <option value="">All Roles</option>
-                        <option value="superadmin" {% if role_filter == 'superadmin' %}selected{% endif %}>Super Admin</option>
                         <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
                         <option value="kapitan" {% if role_filter == 'kapitan' %}selected{% endif %}>Kapitan</option>
                         <option value="staff" {% if role_filter == 'staff' %}selected{% endif %}>Staff</option>
-                        <option value="resident" {% if role_filter == 'resident' %}selected{% endif %}>Resident</option>
                     </select>
                 </div>
                 <div class="filter-group">

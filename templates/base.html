@@ -400,6 +400,43 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        (function() {
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return '';
+            }
+
+            const originalFetch = window.fetch;
+            window.getCsrfToken = function() {
+                return getCookie('csrftoken');
+            };
+
+            window.fetch = function(input, init) {
+                const options = init || {};
+                const method = (options.method || 'GET').toUpperCase();
+                options.headers = new Headers(options.headers || {});
+                if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method) && !options.headers.has('X-CSRFToken')) {
+                    options.headers.set('X-CSRFToken', window.getCsrfToken());
+                    options.headers.set('X-Requested-With', 'XMLHttpRequest');
+                }
+                return originalFetch(input, options).then(function(response) {
+                    if (response.status === 401 || response.status === 403) {
+                        const contentType = response.headers.get('content-type') || '';
+                        if (contentType.includes('application/json')) {
+                            response.clone().json().then(function(data) {
+                                if (data.login_url) window.location.href = data.login_url;
+                            }).catch(function() {});
+                        }
+                    }
+                    return response;
+                });
+            };
+        })();
+    </script>
+
     <!-- Toast Notification Script -->
     <script>
         (function() {

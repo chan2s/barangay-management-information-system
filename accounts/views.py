@@ -3,9 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required  # ✅ FIX: added import
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.conf import settings
+from django.core.cache import cache
 from django.db.models import Q  # ✅ FIX: was missing, caused NameError in get_public_announcements
 from staff_module.models import Staff, AuditLog
 from staff_module.models import Announcement
+from staff_module.audit import log_activity
 from django.utils import timezone
 
 def get_client_ip(request):
@@ -24,13 +27,23 @@ def login_view(request):
     }
     
     if request.method == "POST":
-        username = request.POST.get('username')
+        username = (request.POST.get('username') or '').strip()
         password = request.POST.get('password')
+        ip_address = get_client_ip(request)
+        rate_key = f'login-attempts:{ip_address}:{username.lower()}'
+        attempts = cache.get(rate_key, 0)
+
+        if attempts >= 5:
+            log_activity(request, 'login_failed', 'auth', f'Locked login attempt for {username}')
+            messages.error(request, 'Too many failed login attempts. Please try again in 15 minutes.')
+            return render(request, 'login.html', context)
         
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
             login(request, user)
+            request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+            cache.delete(rate_key)
             
             # Log login
             AuditLog.objects.create(
@@ -39,8 +52,9 @@ def login_view(request):
                 action='login',
                 module='auth',
                 description=f'User {username} logged in',
-                ip_address=get_client_ip(request)
+                ip_address=ip_address
             )
+            log_activity(request, 'login', 'auth', f'User {username} logged in')
             
             # Role-based redirect
             if user.is_superuser:
@@ -57,6 +71,8 @@ def login_view(request):
             else:
                 return redirect('dashboard')
         else:
+            cache.set(rate_key, attempts + 1, 15 * 60)
+            log_activity(request, 'login_failed', 'auth', f'Failed login attempt for {username}')
             messages.error(request, 'Invalid username or password')
             return render(request, 'login.html', context)
     
@@ -74,6 +90,7 @@ def logout_view(request):
                 description=f'User {request.user.username} logged out',
                 ip_address=get_client_ip(request)
             )
+            log_activity(request, 'logout', 'auth', f'User {request.user.username} logged out')
         logout(request)
     return redirect('login')
 
@@ -85,8 +102,8 @@ def signup_view(request):
     }
     
     if request.method == "POST":
-        username = request.POST.get('username')
-        email = request.POST.get('email')
+        username = (request.POST.get('username') or '').strip()
+        email = (request.POST.get('email') or '').strip().lower()
         password = request.POST.get('password')
         
         if User.objects.filter(username=username).exists():

@@ -542,21 +542,31 @@
                 <a href="{% url 'admin_panel:dashboard' %}" class="nav-link {% block nav_dashboard %}{% endblock %}">
                     <i class="fas fa-chart-line"></i> Dashboard
                 </a>
+                {% if user.is_superuser or user.staff_profile.role == 'admin' %}
                 <a href="{% url 'admin_panel:user_list' %}" class="nav-link {% block nav_users %}{% endblock %}">
                     <i class="fas fa-users"></i> User Management
                 </a>
+                {% endif %}
+                <a href="{% url 'admin_panel:resident_list' %}" class="nav-link {% block nav_residents %}{% endblock %}">
+                    <i class="fas fa-address-card"></i> Residents
+                </a>
+                {% if user.is_superuser or user.staff_profile.role == 'admin' %}
                 <a href="{% url 'admin_panel:audit_log' %}" class="nav-link">
                     <i class="fas fa-history"></i> Audit Log
                 </a>
                 <a href="{% url 'admin_panel:system_settings' %}" class="nav-link {% block nav_settings %}{% endblock %}">
                     <i class="fas fa-cog"></i> Settings
                 </a>
+                {% endif %}
             </nav>
         </div>
         <nav class="sidebar-nav-bottom">
-            <a href="{% url 'logout' %}" class="nav-link nav-logout">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-link nav-logout" style="width: 100%; border: 0; background: transparent; cursor: pointer; font: inherit;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
         </nav>
     </aside>
     
@@ -760,6 +770,43 @@
         })();
     </script>
     
+    <script>
+        (function() {
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return '';
+            }
+
+            const originalFetch = window.fetch;
+            window.getCsrfToken = function() {
+                return getCookie('csrftoken');
+            };
+
+            window.fetch = function(input, init) {
+                const options = init || {};
+                const method = (options.method || 'GET').toUpperCase();
+                options.headers = new Headers(options.headers || {});
+                if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method) && !options.headers.has('X-CSRFToken')) {
+                    options.headers.set('X-CSRFToken', window.getCsrfToken());
+                    options.headers.set('X-Requested-With', 'XMLHttpRequest');
+                }
+                return originalFetch(input, options).then(function(response) {
+                    if (response.status === 401 || response.status === 403) {
+                        const contentType = response.headers.get('content-type') || '';
+                        if (contentType.includes('application/json')) {
+                            response.clone().json().then(function(data) {
+                                if (data.login_url) window.location.href = data.login_url;
+                            }).catch(function() {});
+                        }
+                    }
+                    return response;
+                });
+            };
+        })();
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

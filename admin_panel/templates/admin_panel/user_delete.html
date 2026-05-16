@@ -1,0 +1,164 @@
+{% extends 'admin_panel/admin_base.html' %}
+
+{% block title %}Delete User - Admin Panel{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirm-shell {
+        max-width: 640px;
+        margin: 0 auto;
+    }
+
+    .confirm-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .confirm-header {
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .warning-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: #fee2e2;
+        color: #991b1b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+    }
+
+    .confirm-title {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: var(--text);
+        margin: 0 0 3px;
+    }
+
+    .confirm-subtitle {
+        color: var(--muted);
+        font-size: .82rem;
+    }
+
+    .confirm-body {
+        padding: 20px;
+    }
+
+    .user-box {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 14px;
+        background: #f9fafb;
+        margin-bottom: 16px;
+    }
+
+    .user-name {
+        font-weight: 800;
+        color: var(--text);
+        margin-bottom: 4px;
+    }
+
+    .user-meta {
+        color: var(--muted);
+        font-size: .8rem;
+    }
+
+    .confirm-copy {
+        color: var(--text);
+        font-size: .9rem;
+        line-height: 1.55;
+        margin-bottom: 18px;
+    }
+
+    .confirm-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn-delete,
+    .btn-cancel {
+        border: 0;
+        border-radius: var(--radius-sm);
+        padding: 10px 15px;
+        text-decoration: none;
+        font-size: .82rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        min-height: 40px;
+    }
+
+    .btn-delete {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .btn-delete:hover {
+        opacity: .92;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    @media (max-width: 560px) {
+        .btn-delete,
+        .btn-cancel {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirm-shell">
+    <div class="confirm-card">
+        <div class="confirm-header">
+            <div class="warning-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div>
+                <h2 class="confirm-title">Delete User</h2>
+                <div class="confirm-subtitle">This removes the account from the system.</div>
+            </div>
+        </div>
+        <div class="confirm-body">
+            <div class="user-box">
+                <div class="user-name">{{ delete_user.get_full_name|default:delete_user.username }}</div>
+                <div class="user-meta">@{{ delete_user.username }}{% if delete_user.email %} | {{ delete_user.email }}{% endif %}</div>
+            </div>
+
+            <p class="confirm-copy">
+                Confirm deletion only when this account should no longer have access to BIMS.
+            </p>
+
+            <form method="post" class="confirm-actions">
+                {% csrf_token %}
+                <button type="submit" class="btn-delete">
+                    <i class="fas fa-trash"></i> Delete User
+                </button>
+                <a href="{% url 'admin_panel:user_list' %}" class="btn-cancel">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

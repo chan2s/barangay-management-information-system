@@ -638,6 +638,18 @@
                         <span><i class="fas fa-file-certificate"></i> Certificates Processed</span>
                         <strong>{{ total_certificates|default:0 }}</strong>
                     </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-address-card"></i> Total Residents</span>
+                        <strong>{{ total_residents|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-home"></i> Households</span>
+                        <strong>{{ total_households|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-user-clock"></i> Seniors / Minors / Voter-age</span>
+                        <strong>{{ senior_count|default:0 }} / {{ minor_count|default:0 }} / {{ voter_age_count|default:0 }}</strong>
+                    </div>
                 </div>
             </div>
         </div>

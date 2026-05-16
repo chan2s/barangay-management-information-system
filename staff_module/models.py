@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import ProtectedError
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 import re
@@ -8,11 +9,8 @@ from django.utils import timezone
 class Staff(models.Model):
     ROLE_CHOICES = [
         ('admin', 'Administrator'),
-        ('barangay_official', 'Barangay Official'),
-        ('secretary', 'Secretary'),
-        ('treasurer', 'Treasurer'),
         ('staff', 'Staff'),
-        ('kapitan', 'Punong Barangay / Kapitan'),  # ADD THIS
+        ('kapitan', 'Punong Barangay / Kapitan'),
     ]
     
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff_profile')
@@ -52,10 +50,8 @@ class Staff(models.Model):
         # Define role permissions
         role_permissions = {
             'kapitan': ['approve_certificate', 'view_reports', 'view_analytics', 'approve_blotter'],
-            'admin': ['manage_users', 'view_reports', 'approve_certificate', 'manage_staff'],
+            'admin': ['manage_users', 'view_reports', 'approve_certificate', 'manage_staff', 'manage_residents', 'approve_exports'],
             'staff': ['view_blotters', 'process_certificate', 'schedule_hearing'],
-            'secretary': ['view_blotters', 'process_certificate'],
-            'treasurer': ['view_reports'],
         }
         
         return permission in role_permissions.get(self.role, [])
@@ -236,15 +232,23 @@ class ActivityLog(models.Model):
         ('delete', 'Delete'),
         ('login', 'Login'),
         ('logout', 'Logout'),
+        ('login_failed', 'Failed Login'),
+        ('export_attempt', 'Export Attempt'),
+        ('export_approve', 'Export Approve'),
+        ('export_reject', 'Export Reject'),
+        ('certificate_generate', 'Certificate Generate'),
         ('approve', 'Approve'),
         ('reject', 'Reject'),
         ('view', 'View'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='activities')
-    action = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    username = models.CharField(max_length=150, blank=True)
+    user_role = models.CharField(max_length=50, blank=True)
+    action = models.CharField(max_length=30, choices=ACTION_CHOICES)
     module = models.CharField(max_length=100)
     description = models.TextField()
+    affected_resident = models.CharField(max_length=255, blank=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -255,6 +259,21 @@ class ActivityLog(models.Model):
     
     def __str__(self):
         return f"{self.user} - {self.action} - {self.timestamp}"
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            raise ProtectedError('Audit logs cannot be edited.', [self])
+        if self.user and not self.username:
+            self.username = self.user.username
+        if self.user and not self.user_role:
+            if self.user.is_superuser:
+                self.user_role = 'admin'
+            elif hasattr(self.user, 'staff_profile'):
+                self.user_role = self.user.staff_profile.role
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ProtectedError('Audit logs cannot be deleted.', [self])
     
 
 class SystemSetting(models.Model):

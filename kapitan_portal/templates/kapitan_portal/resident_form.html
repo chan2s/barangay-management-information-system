@@ -1,0 +1,71 @@
+{% extends 'kapitan_portal/kapitan_base.html' %}
+{% block title %}{{ mode }} Resident - Kapitan Portal{% endblock %}
+{% block nav_residents %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card { max-width: 980px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .card-header { padding: 18px 22px; border-bottom: 2px solid var(--yellow); }
+    .card-header h2 { margin: 0; font-size: 1.15rem; }
+    .card-body { padding: 22px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .form-group.full { grid-column: 1 / -1; }
+    .form-group label { display: block; font-size: .78rem; font-weight: 700; margin-bottom: 6px; color: var(--muted); text-transform: uppercase; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font: inherit; }
+    .field-error, .non-field-errors { color: #dc2626; font-size: .78rem; margin-top: 6px; }
+    .privacy-notice { background: #fffbeb; border: 1px solid #f59e0b; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; font-size: .82rem; color: #78350f; }
+    .privacy-notice strong { display: block; margin-bottom: 4px; }
+    .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+    .btn-submit, .btn-cancel { border: 0; border-radius: 6px; padding: 11px 18px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+    .btn-submit { background: var(--sidebar-bg); color: white; }
+    .btn-cancel { border: 1px solid var(--border); color: var(--text); background: var(--white); }
+    @media (max-width: 760px) { .form-grid { grid-template-columns: 1fr; } .btn-submit, .btn-cancel { width: 100%; justify-content: center; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card">
+    <div class="card-header">
+        <h2><i class="fas fa-address-card"></i> {{ mode }} Resident</h2>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" id="residentForm">
+            {% csrf_token %}
+            <div class="privacy-notice">
+                <strong>Data Privacy Notice</strong>
+                Resident information is protected under the Data Privacy Act of 2012. Confirm consent before saving this record.
+            </div>
+            {% if form.non_field_errors %}
+                <div class="non-field-errors">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-grid">
+                {% for field in form %}
+                <div class="form-group {% if field.name == 'address' or field.name == 'privacy_notice' %}full{% endif %}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}<div class="field-error">{{ field.errors.0 }}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Save Resident</button>
+                <a href="{% url 'kapitan_portal:resident_list' %}" class="btn-cancel"><i class="fas fa-times"></i> Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('residentForm')?.addEventListener('submit', function() {
+        const button = this.querySelector('button[type="submit"]');
+        if (button) {
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        }
+    });
+</script>
+{% endblock %}

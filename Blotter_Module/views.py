@@ -155,7 +155,8 @@ def verify_otp(request):
 # ====================== CHOOSE VERIFICATION ======================
 def choose_verification(request):
     """Step 0: Let user choose verification method"""
-    request.session.flush()
+    for key in ('email_verified', 'verification_method', 'pending_complaint_email', 'email_otp', 'otp_created_at'):
+        request.session.pop(key, None)
     
     if request.method == 'POST':
         method = request.POST.get('verification_method')
@@ -230,7 +231,8 @@ def file_blotter(request):
                 performed_by=request.user if request.user.is_authenticated else None
             )
             
-            request.session.flush()
+            for key in ('email_verified', 'verification_method', 'pending_complaint_email', 'email_otp', 'otp_created_at'):
+                request.session.pop(key, None)
             
             messages.success(request, f'Your blotter has been submitted! Your blotter number is: {blotter.blotter_number}')
             

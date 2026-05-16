@@ -6,8 +6,11 @@ from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from Blotter_Module.models import Blotter, Schedule
 from certificates.models import CertificateRequest
+from accounts.models import Resident, ResidentExportRequest
+from accounts.resident_exports import AGE_GROUP_CHOICES, SEX_FILTER_CHOICES, normalize_export_filters
 from staff_module.models import Staff, AuditLog, Appointment  # Add Appointment import
 from staff_module.decorators import role_required
+from staff_module.audit import log_activity
 from certificates.notification_utils import send_claim_notification, send_rejection_notification
 
 @login_required(login_url='login')
@@ -66,6 +69,12 @@ def kapitan_dashboard(request):
         approved_certificates = CertificateRequest.objects.filter(status='approved').count()
         released_certificates = CertificateRequest.objects.filter(status='released').count()
         pending_cert_requests = CertificateRequest.objects.filter(status='for_approval').order_by('-date_submitted')[:10]
+        residents = Resident.objects.filter(is_deleted=False)
+        total_residents = residents.count()
+        total_households = residents.exclude(household_number='').values('household_number').distinct().count()
+        senior_count = sum(1 for resident in residents if resident.age >= 60)
+        minor_count = sum(1 for resident in residents if resident.age < 18)
+        voter_age_count = sum(1 for resident in residents if resident.age >= 18)
     
         # Pending certificate requests awaiting Kapitan approval
         pending_cert_requests = CertificateRequest.objects.filter(status='for_approval').order_by('-date_submitted')[:10]
@@ -90,12 +99,84 @@ def kapitan_dashboard(request):
             'approved_certificates': approved_certificates,
             'released_certificates': released_certificates,
             'pending_cert_requests': pending_cert_requests,
+            'total_residents': total_residents,
+            'total_households': total_households,
+            'senior_count': senior_count,
+            'minor_count': minor_count,
+            'voter_age_count': voter_age_count,
         }
         return render(request, 'kapitan_portal/dashboard.html', context)
         
     except Staff.DoesNotExist:
         messages.error(request, 'Access denied. Staff only area.')
         return redirect('dashboard')
+
+
+# ====================== RESIDENT MANAGEMENT ======================
+
+@login_required
+@role_required(['kapitan'])
+def resident_list(request):
+    export_requests = ResidentExportRequest.objects.select_related(
+        'approved_by',
+    ).filter(
+        requested_by=request.user,
+    )[:10]
+    return render(request, 'kapitan_portal/resident_list.html', {
+        'purok_choices': Resident.PUROK_CHOICES,
+        'age_group_choices': AGE_GROUP_CHOICES,
+        'sex_choices': SEX_FILTER_CHOICES,
+        'export_requests': export_requests,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
+    })
+
+
+@login_required
+def resident_create(request):
+    log_activity(request, 'blocked', 'residents', 'Blocked resident create attempt through Kapitan portal')
+    messages.error(request, 'Resident record modifications are restricted to Admin.')
+    return redirect('kapitan_portal:resident_list')
+
+
+@login_required
+def resident_edit(request, resident_id):
+    log_activity(request, 'blocked', 'residents', 'Blocked resident edit attempt through Kapitan portal', str(resident_id))
+    messages.error(request, 'Resident record modifications are restricted to Admin.')
+    return redirect('kapitan_portal:resident_list')
+
+
+@login_required
+def resident_delete(request, resident_id):
+    log_activity(request, 'blocked', 'residents', 'Blocked resident delete attempt through Kapitan portal', str(resident_id))
+    messages.error(request, 'Resident record modifications are restricted to Admin.')
+    return redirect('kapitan_portal:resident_list')
+
+
+@login_required
+@role_required(['kapitan'])
+def resident_export_request(request):
+    if request.method != 'POST':
+        return redirect('kapitan_portal:resident_list')
+
+    category, filters = normalize_export_filters(request.POST, allow_search=False, allow_category=False)
+    reason = request.POST.get('reason', '').strip()
+    if not reason:
+        messages.error(request, 'Export reason is required.')
+        return redirect('kapitan_portal:resident_list')
+    if not filters:
+        messages.error(request, 'Select at least one filter before submitting an export request.')
+        return redirect('kapitan_portal:resident_list')
+
+    export_request = ResidentExportRequest.objects.create(
+        requested_by=request.user,
+        category=category,
+        filters=filters,
+        reason=reason,
+    )
+    log_activity(request, 'export_attempt', 'residents', f'Resident export requested by Kapitan: {export_request.filter_summary} - {reason}')
+    messages.success(request, 'Export request submitted for Admin approval.')
+    return redirect('kapitan_portal:resident_list')
 
 # ====================== APPOINTMENT MANAGEMENT (NEW) ======================
 
@@ -409,6 +490,7 @@ def certificate_approve(request, cert_id):
             certificate.approved_by = request.user.username
             certificate.remarks = request.POST.get('remarks', '')
             certificate.save()
+            log_activity(request, 'approve', 'certificate', f'Approved certificate request {certificate.request_id}')
             
             messages.success(request, f'Certificate {certificate.request_id} has been approved.')
             return redirect('kapitan_portal:for_approval_list')
@@ -447,6 +529,7 @@ def certificate_reject(request, cert_id):
             certificate.rejection_reason = rejection_reason
             certificate.remarks = rejection_reason
             certificate.save()
+            log_activity(request, 'reject', 'certificate', f'Rejected certificate request {certificate.request_id}')
             
             messages.warning(request, f'Certificate {certificate.request_id} has been rejected.')
             return redirect('kapitan_portal:certificate_list')
@@ -569,6 +652,7 @@ def certificate_approve(request, cert_id):
             # Set claim deadline (7 days from approval)
             certificate.claim_deadline = timezone.now() + timezone.timedelta(days=7)
             certificate.save()
+            log_activity(request, 'approve', 'certificate', f'Approved certificate request {certificate.request_id}')
             
             # Send email notification to resident
             email_sent = send_claim_notification(certificate)
@@ -618,6 +702,7 @@ def certificate_reject(request, cert_id):
             certificate.rejection_reason = rejection_reason
             certificate.remarks = rejection_reason
             certificate.save()
+            log_activity(request, 'reject', 'certificate', f'Rejected certificate request {certificate.request_id}')
             
             # Send rejection email notification
             send_rejection_notification(certificate)

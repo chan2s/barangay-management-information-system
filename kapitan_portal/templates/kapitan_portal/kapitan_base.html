@@ -529,6 +529,10 @@
                 <i class="fas fa-gavel"></i> Hearings
             </a>
             <div class="nav-divider"></div>
+            <a href="{% url 'kapitan_portal:resident_list' %}" class="nav-link {% block nav_residents %}{% endblock %}">
+                <i class="fas fa-shield-alt"></i> Resident Exports
+            </a>
+            <div class="nav-divider"></div>
             <a href="{% url 'logout' %}" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </nav>
     </aside>

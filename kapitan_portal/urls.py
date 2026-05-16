@@ -13,6 +13,13 @@ urlpatterns = [
     path('appointments/approve/<int:appt_id>/', views.appointment_approve, name='appointment_approve'),
     path('appointments/reject/<int:appt_id>/', views.appointment_reject, name='appointment_reject'),
     path('for-approval/appointments/', views.for_approval_appointments, name='for_approval_appointments'),
+
+    # Resident management
+    path('residents/', views.resident_list, name='resident_list'),
+    path('residents/create/', views.resident_create, name='resident_create'),
+    path('residents/edit/<int:resident_id>/', views.resident_edit, name='resident_edit'),
+    path('residents/delete/<int:resident_id>/', views.resident_delete, name='resident_delete'),
+    path('residents/export/request/', views.resident_export_request, name='resident_export_request'),
     
     # Hearing management
     path('hearings/', views.hearing_list, name='hearing_list'),

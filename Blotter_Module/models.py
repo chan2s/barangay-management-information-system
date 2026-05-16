@@ -44,6 +44,12 @@ class Blotter(models.Model):
     # Complainant
     complainant_name = models.CharField(max_length=255)
     complainant_address = models.TextField(blank=True, null=True)
+    complainant_street_name = models.CharField(max_length=255, blank=True)
+    complainant_barangay = models.CharField(max_length=100, blank=True)
+    complainant_municipality = models.CharField(max_length=100, blank=True)
+    complainant_province = models.CharField(max_length=100, blank=True)
+    complainant_latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    complainant_longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     complainant_phone = models.CharField(max_length=20, blank=True, null=True)
     complainant_email = models.EmailField(blank=True, null=True)
 

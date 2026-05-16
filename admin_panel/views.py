@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count
 from staff_module.models import Staff, AuditLog
 from staff_module.decorators import role_required
 from staff_module.models import ActivityLog, SystemSetting
@@ -12,31 +14,61 @@ from django.db import connection
 import csv
 import json
 from django.utils import timezone
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.conf import settings
 from Blotter_Module.models import Blotter
 from certificates.models import CertificateRequest
 from staff_module.models import Announcement, Appointment, ActivityLog, SystemSetting
+from accounts.forms import ResidentForm
+from accounts.models import Resident, ResidentExportRequest
+from accounts.resident_exports import (
+    AGE_GROUP_CHOICES,
+    SEX_FILTER_CHOICES,
+    apply_age_group,
+    apply_resident_category,
+    filtered_residents_from_request,
+    normalize_export_filters,
+)
+from accounts.services import user_account_exists
+from staff_module.audit import log_activity
 
 @login_required
 @role_required(['admin'])
 def admin_dashboard(request):
     """Admin dashboard"""
+    residents = Resident.objects.filter(is_deleted=False)
+    today = timezone.localdate()
     total_users = User.objects.count()
     total_staff = Staff.objects.count()
     total_admins = Staff.objects.filter(role='admin').count()
     total_kapitan = Staff.objects.filter(role='kapitan').count()
+    total_residents = residents.count()
+    total_households = residents.exclude(household_number='').values('household_number').distinct().count()
+    senior_count = sum(1 for resident in residents if resident.age >= 60)
+    minor_count = sum(1 for resident in residents if resident.age < 18)
+    voter_age_count = sum(1 for resident in residents if resident.age >= 18)
+    male_count = residents.filter(sex='male').count()
+    female_count = residents.filter(sex='female').count()
     
     recent_logs = AuditLog.objects.all()[:10]
     recent_users = User.objects.all().order_by('-date_joined')[:10]
+    recent_activity = ActivityLog.objects.all()[:10]
     
     context = {
         'total_users': total_users,
         'total_staff': total_staff,
         'total_admins': total_admins,
         'total_kapitan': total_kapitan,
+        'total_residents': total_residents,
+        'total_households': total_households,
+        'senior_count': senior_count,
+        'minor_count': minor_count,
+        'voter_age_count': voter_age_count,
+        'male_count': male_count,
+        'female_count': female_count,
         'recent_logs': recent_logs,
         'recent_users': recent_users,
+        'recent_activity': recent_activity,
         'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
         'user': request.user,
     }
@@ -80,19 +112,23 @@ def user_create(request):
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
         role = request.POST.get('role', 'staff')
+        if role not in ['admin', 'staff', 'kapitan']:
+            role = 'staff'
         position = request.POST.get('position', '')
         contact_number = request.POST.get('contact_number', '')
         
         # Validation
         errors = []
-        if User.objects.filter(username=username).exists():
+        if User.objects.filter(username__iexact=username).exists():
             errors.append('Username already exists')
-        if User.objects.filter(email=email).exists():
+        if User.objects.filter(email__iexact=email).exists():
             errors.append('Email already registered')
         if password != confirm_password:
             errors.append('Passwords do not match')
-        if len(password) < 6:
-            errors.append('Password must be at least 6 characters')
+        try:
+            validate_password(password)
+        except ValidationError as exc:
+            errors.extend(exc.messages)
         
         if errors:
             for error in errors:
@@ -107,14 +143,15 @@ def user_create(request):
                 last_name=last_name
             )
             
-            # Create staff profile
-            staff = Staff.objects.create(
-                user=user,
-                role=role,
-                position=position,
-                contact_number=contact_number
-            )
+            if role != 'user':
+                Staff.objects.create(
+                    user=user,
+                    role=role,
+                    position=position,
+                    contact_number=contact_number
+                )
             
+            log_activity(request, 'create', 'user', f'Created user {username} with role {role}')
             messages.success(request, f'User {username} created successfully!')
             return redirect('admin_panel:user_list')
     
@@ -123,6 +160,179 @@ def user_create(request):
         'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
     }
     return render(request, 'admin_panel/user_create.html', context)
+
+
+@login_required
+@role_required(['admin', 'staff'])
+def resident_list(request):
+    base_residents = Resident.objects.filter(is_deleted=False)
+    residents = base_residents
+    search_query = request.GET.get('search', '').strip()
+    purok_filter = request.GET.get('purok', '').strip()
+    category_filter = request.GET.get('category', '').strip()
+    age_group_filter = request.GET.get('age_group', '').strip()
+    sex_filter = request.GET.get('sex', '').strip()
+    if search_query:
+        residents = residents.filter(
+            Q(full_name__icontains=search_query)
+            | Q(resident_id__icontains=search_query)
+            | Q(contact_number__icontains=search_query)
+            | Q(email__icontains=search_query)
+            | Q(household_number__icontains=search_query)
+        )
+    if purok_filter:
+        residents = residents.filter(purok=purok_filter)
+    if sex_filter:
+        residents = residents.filter(sex=sex_filter)
+    residents = apply_age_group(residents, age_group_filter)
+    residents = apply_resident_category(residents, category_filter)
+
+    paginator = Paginator(residents, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    can_review_exports = user_has_role(request.user, ['admin'])
+    has_filters = any([search_query, purok_filter, category_filter, age_group_filter, sex_filter])
+    pending_export_count = ResidentExportRequest.objects.filter(status='pending').count() if can_review_exports else 0
+    approved_export_count = ResidentExportRequest.objects.filter(status='approved').count() if can_review_exports else 0
+    return render(request, 'admin_panel/resident_list.html', {
+        'residents': page_obj,
+        'search_query': search_query,
+        'purok_filter': purok_filter,
+        'category_filter': category_filter,
+        'age_group_filter': age_group_filter,
+        'sex_filter': sex_filter,
+        'purok_choices': Resident.PUROK_CHOICES,
+        'category_choices': ResidentExportRequest.CATEGORY_CHOICES,
+        'age_group_choices': AGE_GROUP_CHOICES,
+        'sex_choices': SEX_FILTER_CHOICES,
+        'total_count': residents.count(),
+        'total_residents': base_residents.count(),
+        'has_filters': has_filters,
+        'pending_export_count': pending_export_count,
+        'approved_export_count': approved_export_count,
+        'can_manage': user_has_role(request.user, ['admin', 'staff']),
+        'can_delete': user_has_role(request.user, ['admin']),
+        'pending_exports': ResidentExportRequest.objects.select_related('requested_by').filter(status='pending')[:10] if can_review_exports else [],
+        'approved_exports': ResidentExportRequest.objects.select_related('requested_by', 'approved_by').filter(status='approved')[:10] if can_review_exports else [],
+    })
+
+
+@login_required
+@role_required(['admin', 'staff'])
+def resident_create(request):
+    if request.method == 'POST':
+        form = ResidentForm(request.POST, request.FILES)
+        if form.is_valid():
+            email = form.cleaned_data.get('email')
+            resident_id = form.cleaned_data.get('resident_id')
+            if user_account_exists(email=email, username=resident_id):
+                form.add_error(None, 'A user account already exists with this resident ID or email.')
+            else:
+                resident = form.save()
+                log_activity(request, 'create', 'residents', f'Resident record created: {resident.resident_id} - {resident.full_name}', str(resident))
+                messages.success(request, 'Resident record saved successfully.')
+                return redirect('admin_panel:resident_list')
+    else:
+        form = ResidentForm()
+    return render(request, 'admin_panel/resident_form.html', {'form': form, 'mode': 'Create'})
+
+
+@login_required
+@role_required(['admin', 'staff'])
+def resident_edit(request, resident_id):
+    resident = get_object_or_404(Resident, id=resident_id, is_deleted=False)
+    if request.method == 'POST':
+        form = ResidentForm(request.POST, request.FILES, instance=resident)
+        if form.is_valid():
+            resident = form.save()
+            log_activity(request, 'update', 'residents', f'Resident record updated: {resident.resident_id} - {resident.full_name}', str(resident))
+            messages.success(request, 'Resident record updated successfully.')
+            return redirect('admin_panel:resident_list')
+    else:
+        form = ResidentForm(instance=resident)
+    return render(request, 'admin_panel/resident_form.html', {'form': form, 'mode': 'Edit', 'resident': resident})
+
+
+@login_required
+@role_required(['admin'])
+def resident_delete(request, resident_id):
+    resident = get_object_or_404(Resident, id=resident_id, is_deleted=False)
+    if request.method == 'POST':
+        resident.is_deleted = True
+        resident.deleted_at = timezone.now()
+        resident.deleted_by = request.user
+        resident.save(update_fields=['is_deleted', 'deleted_at', 'deleted_by', 'updated_at'])
+        log_activity(request, 'delete', 'residents', f'Resident soft-deleted: {resident.resident_id} - {resident.full_name}', str(resident))
+        messages.success(request, 'Resident record archived. Permanent deletion is disabled for audit protection.')
+    return redirect('admin_panel:resident_list')
+
+
+@login_required
+@role_required(['admin', 'staff'])
+def resident_export_request(request):
+    if request.method != 'POST':
+        return redirect('admin_panel:resident_list')
+    category, filters = normalize_export_filters(request.POST, allow_search=True, allow_category=True)
+    reason = request.POST.get('reason', '').strip()
+    if not reason:
+        messages.error(request, 'Export reason is required.')
+        return redirect('admin_panel:resident_list')
+    export_request = ResidentExportRequest.objects.create(
+        requested_by=request.user,
+        category=category,
+        filters=filters,
+        reason=reason,
+    )
+    log_activity(request, 'export_attempt', 'residents', f'Resident export requested: {export_request.filter_summary} - {reason}')
+    messages.success(request, 'Export request submitted for Admin approval.')
+    return redirect('admin_panel:resident_list')
+
+
+@login_required
+@role_required(['admin'])
+def resident_export_review(request, request_id):
+    export_request = get_object_or_404(ResidentExportRequest, id=request_id, status='pending')
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        export_request.approved_by = request.user
+        export_request.reviewed_at = timezone.now()
+        if action == 'approve':
+            export_request.status = 'approved'
+            export_request.save()
+            log_activity(request, 'export_approve', 'residents', f'Approved resident export request #{export_request.id}')
+            messages.success(request, 'Export request approved. Admin can now generate and download the CSV.')
+        elif action == 'reject':
+            export_request.status = 'rejected'
+            export_request.save()
+            log_activity(request, 'export_reject', 'residents', f'Rejected resident export request #{export_request.id}')
+            messages.warning(request, 'Export request rejected.')
+        else:
+            messages.error(request, 'Invalid export review action.')
+    return redirect('admin_panel:resident_list')
+
+
+@login_required
+@role_required(['admin'])
+def resident_export_download(request, request_id):
+    export_request = get_object_or_404(ResidentExportRequest, id=request_id, status='approved')
+    residents = filtered_residents_from_request(export_request)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="resident_export_{export_request.id}.csv"'
+    writer = csv.writer(response)
+    writer.writerow(['Resident ID', 'Full Name', 'Birthdate', 'Age', 'Sex', 'Purok', 'Address', 'Household', 'Voter Status'])
+    for resident in residents[:1000]:
+        writer.writerow([
+            resident.resident_id,
+            resident.full_name,
+            resident.birthdate,
+            resident.age,
+            resident.get_sex_display(),
+            resident.get_purok_display() if resident.purok else '',
+            resident.address,
+            resident.household_number,
+            resident.get_voter_status_display(),
+        ])
+    log_activity(request, 'export_attempt', 'residents', f'Downloaded approved resident export #{export_request.id}')
+    return response
 
 @login_required
 @role_required(['admin'])
@@ -140,6 +350,8 @@ def user_edit(request, user_id):
         
         # Create or update staff profile
         role = request.POST.get('role', 'staff')
+        if role not in ['admin', 'staff', 'kapitan']:
+            role = 'staff'
         if staff_profile:
             staff_profile.role = role
             staff_profile.position = request.POST.get('position', '')
@@ -231,7 +443,7 @@ def audit_logs(request):
 
 
 @login_required
-@role_required(['admin', 'superadmin'])
+@role_required(['admin'])
 def system_settings(request):
     """System settings page"""
     # Get or create settings
@@ -251,13 +463,7 @@ def system_settings(request):
         settings_obj.save()
         
         # Log activity
-        ActivityLog.objects.create(
-            user=request.user,
-            action='update',
-            module='system_settings',
-            description='System settings updated',
-            ip_address=get_client_ip(request)
-        )
+        log_activity(request, 'update', 'system_settings', 'System settings updated')
         
         messages.success(request, 'System settings saved successfully!')
         return redirect('admin_panel:system_settings')
@@ -269,7 +475,7 @@ def system_settings(request):
 
 
 @login_required
-@role_required(['admin', 'superadmin'])
+@role_required(['admin'])
 def audit_log(request):
     """View system audit logs"""
     logs = ActivityLog.objects.select_related('user').all()
@@ -282,6 +488,9 @@ def audit_log(request):
     action_filter = request.GET.get('action', '')
     if action_filter:
         logs = logs.filter(action=action_filter)
+    module_filter = request.GET.get('module', '')
+    if module_filter:
+        logs = logs.filter(module__icontains=module_filter)
     
     date_from = request.GET.get('date_from', '')
     if date_from:
@@ -300,6 +509,7 @@ def audit_log(request):
         'logs': page_obj,
         'user_filter': user_filter,
         'action_filter': action_filter,
+        'module_filter': module_filter,
         'date_from': date_from,
         'date_to': date_to,
     }
@@ -307,7 +517,7 @@ def audit_log(request):
 
 
 @login_required
-@role_required(['admin', 'superadmin'])
+@role_required(['admin'])
 def backup_database(request):
     """Download database backup"""
     try:
@@ -331,13 +541,7 @@ def backup_database(request):
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         
         # Log activity
-        ActivityLog.objects.create(
-            user=request.user,
-            action='create',
-            module='backup',
-            description=f'Database backup created: {filename}',
-            ip_address=get_client_ip(request)
-        )
+        log_activity(request, 'create', 'backup', f'Database backup created: {filename}')
         
         messages.success(request, f'Backup created successfully!')
         return response
@@ -348,7 +552,7 @@ def backup_database(request):
 
 
 @login_required
-@role_required(['admin', 'superadmin'])
+@role_required(['admin'])
 def system_health(request):
     """Check system health status"""
     health_status = {
@@ -392,7 +596,7 @@ def get_client_ip(request):
 
 
 @login_required
-@role_required(['admin', 'superadmin'])
+@role_required(['admin'])
 def export_audit_log(request):
     """Export audit logs to CSV"""
     logs = ActivityLog.objects.select_related('user').all()
@@ -414,21 +618,31 @@ def export_audit_log(request):
     if date_to:
         logs = logs.filter(timestamp__date__lte=date_to)
     
+    log_activity(request, 'export_attempt', 'audit_log', 'Audit log export downloaded')
     # Create CSV response
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="audit_log_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
     
     writer = csv.writer(response)
-    writer.writerow(['Timestamp', 'User', 'Action', 'Module', 'Description', 'IP Address'])
+    writer.writerow(['Timestamp', 'Username', 'Role', 'Action', 'Module', 'Affected Resident', 'Description', 'IP Address', 'Browser/Device'])
     
     for log in logs:
         writer.writerow([
             log.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
-            log.user.username if log.user else 'System',
+            log.username or (log.user.username if log.user else 'System'),
+            log.user_role,
             log.action,
             log.module,
+            log.affected_resident,
             log.description,
-            log.ip_address or ''
+            log.ip_address or '',
+            log.user_agent or '',
         ])
     
     return response
+
+
+def user_has_role(user, roles):
+    if user.is_superuser:
+        return 'admin' in roles
+    return hasattr(user, 'staff_profile') and user.staff_profile.role in roles

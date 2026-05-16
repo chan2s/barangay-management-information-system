@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime
 from .models import CertificateRequest
+from staff_module.audit import log_activity
 from staff_module.decorators import role_required
 import uuid
 
@@ -345,6 +346,7 @@ def generate_certificate(request, request_id):
         'id': 'Barangay ID',
     }
     request_type_display = type_map.get(cert_request.request_type, 'Barangay Clearance')
+    log_activity(request, 'certificate_generate', 'certificate', f'Generated {request_type_display} for request {cert_request.request_id}')
     
     context = {
         'tracking_id': cert_request.request_id,
@@ -384,6 +386,7 @@ def generate_certificate(request, request_id):
 @login_required
 def generate_clearance(request, request_id):
     cert_request = get_object_or_404(CertificateRequest, id=request_id)
+    log_activity(request, 'certificate_generate', 'certificate', f'Generated Barangay Clearance for request {cert_request.request_id}')
     context = {
         'tracking_id': cert_request.request_id,
         'full_name': cert_request.full_name,
@@ -397,6 +400,7 @@ def generate_clearance(request, request_id):
 @login_required
 def generate_residency(request, request_id):
     cert_request = get_object_or_404(CertificateRequest, id=request_id)
+    log_activity(request, 'certificate_generate', 'certificate', f'Generated Certificate of Residency for request {cert_request.request_id}')
     context = {
         'tracking_id': cert_request.request_id,
         'full_name': cert_request.full_name,
@@ -412,6 +416,7 @@ def generate_residency(request, request_id):
 @login_required
 def generate_indigency(request, request_id):
     cert_request = get_object_or_404(CertificateRequest, id=request_id)
+    log_activity(request, 'certificate_generate', 'certificate', f'Generated Certificate of Indigency for request {cert_request.request_id}')
     context = {
         'tracking_id': cert_request.request_id,
         'full_name': cert_request.full_name,
@@ -443,6 +448,8 @@ def generate_barangay_id(request, request_id):
             print(f"ERROR: Certificate not found with id or request_id: {request_id}")
             messages.error(request, 'Certificate request not found.')
             return redirect('certificates:request_list')
+
+    log_activity(request, 'certificate_generate', 'certificate', f'Generated Barangay ID for request {cert_request.request_id}')
     
     print(f"Certificate: {cert_request.request_id}")
     print(f"Gender from DB: '{cert_request.gender}'")

@@ -397,6 +397,69 @@
         background: #ebe7d8;
     }
 
+    .address-search-wrap {
+        position: relative;
+    }
+
+    .address-results {
+        position: absolute;
+        z-index: 1040;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-md);
+        max-height: 220px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .address-results.is-open {
+        display: block;
+    }
+
+    .address-results-empty {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        color: var(--muted);
+    }
+
+    .address-result-btn {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 0.84rem;
+        color: var(--charcoal);
+        cursor: pointer;
+        border-bottom: 1px solid var(--cream-deep);
+    }
+
+    .address-result-main {
+        display: block;
+        font-weight: 600;
+        color: var(--charcoal);
+        margin-bottom: 2px;
+    }
+
+    .address-result-sub {
+        display: block;
+        font-size: 0.74rem;
+        color: var(--muted);
+        line-height: 1.35;
+    }
+
+    .address-result-btn:hover,
+    .address-result-btn:focus {
+        background: var(--yellow-soft);
+        outline: none;
+    }
+
+
     /* ── Contact Info Sub-box ── */
     .contact-box {
         background: var(--cream);
@@ -727,7 +790,17 @@
                 </div>
                 <div class="field-group">
                     <label class="field-label" for="id_complainant_address">Complete Address <span class="req">*</span></label>
-                    <textarea name="complainant_address" id="id_complainant_address" class="input {% if form.complainant_address.errors %}has-error{% endif %}" rows="2" placeholder="Street, Purok/Sitio, Barangay, Municipality" required>{{ form.complainant_address.value|default:'' }}</textarea>
+                    <div class="address-search-wrap">
+                        <input type="search" name="complainant_address" id="id_complainant_address" class="input {% if form.complainant_address.errors %}has-error{% endif %}" value="{{ form.complainant_address.value|default:'' }}" placeholder="Search street in Poblacion, Santa Catalina" autocomplete="off" required>
+                        <div id="addressResults" class="address-results"></div>
+                    </div>
+                    <input type="hidden" name="complainant_street_name" id="id_complainant_street_name" value="{{ form.complainant_street_name.value|default:'' }}">
+                    <input type="hidden" name="complainant_barangay" id="id_complainant_barangay" value="{{ form.complainant_barangay.value|default:'' }}">
+                    <input type="hidden" name="complainant_municipality" id="id_complainant_municipality" value="{{ form.complainant_municipality.value|default:'' }}">
+                    <input type="hidden" name="complainant_province" id="id_complainant_province" value="{{ form.complainant_province.value|default:'' }}">
+                    <input type="hidden" name="complainant_latitude" id="id_complainant_latitude" value="{{ form.complainant_latitude.value|default:'' }}">
+                    <input type="hidden" name="complainant_longitude" id="id_complainant_longitude" value="{{ form.complainant_longitude.value|default:'' }}">
+                    <span class="field-hint" id="addressStatus">Search and select an address inside Poblacion, Santa Catalina.</span>
                     {% if form.complainant_address.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.complainant_address.errors.0 }}</span>{% endif %}
                 </div>
             </div>
@@ -973,8 +1046,257 @@
 
 {% block extra_js %}
 <script>
+    const BIMS_ALLOWED_ADDRESS = {
+        barangay: 'poblacion',
+        municipality: 'santa catalina',
+        province: 'negros oriental',
+        country: 'philippines',
+        bounds: {
+            north: 9.45,
+            south: 9.20,
+            east: 123.10,
+            west: 122.80
+        }
+    };
+
+    function setAddressStatus(message, isError) {
+        const status = document.getElementById('addressStatus');
+        if (!status) return;
+        status.textContent = message;
+        status.style.color = isError ? 'var(--danger)' : 'var(--muted-light)';
+    }
+
+    function resetStructuredAddress() {
+        ['street_name', 'barangay', 'municipality', 'province', 'latitude', 'longitude'].forEach((field) => {
+            const input = document.getElementById(`id_complainant_${field}`);
+            if (input) input.value = '';
+        });
+    }
+
+    function isAllowedLatLng(lat, lng) {
+        return lat >= BIMS_ALLOWED_ADDRESS.bounds.south
+            && lat <= BIMS_ALLOWED_ADDRESS.bounds.north
+            && lng >= BIMS_ALLOWED_ADDRESS.bounds.west
+            && lng <= BIMS_ALLOWED_ADDRESS.bounds.east;
+    }
+
+    function setStructuredAddress(label, lat, lng, streetName) {
+        document.getElementById('id_complainant_address').value = label;
+        document.getElementById('id_complainant_street_name').value = streetName || label.split(',')[0].trim();
+        document.getElementById('id_complainant_barangay').value = 'Poblacion';
+        document.getElementById('id_complainant_municipality').value = 'Santa Catalina';
+        document.getElementById('id_complainant_province').value = 'Negros Oriental';
+        document.getElementById('id_complainant_latitude').value = Number(lat).toFixed(7);
+        document.getElementById('id_complainant_longitude').value = Number(lng).toFixed(7);
+        setAddressStatus('Address verified inside Poblacion, Santa Catalina.', false);
+    }
+
+    function setupAddressDropdown() {
+        const addressInput = document.getElementById('id_complainant_address');
+        const resultsEl = document.getElementById('addressResults');
+        if (!addressInput || !resultsEl) return;
+
+        function chooseAddress(label, lat, lng, streetName) {
+            if (!isAllowedLatLng(lat, lng)) {
+                resetStructuredAddress();
+                setAddressStatus('Please choose an address inside Poblacion, Santa Catalina only.', true);
+                return;
+            }
+            setStructuredAddress(label, lat, lng, streetName);
+            closeResults();
+        }
+
+        const localOptions = [
+            {
+                name: 'Poblacion',
+                label: 'Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Santa Catalina Public Market',
+                label: 'Santa Catalina Public Market, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Santa Catalina Municipal Hall',
+                label: 'Santa Catalina Municipal Hall, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 1',
+                label: 'Purok 1, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 2',
+                label: 'Purok 2, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 3',
+                label: 'Purok 3, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 4',
+                label: 'Purok 4, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 5',
+                label: 'Purok 5, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            }
+        ];
+
+        function openResults() {
+            resultsEl.classList.add('is-open');
+        }
+
+        function closeResults() {
+            resultsEl.classList.remove('is-open');
+        }
+
+        function makeOptionButton(item) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'address-result-btn';
+            button.innerHTML = `
+                <span class="address-result-main">${escapeHtml(item.name || item.label)}</span>
+                <span class="address-result-sub">${escapeHtml(item.label)}</span>
+            `;
+            button.addEventListener('click', function () {
+                chooseAddress(item.label, item.lat, item.lng, item.name);
+            });
+            return button;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function renderResults(results) {
+            resultsEl.innerHTML = '';
+            const remoteOptions = results.filter((item) => {
+                const lat = parseFloat(item.lat);
+                const lng = parseFloat(item.lon);
+                const label = (item.display_name || '').toLowerCase();
+                return isAllowedLatLng(lat, lng)
+                    && label.includes('poblacion')
+                    && label.includes('santa catalina')
+                    && label.includes('negros oriental');
+            }).map((item) => ({
+                name: item.name,
+                label: item.display_name,
+                lat: parseFloat(item.lat),
+                lng: parseFloat(item.lon)
+            }));
+
+            const query = addressInput.value.trim().toLowerCase();
+            const matchingLocalOptions = query
+                ? localOptions.filter((item) => item.label.toLowerCase().includes(query))
+                : localOptions;
+            const typedStreetOption = query.length >= 2
+                ? [{
+                    name: `Use "${addressInput.value.trim()}"`,
+                    label: `${addressInput.value.trim()}, Poblacion, Santa Catalina, Negros Oriental, Philippines`,
+                    lat: 9.3330000,
+                    lng: 122.8660000
+                }]
+                : [];
+            const allowed = [...matchingLocalOptions, ...remoteOptions, ...typedStreetOption]
+                .filter((item, index, all) => all.findIndex((option) => option.label === item.label) === index)
+                .slice(0, 8);
+
+            if (!allowed.length) {
+                resultsEl.innerHTML = '<div class="address-results-empty">Type at least 2 characters to search Poblacion addresses.</div>';
+                openResults();
+                return;
+            }
+
+            allowed.forEach((item) => {
+                resultsEl.appendChild(makeOptionButton(item));
+            });
+            openResults();
+        }
+
+        let searchTimer;
+        addressInput.addEventListener('focus', function () {
+            renderResults([]);
+        });
+
+        addressInput.addEventListener('input', function () {
+            resetStructuredAddress();
+            clearTimeout(searchTimer);
+            const query = addressInput.value.trim();
+            renderResults([]);
+            if (query.length < 3) {
+                return;
+            }
+
+            searchTimer = setTimeout(function () {
+                renderResults([]);
+
+                const params = new URLSearchParams({
+                    format: 'jsonv2',
+                    addressdetails: '1',
+                    limit: '8',
+                    countrycodes: 'ph',
+                    viewbox: '122.80,9.45,123.10,9.20',
+                    bounded: '1',
+                    q: `${query}, Poblacion, Santa Catalina, Negros Oriental, Philippines`
+                });
+
+                fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+                    headers: { 'Accept': 'application/json' }
+                })
+                    .then((response) => response.ok ? response.json() : [])
+                    .then(renderResults)
+                    .catch(() => setAddressStatus('Address search is unavailable. Try a listed Poblacion landmark.', true));
+            }, 350);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!resultsEl.contains(event.target) && event.target !== addressInput) {
+                closeResults();
+            }
+        });
+    }
+
+    function fillLocalPoblacionFallback() {
+        const addressInput = document.getElementById('id_complainant_address');
+        if (!addressInput || document.getElementById('id_complainant_latitude')?.value) return;
+        const value = addressInput.value.toLowerCase();
+        if (
+            value.includes('poblacion')
+            && value.includes('santa catalina')
+            && value.includes('negros oriental')
+            && value.includes('philippines')
+        ) {
+            document.getElementById('id_complainant_street_name').value = addressInput.value.split(',')[0].trim();
+            document.getElementById('id_complainant_barangay').value = 'Poblacion';
+            document.getElementById('id_complainant_municipality').value = 'Santa Catalina';
+            document.getElementById('id_complainant_province').value = 'Negros Oriental';
+            document.getElementById('id_complainant_latitude').value = '9.3330000';
+            document.getElementById('id_complainant_longitude').value = '122.8660000';
+            setAddressStatus('Address marked inside Poblacion, Santa Catalina.', false);
+        }
+    }
+
     /* Patch purpose select with shared .select class */
     document.addEventListener('DOMContentLoaded', function () {
+        setupAddressDropdown();
+
         const purposeEl = document.querySelector('[name="purpose"]');
         if (purposeEl) {
             purposeEl.classList.add('select');
@@ -1014,13 +1336,27 @@
 
         const form = document.getElementById('blotterForm');
         if (form) {
+            const addressInput = document.getElementById('id_complainant_address');
+            if (addressInput) {
+                addressInput.addEventListener('change', fillLocalPoblacionFallback);
+            }
+
             form.addEventListener('submit', function (e) {
+                fillLocalPoblacionFallback();
                 const phone = document.querySelector('[name="complainant_phone"]')?.value.trim() || '';
                 const email = document.querySelector('[name="complainant_email"]')?.value.trim() || '';
                 const confirmEmail = document.querySelector('[name="confirm_email"]')?.value.trim() || '';
                 const certify     = document.getElementById('certify');
                 const dataConsent = document.getElementById('dataConsent');
+                const addressLat = document.getElementById('id_complainant_latitude')?.value || '';
+                const addressLng = document.getElementById('id_complainant_longitude')?.value || '';
 
+                if (!addressLat || !addressLng) {
+                    e.preventDefault();
+                    setAddressStatus('Please select a valid Poblacion, Santa Catalina address from the suggestions.', true);
+                    document.getElementById('id_complainant_address')?.focus();
+                    return;
+                }
                 if (!phone && !email && verificationMethod !== 'id_card') {
                     e.preventDefault();
                     alert('Please provide at least a phone number or email address.');
@@ -1047,6 +1383,12 @@
                 }
                 if (!certify.checked)     { e.preventDefault(); alert('Please certify that the information is true and correct.'); return; }
                 if (!dataConsent.checked) { e.preventDefault(); alert('Please consent to the Data Privacy Act agreement.'); return; }
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Submitting...';
+                }
             });
         }
 
