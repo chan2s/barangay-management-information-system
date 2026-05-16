@@ -776,9 +776,12 @@
         </nav>
 
         <div class="sidebar-footer">
-            <a href="{% url 'logout' %}" class="nav-link">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-link" style="width: 100%; border: 0; background: transparent; cursor: pointer; font: inherit;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
         </div>
     </aside>
 

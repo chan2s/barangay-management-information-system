@@ -3,7 +3,10 @@
 
 <div class="header">
     Barangay Integrated Management System (BIMS)
-    <a href="{% url 'logout' %}" style="float:right; color:white;">Logout</a>
+    <form method="post" action="{% url 'logout' %}" style="float:right; margin:0;">
+        {% csrf_token %}
+        <button type="submit" style="background:transparent; border:0; color:white; cursor:pointer; font:inherit;">Logout</button>
+    </form>
 </div>
 
 <div class="container">

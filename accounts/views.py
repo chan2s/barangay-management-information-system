@@ -11,6 +11,22 @@ from staff_module.models import Announcement
 from staff_module.audit import log_activity
 from django.utils import timezone
 
+
+def redirect_to_role_dashboard(user):
+    if user.is_superuser:
+        return redirect('admin_panel:dashboard')
+
+    if hasattr(user, 'staff_profile'):
+        role = user.staff_profile.role
+        if role == 'kapitan':
+            return redirect('kapitan_portal:dashboard')
+        if role == 'admin':
+            return redirect('admin_panel:dashboard')
+        return redirect('staff_module:staff_dashboard')
+
+    return redirect('dashboard')
+
+
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
@@ -20,6 +36,9 @@ def get_client_ip(request):
     return ip
 
 def login_view(request):
+    if request.user.is_authenticated:
+        return redirect_to_role_dashboard(request.user)
+
     context = {
         'hide_navbar': True,
         'hide_footer': True,
@@ -56,20 +75,7 @@ def login_view(request):
             )
             log_activity(request, 'login', 'auth', f'User {username} logged in')
             
-            # Role-based redirect
-            if user.is_superuser:
-                return redirect('admin_panel:dashboard')
-            
-            if hasattr(user, 'staff_profile'):
-                role = user.staff_profile.role
-                if role == 'kapitan':
-                    return redirect('kapitan_portal:dashboard')
-                elif role == 'admin':
-                    return redirect('admin_panel:dashboard')
-                else:
-                    return redirect('staff_module:staff_dashboard')
-            else:
-                return redirect('dashboard')
+            return redirect_to_role_dashboard(user)
         else:
             cache.set(rate_key, attempts + 1, 15 * 60)
             log_activity(request, 'login_failed', 'auth', f'Failed login attempt for {username}')
@@ -125,6 +131,13 @@ def signup_view(request):
         return redirect('login')
     
     return render(request, 'signup.html', context)
+
+
+def home_view(request):
+    if request.user.is_authenticated:
+        return redirect_to_role_dashboard(request.user)
+    return render(request, 'dashboard.html')
+
 
 # ✅ FIX: @login_required added — unauthenticated users are redirected to login
 @login_required(login_url='login')
