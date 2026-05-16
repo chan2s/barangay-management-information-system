@@ -1,79 +1,753 @@
-{% extends 'blotter_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}File a Blotter – BIMS{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/blotter-form.css' %}">
 <style>
-    .required-field::after {
-        content: "*";
-        color: red;
-        margin-left: 5px;
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Instrument+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+        --white: #ffffff;
+        --cream: #faf8f2;
+        --cream-deep: #f3f0e6;
+        --yellow-soft: #fdf9e8;
+        --yellow-mid: #e8c000;
+        --yellow-accent: #c9a800;
+        --yellow-glow: rgba(232, 192, 0, 0.12);
+        --charcoal: #16161e;
+        --charcoal-soft: #22222e;
+        --slate: #42425a;
+        --muted: #7a7a96;
+        --muted-light: #a8a8bc;
+        --border: #e2dfd4;
+        --border-focus: #e8c000;
+        --surface: #ffffff;
+        --surface-alt: #faf8f2;
+        --shadow-xs: 0 1px 3px rgba(22,22,30,0.06);
+        --shadow-sm: 0 2px 10px rgba(22,22,30,0.07);
+        --shadow-md: 0 8px 30px rgba(22,22,30,0.09);
+        --shadow-lg: 0 20px 60px rgba(22,22,30,0.12);
+        --radius-xs: 6px;
+        --radius-sm: 10px;
+        --radius: 16px;
+        --radius-lg: 22px;
+        --success: #1a8a4a;
+        --danger: #c0392b;
+        --warning: #b8860b;
+        --info: #1565c0;
+        --font-display: 'Playfair Display', Georgia, serif;
+        --font-body: 'Instrument Sans', system-ui, sans-serif;
     }
-    .legal-warning {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
-        padding: 15px;
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+        font-family: var(--font-body);
+        background: var(--cream);
+        color: var(--charcoal);
+        -webkit-font-smoothing: antialiased;
+        padding-top: 76px; /* Add padding to prevent navbar overlap */
+    }
+
+    /* Fix for navbar - ensure it's properly positioned */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1030;
+        background: var(--white) !important;
+    }
+
+    /* ── Page Shell ── */
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px 24px 80px;
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+        margin-bottom: 36px;
+        position: relative;
+    }
+
+    .page-header-eyebrow {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--yellow-accent);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .page-header-eyebrow::before {
+        content: '';
+        display: inline-block;
+        width: 28px;
+        height: 2px;
+        background: var(--yellow-mid);
+        border-radius: 2px;
+    }
+
+    .page-header h1 {
+        font-family: var(--font-display);
+        font-size: 2.4rem;
+        font-weight: 700;
+        color: var(--charcoal);
+        line-height: 1.2;
+        margin-bottom: 12px;
+    }
+
+    .page-header p {
+        color: var(--muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-width: 560px;
+    }
+
+    /* ── Notice Banners ── */
+    .notice-band {
+        border-radius: var(--radius-sm);
+        padding: 16px 20px;
+        margin-bottom: 14px;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .notice-band .notice-icon {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+    }
+
+    .notice-band .notice-body strong {
+        display: block;
+        font-size: 0.78rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .notice-band.warning {
+        background: #fffbeb;
+        border: 1px solid #f5d65a;
+    }
+    .notice-band.warning .notice-icon { background: #fef3c7; color: #b45309; }
+    .notice-band.warning .notice-body strong { color: #92400e; }
+    .notice-band.warning .notice-body { color: #78350f; }
+
+    .notice-band.info {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+    }
+    .notice-band.info .notice-icon { background: #dbeafe; color: #1d4ed8; }
+    .notice-band.info .notice-body strong { color: #1e40af; }
+    .notice-band.info .notice-body { color: #1e3a8a; }
+
+    .notice-band.fee {
+        background: var(--yellow-soft);
+        border: 1px solid #e8c000;
+        margin-bottom: 36px;
+    }
+    .notice-band.fee .notice-icon { background: #fef9c3; color: var(--yellow-accent); }
+    .notice-band.fee .notice-body strong { color: var(--charcoal); font-size: 0.92rem; letter-spacing: 0; text-transform: none; }
+    .notice-band.fee .notice-body { color: var(--muted); }
+
+    /* ── Error Summary ── */
+    .error-summary {
+        background: #fff5f5;
+        border: 1.5px solid #fca5a5;
+        border-left: 4px solid var(--danger);
+        border-radius: var(--radius-sm);
+        padding: 16px 20px;
+        margin-bottom: 28px;
+    }
+    .error-summary strong {
+        color: var(--danger);
+        font-size: 0.85rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .error-summary ul {
+        padding-left: 18px;
+        color: #b91c1c;
+        font-size: 0.82rem;
+    }
+    .error-summary ul li { margin: 3px 0; }
+
+    /* ── Form Sections ── */
+    .form-section {
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 32px;
         margin-bottom: 20px;
+        transition: box-shadow 0.3s ease;
     }
-    .data-privacy {
-        background: #e8f4fd;
-        border-left: 4px solid #2196F3;
-        padding: 15px;
-        margin-bottom: 20px;
+
+    .form-section:hover {
+        box-shadow: var(--shadow-md);
     }
-    .id-verification-section {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+        padding-bottom: 16px;
+        border-bottom: 1.5px solid var(--cream-deep);
+    }
+
+    .section-icon {
+        width: 36px;
+        height: 36px;
         border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        flex-shrink: 0;
+    }
+
+    .section-icon.yellow { background: var(--yellow-soft); color: var(--yellow-accent); border: 1px solid #f0da50; }
+    .section-icon.red    { background: #fff5f5; color: #ef4444; border: 1px solid #fecaca; }
+    .section-icon.amber  { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .section-icon.blue   { background: #eff6ff; color: #3b82f6; border: 1px solid #bfdbfe; }
+    .section-icon.green  { background: #f0fdf4; color: #22c55e; border: 1px solid #bbf7d0; }
+
+    .section-header-text h2 {
+        font-family: var(--font-display);
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        line-height: 1.2;
+    }
+
+    .section-header-text p {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+
+    /* ── Grid ── */
+    .grid {
+        display: grid;
+        gap: 20px;
+    }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .grid-1 { grid-template-columns: 1fr; }
+    .span-2 { grid-column: span 2; }
+    .span-3 { grid-column: span 3; }
+
+    /* ── Field Groups ── */
+    .field-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .field-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--slate);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .field-label .req {
+        color: var(--danger);
+        font-size: 0.9em;
+    }
+
+    .field-hint {
+        font-size: 0.75rem;
+        color: var(--muted-light);
+        line-height: 1.4;
+    }
+
+    .field-error-msg {
+        font-size: 0.74rem;
+        color: var(--danger);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    /* ── Inputs ── */
+    .input,
+    .select,
+    textarea.input {
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        color: var(--charcoal);
+        background: var(--cream);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 11px 14px;
+        width: 100%;
+        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+        appearance: none;
+        -webkit-appearance: none;
+        outline: none;
+        line-height: 1.5;
+    }
+
+    .input:hover,
+    .select:hover,
+    textarea.input:hover {
+        border-color: #c8c4b4;
+        background: #fefcf6;
+    }
+
+    .input:focus,
+    .select:focus,
+    textarea.input:focus {
+        border-color: var(--yellow-mid);
+        background: var(--white);
+        box-shadow: 0 0 0 3px var(--yellow-glow), 0 1px 4px rgba(22,22,30,0.06);
+    }
+
+    .input::placeholder,
+    textarea.input::placeholder {
+        color: var(--muted-light);
+        font-size: 0.87rem;
+    }
+
+    .input.has-error,
+    .select.has-error,
+    textarea.input.has-error {
+        border-color: #f87171;
+        background: #fff8f8;
+    }
+
+    textarea.input {
+        resize: vertical;
+        min-height: 90px;
+    }
+
+    /* Select wrapper with custom arrow */
+    .select-wrapper {
+        position: relative;
+    }
+
+    .select-wrapper::after {
+        content: '';
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 4.5px solid transparent;
+        border-right: 4.5px solid transparent;
+        border-top: 5px solid var(--muted);
+        pointer-events: none;
+    }
+
+    .select {
+        cursor: pointer;
+        padding-right: 38px;
+    }
+
+    /* File input */
+    .file-input-wrapper {
+        position: relative;
+    }
+
+    input[type="file"].input {
+        padding: 9px 14px;
+        cursor: pointer;
+        font-size: 0.82rem;
+        color: var(--muted);
+    }
+
+    input[type="file"].input::-webkit-file-upload-button {
+        font-family: var(--font-body);
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        background: var(--cream-deep);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 5px 12px;
+        cursor: pointer;
+        margin-right: 12px;
+        transition: background 0.15s;
+    }
+
+    input[type="file"].input::-webkit-file-upload-button:hover {
+        background: #ebe7d8;
+    }
+
+    .address-search-wrap {
+        position: relative;
+    }
+
+    .address-results {
+        position: absolute;
+        z-index: 1040;
+        top: calc(100% + 6px);
+        left: 0;
+        right: 0;
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-md);
+        max-height: 220px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .address-results.is-open {
+        display: block;
+    }
+
+    .address-results-empty {
+        padding: 10px 12px;
+        font-size: 0.8rem;
+        color: var(--muted);
+    }
+
+    .address-result-btn {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        text-align: left;
+        padding: 10px 12px;
+        font: inherit;
+        font-size: 0.84rem;
+        color: var(--charcoal);
+        cursor: pointer;
+        border-bottom: 1px solid var(--cream-deep);
+    }
+
+    .address-result-main {
+        display: block;
+        font-weight: 600;
+        color: var(--charcoal);
+        margin-bottom: 2px;
+    }
+
+    .address-result-sub {
+        display: block;
+        font-size: 0.74rem;
+        color: var(--muted);
+        line-height: 1.35;
+    }
+
+    .address-result-btn:hover,
+    .address-result-btn:focus {
+        background: var(--yellow-soft);
+        outline: none;
+    }
+
+
+    /* ── Contact Info Sub-box ── */
+    .contact-box {
+        background: var(--cream);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
         padding: 20px;
-        margin-top: 15px;
+        margin-top: 4px;
     }
-    .error-list {
-        background: #f8d7da;
-        border: 1px solid #f5c6cb;
-        border-radius: 5px;
-        padding: 15px;
+
+    .contact-box-label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--slate);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .contact-box-label .req { color: var(--danger); }
+    .contact-box-label .note {
+        font-weight: 400;
+        color: var(--muted);
+        text-transform: none;
+        letter-spacing: 0;
+        font-size: 0.74rem;
+    }
+
+    /* ── ID Verification Section ── */
+    .id-verification-section {
+        background: var(--yellow-soft);
+        border: 1.5px solid #e8c000;
+        border-radius: var(--radius-lg);
+        padding: 28px 32px;
         margin-bottom: 20px;
-        color: #721c24;
+        display: none;
     }
-    .error-list ul {
-        margin-bottom: 0;
-        padding-left: 20px;
+
+    /* ── Checkboxes ── */
+    .check-item {
+        display: flex;
+        gap: 14px;
+        padding: 18px;
+        border-radius: var(--radius-sm);
+        border: 1.5px solid var(--border);
+        background: var(--cream);
+        transition: border-color 0.2s, background 0.2s;
+        cursor: pointer;
+        margin-bottom: 12px;
     }
-    .field-error {
-        color: #dc3545;
-        font-size: 12px;
-        margin-top: 5px;
+
+    .check-item:last-child { margin-bottom: 0; }
+
+    .check-item:hover {
+        border-color: var(--yellow-mid);
+        background: var(--yellow-soft);
+    }
+
+    .check-item input[type="checkbox"] {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        accent-color: var(--yellow-mid);
+        cursor: pointer;
+    }
+
+    .check-item label {
+        cursor: pointer;
+        line-height: 1;
+    }
+
+    .check-item label strong {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--charcoal);
+        display: block;
+        margin-bottom: 5px;
+        line-height: 1.3;
+    }
+
+    .check-item label small {
+        font-size: 0.78rem;
+        color: var(--muted);
+        line-height: 1.5;
+        display: block;
+    }
+
+    /* ── Action Buttons ── */
+    .form-actions {
+        display: flex;
+        gap: 14px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+    }
+
+    .btn-primary {
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--charcoal);
+        background: var(--yellow-mid);
+        border: 2px solid var(--yellow-mid);
+        border-radius: var(--radius-sm);
+        padding: 13px 30px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+        letter-spacing: 0.01em;
+    }
+
+    .btn-primary:hover {
+        background: var(--yellow-accent);
+        border-color: var(--yellow-accent);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(232, 192, 0, 0.35);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+    .btn-secondary {
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--slate);
+        background: transparent;
+        border: 2px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 13px 28px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+        border-color: var(--muted-light);
+        color: var(--charcoal);
+        background: var(--cream-deep);
+        transform: translateY(-1px);
+    }
+
+    /* ── MOBILE FIXES ── */
+    @media (max-width: 768px) {
+        body {
+            padding-top: 66px;
+        }
+        
+        .form-container {
+            padding: 16px 16px 60px;
+        }
+        
+        .page-header h1 {
+            font-size: 1.8rem;
+            word-break: break-word;
+        }
+        
+        .page-header-eyebrow {
+            font-size: 0.65rem;
+            flex-wrap: wrap;
+        }
+        
+        .page-header-eyebrow::before {
+            width: 20px;
+        }
+        
+        .page-header p {
+            font-size: 0.85rem;
+        }
+    }
+    
+    @media (max-width: 700px) {
+        .form-container { padding: 16px 16px 60px; }
+        .page-header h1 { font-size: 1.6rem; }
+        .form-section { padding: 20px 18px; }
+        .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        .span-2, .span-3 { grid-column: span 1; }
+        .form-actions { flex-direction: column; }
+        .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+        .id-verification-section { padding: 20px 18px; }
+        
+        .notice-band {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .section-header {
+            flex-wrap: wrap;
+        }
+        
+        .section-header-text h2 {
+            font-size: 1rem;
+        }
+        
+        .contact-box-label {
+            flex-wrap: wrap;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        body {
+            padding-top: 56px;
+        }
+        
+        .page-header h1 {
+            font-size: 1.4rem;
+            line-height: 1.3;
+        }
+        
+        .notice-band .notice-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 0.8rem;
+        }
+        
+        .notice-band .notice-body {
+            font-size: 0.78rem;
+        }
+        
+        .notice-band .notice-body strong {
+            font-size: 0.72rem;
+        }
+        
+        .check-item {
+            padding: 14px;
+        }
+        
+        .check-item label strong {
+            font-size: 0.82rem;
+        }
+        
+        .check-item label small {
+            font-size: 0.72rem;
+        }
     }
 </style>
 {% endblock %}
 
-{% block page_title %}File a Blotter Complaint{% endblock %}
-
 {% block content %}
 <div class="form-container">
-    <!-- Legal Warning -->
-    <div class="legal-warning">
-        <i class="bi bi-exclamation-triangle-fill me-2" style="color: #856404;"></i>
-        <strong>IMPORTANT LEGAL NOTICE:</strong>
-        <small>Republic Act No. 7160 (Local Government Code) and other applicable laws penalize the filing of false or malicious complaints. 
-        Any person found to have provided false information or filed a fraudulent complaint may be held liable for perjury and other criminal charges.</small>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="page-header-eyebrow">
+            <i class="bi bi-shield-fill"></i>
+            Barangay Integrated Management System
+        </div>
+        <h1>File a Blotter Complaint</h1>
+        {% comment %} <p>Complete the form below to submit an official complaint. All information is treated with strict confidentiality and processed in accordance with Philippine law.</p> {% endcomment %}
     </div>
 
-    <!-- Data Privacy Notice -->
-    <div class="data-privacy">
-        <i class="bi bi-shield-lock-fill me-2" style="color: #2196F3;"></i>
-        <strong>DATA PRIVACY NOTICE:</strong>
-        <small>Your personal information is collected and processed solely for barangay record purposes in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173). 
-        Your data will not be shared with third parties without your consent unless required by law.</small>
+    <!-- Notices -->
+    <div class="notice-band warning">
+        <div class="notice-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="notice-body">
+            <strong>Legal Notice</strong>
+            Republic Act No. 7160 (Local Government Code) penalizes the filing of false or malicious complaints. Any person found to have provided false information may be held liable for perjury and other criminal charges.
+        </div>
     </div>
 
-    <!-- Display form errors -->
+    <div class="notice-band info">
+        <div class="notice-icon"><i class="bi bi-shield-lock-fill"></i></div>
+        <div class="notice-body">
+            <strong>Data Privacy Notice</strong>
+            Your personal information is collected solely for barangay record purposes under the Data Privacy Act of 2012 (R.A. No. 10173). Your data will not be shared with third parties without your consent unless required by law.
+        </div>
+    </div>
+
+    <div class="notice-band fee">
+        <div class="notice-icon"><i class="bi bi-receipt"></i></div>
+        <div class="notice-body">
+            <strong>Blotter Fee: ₱50.00</strong>
+            Payment must be made at the barangay hall within 5 working days of filing this complaint. Bring a printed copy of your submission and a valid ID for verification. Failure to pay may result in delays in processing your complaint.
+        </div>
+    </div>
+
+    <!-- Error Summary -->
     {% if form.errors %}
-    <div class="error-list">
-        <strong><i class="bi bi-exclamation-triangle-fill me-2"></i> Please correct the following errors:</strong>
+    <div class="error-summary">
+        <strong><i class="bi bi-exclamation-triangle-fill me-1"></i> Please correct the following errors:</strong>
         <ul>
             {% for field, errors in form.errors.items %}
                 {% for error in errors %}
@@ -85,388 +759,645 @@
     {% endif %}
 
     {% if form.non_field_errors %}
-    <div class="alert alert-danger">
+    <div class="error-summary">
         {% for error in form.non_field_errors %}
         <div><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <!-- Hidden field to store verification method -->
+    <!-- Hidden field -->
     <input type="hidden" name="verification_method" id="id_verification_method" value="{% if request.session.verification_method == 'id_card' %}id_card{% else %}email{% endif %}">
 
     <form method="post" novalidate id="blotterForm" enctype="multipart/form-data">
         {% csrf_token %}
 
-        <!-- COMPLAINANT SECTION -->
+        <!-- ── COMPLAINANT ── -->
         <div class="form-section">
-            <div class="form-section-title">
-                <i class="bi bi-person-fill text-primary"></i> Your Information (Complainant)
+            <div class="section-header">
+                <div class="section-icon yellow"><i class="bi bi-person-fill"></i></div>
+                <div class="section-header-text">
+                    <h2>Your Information</h2>
+                    <p>Complainant details — the person filing this complaint</p>
+                </div>
             </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label required-field">Full Name</label>
-                    <input type="text" name="complainant_name" id="id_complainant_name" class="form-control" value="{{ form.complainant_name.value|default:'' }}" required>
-                    {% if form.complainant_name.errors %}
-                    <div class="field-error">{{ form.complainant_name.errors.0 }}</div>
-                    {% endif %}
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label required-field">Complete Address</label>
-                    <textarea name="complainant_address" id="id_complainant_address" class="form-control" rows="2" required>{{ form.complainant_address.value|default:'' }}</textarea>
-                    {% if form.complainant_address.errors %}
-                    <div class="field-error">{{ form.complainant_address.errors.0 }}</div>
-                    {% endif %}
-                </div>
 
-                <div class="col-12">
-                    <div class="contact-info-box">
-                        <div class="contact-info-title">
-                            Contact Information <span class="text-danger">*</span>
-                            <span class="fw-normal text-muted ms-1">(provide at least one)</span>
-                        </div>
-                        <div class="row g-2">
-                            <div class="col-md-6">
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" name="complainant_phone" id="id_complainant_phone" class="form-control" value="{{ form.complainant_phone.value|default:'' }}">
-                                <small class="text-muted">Format: 09123456789</small>
-                                {% if form.complainant_phone.errors %}
-                                <div class="field-error">{{ form.complainant_phone.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6" id="email-field-container">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" name="complainant_email" id="id_complainant_email" class="form-control" value="{{ form.complainant_email.value|default:'' }}">
-                                <small class="text-muted">Verification code will be sent here</small>
-                                {% if form.complainant_email.errors %}
-                                <div class="field-error">{{ form.complainant_email.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6" id="confirm-email-container">
-                                <label class="form-label">Confirm Email Address</label>
-                                <input type="email" name="confirm_email" id="id_confirm_email" class="form-control" value="{{ form.confirm_email.value|default:'' }}">
-                                <small class="text-muted">Please re-enter your email address to confirm</small>
-                            </div>
-                        </div>
+            <div class="grid grid-2" style="margin-bottom: 20px;">
+                <div class="field-group">
+                    <label class="field-label" for="id_complainant_name">Full Name <span class="req">*</span></label>
+                    <input type="text" name="complainant_name" id="id_complainant_name" class="input {% if form.complainant_name.errors %}has-error{% endif %}" value="{{ form.complainant_name.value|default:'' }}" placeholder="e.g. Juan Dela Cruz" required>
+                    {% if form.complainant_name.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.complainant_name.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="id_complainant_address">Complete Address <span class="req">*</span></label>
+                    <div class="address-search-wrap">
+                        <input type="search" name="complainant_address" id="id_complainant_address" class="input {% if form.complainant_address.errors %}has-error{% endif %}" value="{{ form.complainant_address.value|default:'' }}" placeholder="Search street in Poblacion, Santa Catalina" autocomplete="off" required>
+                        <div id="addressResults" class="address-results"></div>
+                    </div>
+                    <input type="hidden" name="complainant_street_name" id="id_complainant_street_name" value="{{ form.complainant_street_name.value|default:'' }}">
+                    <input type="hidden" name="complainant_barangay" id="id_complainant_barangay" value="{{ form.complainant_barangay.value|default:'' }}">
+                    <input type="hidden" name="complainant_municipality" id="id_complainant_municipality" value="{{ form.complainant_municipality.value|default:'' }}">
+                    <input type="hidden" name="complainant_province" id="id_complainant_province" value="{{ form.complainant_province.value|default:'' }}">
+                    <input type="hidden" name="complainant_latitude" id="id_complainant_latitude" value="{{ form.complainant_latitude.value|default:'' }}">
+                    <input type="hidden" name="complainant_longitude" id="id_complainant_longitude" value="{{ form.complainant_longitude.value|default:'' }}">
+                    <span class="field-hint" id="addressStatus">Search and select an address inside Poblacion, Santa Catalina.</span>
+                    {% if form.complainant_address.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.complainant_address.errors.0 }}</span>{% endif %}
+                </div>
+            </div>
+
+            <!-- Contact Sub-box -->
+            <div class="contact-box" style="margin-bottom: 20px;">
+                <div class="contact-box-label">
+                    <i class="bi bi-telephone-fill"></i>
+                    Contact Information <span class="req">*</span>
+                    <span class="note">— provide at least one</span>
+                </div>
+                <div class="grid grid-2">
+                    <div class="field-group">
+                        <label class="field-label" for="id_complainant_phone">Phone Number</label>
+                        <input type="tel" name="complainant_phone" id="id_complainant_phone" class="input {% if form.complainant_phone.errors %}has-error{% endif %}" value="{{ form.complainant_phone.value|default:'' }}" placeholder="09xxxxxxxxx">
+                        <span class="field-hint">11-digit Philippine mobile number</span>
+                        {% if form.complainant_phone.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.complainant_phone.errors.0 }}</span>{% endif %}
+                    </div>
+                    <div class="field-group" id="email-field-container">
+                        <label class="field-label" for="id_complainant_email">Email Address</label>
+                        <input type="email" name="complainant_email" id="id_complainant_email" class="input {% if form.complainant_email.errors %}has-error{% endif %}" value="{{ form.complainant_email.value|default:'' }}" placeholder="you@example.com">
+                        <span class="field-hint">Verification code will be sent here</span>
+                        {% if form.complainant_email.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.complainant_email.errors.0 }}</span>{% endif %}
+                    </div>
+                    <div class="field-group" id="confirm-email-container">
+                        <label class="field-label" for="id_confirm_email">Confirm Email <span class="req">*</span></label>
+                        <input type="email" name="confirm_email" id="id_confirm_email" class="input {% if form.confirm_email.errors %}has-error{% endif %}" value="{{ form.confirm_email.value|default:'' }}" placeholder="Re-enter your email">
+                        <span class="field-hint">Must match the email above</span>
                     </div>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label required-field">Purpose of Report</label>
-                    {{ form.purpose }}
-                    {% if form.purpose.errors %}
-                    <div class="field-error">{{ form.purpose.errors.0 }}</div>
-                    {% endif %}
+            <div class="grid grid-2">
+                <div class="field-group">
+                    <label class="field-label" for="id_purpose">Purpose of Report <span class="req">*</span></label>
+                    <div class="select-wrapper">{{ form.purpose }}</div>
+                    {% if form.purpose.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.purpose.errors.0 }}</span>{% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- RESPONDENT SECTION -->
+        <!-- ── RESPONDENT ── -->
         <div class="form-section">
-            <div class="form-section-title">
-                <i class="bi bi-person-fill text-danger"></i> Person Being Complained (Respondent)
+            <div class="section-header">
+                <div class="section-icon red"><i class="bi bi-person-badge"></i></div>
+                <div class="section-header-text">
+                    <h2>Person Being Complained</h2>
+                    <p>Respondent — the individual the complaint is filed against</p>
+                </div>
             </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label required-field">Full Name</label>
-                    <input type="text" name="respondent_name" id="id_respondent_name" class="form-control" value="{{ form.respondent_name.value|default:'' }}" required>
-                    {% if form.respondent_name.errors %}
-                    <div class="field-error">{{ form.respondent_name.errors.0 }}</div>
-                    {% endif %}
+
+            <div class="grid grid-2" style="margin-bottom: 20px;">
+                <div class="field-group">
+                    <label class="field-label" for="id_respondent_name">Full Name <span class="req">*</span></label>
+                    <input type="text" name="respondent_name" id="id_respondent_name" class="input {% if form.respondent_name.errors %}has-error{% endif %}" value="{{ form.respondent_name.value|default:'' }}" placeholder="e.g. Pedro Santos" required>
+                    {% if form.respondent_name.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.respondent_name.errors.0 }}</span>{% endif %}
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label required-field">Address</label>
-                    <textarea name="respondent_address" id="id_respondent_address" class="form-control" rows="2" required>{{ form.respondent_address.value|default:'' }}</textarea>
-                    {% if form.respondent_address.errors %}
-                    <div class="field-error">{{ form.respondent_address.errors.0 }}</div>
-                    {% endif %}
+                <div class="field-group">
+                    <label class="field-label" for="id_respondent_address">Address <span class="req">*</span></label>
+                    <textarea name="respondent_address" id="id_respondent_address" class="input {% if form.respondent_address.errors %}has-error{% endif %}" rows="2" placeholder="Known address of the respondent" required>{{ form.respondent_address.value|default:'' }}</textarea>
+                    {% if form.respondent_address.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.respondent_address.errors.0 }}</span>{% endif %}
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Contact (if known)</label>
-                    <input type="text" name="respondent_contact" id="id_respondent_contact" class="form-control" value="{{ form.respondent_contact.value|default:'' }}">
-                    {% if form.respondent_contact.errors %}
-                    <div class="field-error">{{ form.respondent_contact.errors.0 }}</div>
-                    {% endif %}
+            </div>
+            <div class="grid grid-2">
+                <div class="field-group">
+                    <label class="field-label" for="id_respondent_contact">Contact Number <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;">(if known)</span></label>
+                    <input type="text" name="respondent_contact" id="id_respondent_contact" class="input {% if form.respondent_contact.errors %}has-error{% endif %}" value="{{ form.respondent_contact.value|default:'' }}" placeholder="Respondent's phone or email">
+                    {% if form.respondent_contact.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.respondent_contact.errors.0 }}</span>{% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- INCIDENT DETAILS SECTION -->
+        <!-- ── INCIDENT DETAILS ── -->
         <div class="form-section">
-            <div class="form-section-title">
-                <i class="bi bi-exclamation-triangle-fill text-warning"></i> Incident Details
+            <div class="section-header">
+                <div class="section-icon amber"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                <div class="section-header-text">
+                    <h2>Incident Details</h2>
+                    <p>Provide accurate information about the incident being reported</p>
+                </div>
             </div>
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label required-field">Incident Type</label>
-                    <select name="incident_type" id="id_incident_type" class="form-select" required>
-                        <option value="">Select incident type</option>
-                        <option value="physical_injury" {% if form.incident_type.value == 'physical_injury' %}selected{% endif %}>Physical Injury</option>
-                        <option value="threat" {% if form.incident_type.value == 'threat' %}selected{% endif %}>Threat/Intimidation</option>
-                        <option value="property_damage" {% if form.incident_type.value == 'property_damage' %}selected{% endif %}>Property Damage</option>
-                        <option value="domestic" {% if form.incident_type.value == 'domestic' %}selected{% endif %}>Domestic Violence</option>
-                        <option value="theft" {% if form.incident_type.value == 'theft' %}selected{% endif %}>Theft/Robbery</option>
-                        <option value="harassment" {% if form.incident_type.value == 'harassment' %}selected{% endif %}>Harassment</option>
-                        <option value="land_dispute" {% if form.incident_type.value == 'land_dispute' %}selected{% endif %}>Land Dispute</option>
-                        <option value="others" {% if form.incident_type.value == 'others' %}selected{% endif %}>Others</option>
-                    </select>
-                    {% if form.incident_type.errors %}
-                    <div class="field-error">{{ form.incident_type.errors.0 }}</div>
-                    {% endif %}
+
+            <div class="grid grid-3" style="margin-bottom: 20px;">
+                <div class="field-group">
+                    <label class="field-label" for="id_incident_type">Incident Type <span class="req">*</span></label>
+                    <div class="select-wrapper">
+                        <select name="incident_type" id="id_incident_type" class="select {% if form.incident_type.errors %}has-error{% endif %}" required>
+                            <option value="">Select type…</option>
+                            <option value="physical_injury"  {% if form.incident_type.value == 'physical_injury'  %}selected{% endif %}>Physical Injury</option>
+                            <option value="threat"          {% if form.incident_type.value == 'threat'          %}selected{% endif %}>Threat / Intimidation</option>
+                            <option value="property_damage" {% if form.incident_type.value == 'property_damage' %}selected{% endif %}>Property Damage</option>
+                            <option value="domestic"        {% if form.incident_type.value == 'domestic'        %}selected{% endif %}>Domestic Violence</option>
+                            <option value="theft"           {% if form.incident_type.value == 'theft'           %}selected{% endif %}>Theft / Robbery</option>
+                            <option value="harassment"      {% if form.incident_type.value == 'harassment'      %}selected{% endif %}>Harassment</option>
+                            <option value="land_dispute"    {% if form.incident_type.value == 'land_dispute'    %}selected{% endif %}>Land Dispute</option>
+                            <option value="others"          {% if form.incident_type.value == 'others'          %}selected{% endif %}>Others</option>
+                        </select>
+                    </div>
+                    {% if form.incident_type.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.incident_type.errors.0 }}</span>{% endif %}
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label required-field">Date of Incident</label>
-                    <input type="date" name="incident_date" id="id_incident_date" class="form-control" value="{{ form.incident_date.value|date:'Y-m-d'|default:'' }}" required>
-                    <small class="text-muted">Cannot be a future date</small>
-                    {% if form.incident_date.errors %}
-                    <div class="field-error">{{ form.incident_date.errors.0 }}</div>
-                    {% endif %}
+                <div class="field-group">
+                    <label class="field-label" for="id_incident_date">Date of Incident <span class="req">*</span></label>
+                    <input type="date" name="incident_date" id="id_incident_date" class="input {% if form.incident_date.errors %}has-error{% endif %}" value="{{ form.incident_date.value|date:'Y-m-d'|default:'' }}" required>
+                    <span class="field-hint">Cannot be a future date</span>
+                    {% if form.incident_date.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.incident_date.errors.0 }}</span>{% endif %}
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label required-field">Location of Incident</label>
-                    <input type="text" name="incident_location" id="id_incident_location" class="form-control" value="{{ form.incident_location.value|default:'' }}" placeholder="Specific location/address" required>
-                    {% if form.incident_location.errors %}
-                    <div class="field-error">{{ form.incident_location.errors.0 }}</div>
-                    {% endif %}
+                <div class="field-group">
+                    <label class="field-label" for="id_incident_location">Location of Incident <span class="req">*</span></label>
+                    <input type="text" name="incident_location" id="id_incident_location" class="input {% if form.incident_location.errors %}has-error{% endif %}" value="{{ form.incident_location.value|default:'' }}" placeholder="Specific address or landmark" required>
+                    {% if form.incident_location.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.incident_location.errors.0 }}</span>{% endif %}
                 </div>
-                <div class="col-12">
-                    <label class="form-label required-field">Narration / Description</label>
-                    <textarea name="incident_description" id="id_incident_description" class="form-control" rows="6" placeholder="Provide a detailed account of what happened (minimum 20 characters)..." required>{{ form.incident_description.value|default:'' }}</textarea>
-                    <small class="text-muted">Please provide as much detail as possible. Minimum 20 characters.</small>
-                    {% if form.incident_description.errors %}
-                    <div class="field-error">{{ form.incident_description.errors.0 }}</div>
-                    {% endif %}
-                </div>
+            </div>
+
+            <div class="field-group">
+                <label class="field-label" for="id_incident_description">Narration / Description <span class="req">*</span></label>
+                <textarea name="incident_description" id="id_incident_description" class="input {% if form.incident_description.errors %}has-error{% endif %}" rows="7" placeholder="Describe what happened in full detail — when, where, who was involved, what occurred, and any injuries or damages sustained. Minimum 20 characters." required>{{ form.incident_description.value|default:'' }}</textarea>
+                <span class="field-hint">Be as specific as possible. Your statement may be used in official proceedings.</span>
+                {% if form.incident_description.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.incident_description.errors.0 }}</span>{% endif %}
             </div>
         </div>
 
-        <!-- WITNESSES SECTION -->
+        <!-- ── WITNESSES ── -->
         <div class="form-section">
-            <div class="form-section-title">
-                <i class="bi bi-people-fill text-info"></i> Witnesses (Optional)
+            <div class="section-header">
+                <div class="section-icon blue"><i class="bi bi-people-fill"></i></div>
+                <div class="section-header-text">
+                    <h2>Witnesses</h2>
+                    <p>Optional — include any witnesses who can attest to the incident</p>
+                </div>
             </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label">Witness Name</label>
-                    <input type="text" name="witness_name" class="form-control" placeholder="Full name">
+
+            <div class="grid grid-2" style="margin-bottom: 20px;">
+                <div class="field-group">
+                    <label class="field-label" for="witness_name">Witness Name</label>
+                    <input type="text" name="witness_name" id="witness_name" class="input" placeholder="Full name of witness">
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label">Witness Contact</label>
-                    <input type="text" name="witness_contact" class="form-control" placeholder="Phone or email">
+                <div class="field-group">
+                    <label class="field-label" for="witness_contact">Witness Contact</label>
+                    <input type="text" name="witness_contact" id="witness_contact" class="input" placeholder="Phone number or email">
                 </div>
-                <div class="col-12">
-                    <label class="form-label">Witness Statement</label>
-                    <textarea name="witness_statement" class="form-control" rows="2" placeholder="What did the witness see or hear?"></textarea>
-                </div>
+            </div>
+            <div class="field-group">
+                <label class="field-label" for="witness_statement">Witness Statement</label>
+                <textarea name="witness_statement" id="witness_statement" class="input" rows="3" placeholder="What did the witness see or hear?"></textarea>
             </div>
         </div>
 
-        <!-- EVIDENCE UPLOAD SECTION -->
+        <!-- ── EVIDENCE ── -->
         <div class="form-section">
-            <div class="form-section-title">
-                <i class="bi bi-file-earmark-image-fill text-success"></i> Supporting Evidence (Optional)
+            <div class="section-header">
+                <div class="section-icon green"><i class="bi bi-file-earmark-image-fill"></i></div>
+                <div class="section-header-text">
+                    <h2>Supporting Evidence</h2>
+                    <p>Optional — attach relevant photos, documents, or other files</p>
+                </div>
             </div>
-            <div class="row g-3">
-                <div class="col-12">
-                    <label class="form-label">Upload Documents/Photos</label>
-                    <input type="file" name="evidence" class="form-control" multiple accept="image/*,.pdf,.doc,.docx">
-                    <small class="text-muted evidence-hint">You can upload multiple files (images, PDF, DOC). Max size: 10MB per file.</small>
+
+            <div class="field-group">
+                <label class="field-label" for="id_evidence">Upload Files</label>
+                <input type="file" name="evidence" id="id_evidence" class="input" multiple accept="image/*,.pdf,.doc,.docx">
+                <span class="field-hint">Accepted: JPG, PNG, PDF, DOC, DOCX &nbsp;·&nbsp; Max 10 MB per file &nbsp;·&nbsp; Multiple files allowed</span>
+            </div>
+        </div>
+
+        <!-- ── ID VERIFICATION (conditional) ── -->
+        <div id="id-verification-section" class="id-verification-section">
+            <div class="notice-band warning" style="margin-bottom: 20px;">
+                <div class="notice-icon"><i class="bi bi-clock-history"></i></div>
+                <div class="notice-body">
+                    <strong>Manual Review Required</strong>
+                    ID verification requires review by barangay staff. Processing may take 1–2 business days.
+                </div>
+            </div>
+            <div class="grid grid-2">
+                <div class="field-group">
+                    <label class="field-label" for="id_id_type">Type of ID <span class="req">*</span></label>
+                    <div class="select-wrapper">
+                        <select name="id_type" id="id_id_type" class="select {% if form.id_type.errors %}has-error{% endif %}">
+                            <option value="">Select ID type…</option>
+                            <option value="passport">Passport</option>
+                            <option value="drivers_license">Driver's License</option>
+                            {% comment %} <option value="postal_id">Postal ID</option> {% endcomment %}
+                            {% comment %} <option value="umid">UMID</option> {% endcomment %}
+                            <option value="philhealth">PhilHealth ID</option>
+                            <option value="pagibig">Pag-IBIG ID</option>
+                            <option value="national_id">National ID (PhilSys)</option>
+                            <option value="barangay_id">Barangay ID</option>
+                            <option value="voters_id">Voter's ID</option>
+                            <option value="others">Others</option>
+                        </select>
+                    </div>
+                    {% if form.id_type.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.id_type.errors.0 }}</span>{% endif %}
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="id_valid_id">Upload Valid ID <span class="req">*</span></label>
+                    <input type="file" name="valid_id" id="id_valid_id" class="input" accept="image/*,.pdf">
+                    <span class="field-hint">JPG, PNG, or PDF &nbsp;·&nbsp; Max 5 MB</span>
+                    {% if form.valid_id.errors %}<span class="field-error-msg"><i class="bi bi-x-circle-fill"></i>{{ form.valid_id.errors.0 }}</span>{% endif %}
                 </div>
             </div>
         </div>
 
-        <!-- ID VERIFICATION SECTION (Only shown if user chose ID verification) -->
-        <div id="id-verification-section" class="id-verification-section" style="display: none;">
-            <div class="alert alert-warning border mb-3">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <strong>Note:</strong> ID verification requires manual review by barangay staff. 
-                Processing may take 1-2 business days.
-            </div>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label required-field">Type of ID</label>
-                    <select name="id_type" id="id_id_type" class="form-select">
-                        <option value="">Select ID type</option>
-                        <option value="passport">Passport</option>
-                        <option value="drivers_license">Driver's License</option>
-                        <option value="postal_id">Postal ID</option>
-                        <option value="umid">UMID</option>
-                        <option value="philhealth">PhilHealth ID</option>
-                        <option value="pagibig">Pag-IBIG ID</option>
-                        <option value="national_id">National ID (PhilSys)</option>
-                        <option value="barangay_id">Barangay ID</option>
-                        <option value="voters_id">Voter's ID</option>
-                        <option value="others">Others</option>
-                    </select>
-                    {% if form.id_type.errors %}
-                    <div class="field-error">{{ form.id_type.errors.0 }}</div>
-                    {% endif %}
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label required-field">Upload Valid ID</label>
-                    <input type="file" name="valid_id" id="id_valid_id" class="form-control" accept="image/*,.pdf">
-                    <small class="text-muted">Accepted formats: JPG, PNG, PDF (Max 5MB)</small>
-                    {% if form.valid_id.errors %}
-                    <div class="field-error">{{ form.valid_id.errors.0 }}</div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <!-- CERTIFICATION & AGREEMENT -->
+        <!-- ── CERTIFICATION ── -->
         <div class="form-section">
-            <div class="form-check">
+            <div class="section-header" style="margin-bottom: 20px;">
+                <div class="section-icon yellow"><i class="bi bi-patch-check-fill"></i></div>
+                <div class="section-header-text">
+                    <h2>Certification & Consent</h2>
+                    <p>Both agreements are required before submitting</p>
+                </div>
+            </div>
+
+            <div class="check-item">
                 <input class="form-check-input" type="checkbox" id="certify" required>
-                <label class="form-check-label" for="certify">
-                    <strong>I hereby certify under oath that all information provided above is true and correct to the best of my knowledge.</strong><br>
-                    <small class="text-muted">I understand that providing false information may lead to legal consequences including perjury and other criminal charges under Philippine law.</small>
+                <label for="certify">
+                    <strong>I certify that all information is true and correct</strong>
+                    <small>I understand that providing false information may lead to legal consequences including perjury and other criminal charges under Philippine law. I swear to this under oath.</small>
                 </label>
             </div>
-            <div class="form-check mt-2">
+
+            <div class="check-item">
                 <input class="form-check-input" type="checkbox" id="dataConsent" required>
-                <label class="form-check-label" for="dataConsent">
-                    <strong>Data Privacy Act Consent</strong><br>
-                    <small class="text-muted">I consent to the collection, storage, and processing of my personal information for barangay record purposes in accordance with Republic Act No. 10173 (Data Privacy Act of 2012). I understand that my data will be used solely for blotter and legal proceedings.</small>
+                <label for="dataConsent">
+                    <strong>Data Privacy Act Consent (R.A. 10173)</strong>
+                    <small>I consent to the collection, storage, and processing of my personal information for barangay record purposes. My data will be used solely for blotter documentation and legal proceedings.</small>
                 </label>
             </div>
         </div>
 
-        <!-- SUBMIT BUTTONS -->
-        <div class="d-flex gap-3">
-            <button type="submit" class="btn-submit">
-                <i class="bi bi-send-fill me-2"></i> Submit Blotter Complaint
+        <!-- ── SUBMIT ── -->
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">
+                <i class="bi bi-send-fill"></i> Submit Blotter Complaint
             </button>
-            <button type="reset" class="btn-reset">
-                <i class="bi bi-arrow-counterclockwise me-2"></i> Clear Form
+            <button type="reset" class="btn-secondary">
+                <i class="bi bi-arrow-counterclockwise"></i> Clear Form
             </button>
         </div>
+
     </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get the verification method from hidden field
+    const BIMS_ALLOWED_ADDRESS = {
+        barangay: 'poblacion',
+        municipality: 'santa catalina',
+        province: 'negros oriental',
+        country: 'philippines',
+        bounds: {
+            north: 9.45,
+            south: 9.20,
+            east: 123.10,
+            west: 122.80
+        }
+    };
+
+    function setAddressStatus(message, isError) {
+        const status = document.getElementById('addressStatus');
+        if (!status) return;
+        status.textContent = message;
+        status.style.color = isError ? 'var(--danger)' : 'var(--muted-light)';
+    }
+
+    function resetStructuredAddress() {
+        ['street_name', 'barangay', 'municipality', 'province', 'latitude', 'longitude'].forEach((field) => {
+            const input = document.getElementById(`id_complainant_${field}`);
+            if (input) input.value = '';
+        });
+    }
+
+    function isAllowedLatLng(lat, lng) {
+        return lat >= BIMS_ALLOWED_ADDRESS.bounds.south
+            && lat <= BIMS_ALLOWED_ADDRESS.bounds.north
+            && lng >= BIMS_ALLOWED_ADDRESS.bounds.west
+            && lng <= BIMS_ALLOWED_ADDRESS.bounds.east;
+    }
+
+    function setStructuredAddress(label, lat, lng, streetName) {
+        document.getElementById('id_complainant_address').value = label;
+        document.getElementById('id_complainant_street_name').value = streetName || label.split(',')[0].trim();
+        document.getElementById('id_complainant_barangay').value = 'Poblacion';
+        document.getElementById('id_complainant_municipality').value = 'Santa Catalina';
+        document.getElementById('id_complainant_province').value = 'Negros Oriental';
+        document.getElementById('id_complainant_latitude').value = Number(lat).toFixed(7);
+        document.getElementById('id_complainant_longitude').value = Number(lng).toFixed(7);
+        setAddressStatus('Address verified inside Poblacion, Santa Catalina.', false);
+    }
+
+    function setupAddressDropdown() {
+        const addressInput = document.getElementById('id_complainant_address');
+        const resultsEl = document.getElementById('addressResults');
+        if (!addressInput || !resultsEl) return;
+
+        function chooseAddress(label, lat, lng, streetName) {
+            if (!isAllowedLatLng(lat, lng)) {
+                resetStructuredAddress();
+                setAddressStatus('Please choose an address inside Poblacion, Santa Catalina only.', true);
+                return;
+            }
+            setStructuredAddress(label, lat, lng, streetName);
+            closeResults();
+        }
+
+        const localOptions = [
+            {
+                name: 'Poblacion',
+                label: 'Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Santa Catalina Public Market',
+                label: 'Santa Catalina Public Market, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Santa Catalina Municipal Hall',
+                label: 'Santa Catalina Municipal Hall, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 1',
+                label: 'Purok 1, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 2',
+                label: 'Purok 2, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 3',
+                label: 'Purok 3, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 4',
+                label: 'Purok 4, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            },
+            {
+                name: 'Purok 5',
+                label: 'Purok 5, Poblacion, Santa Catalina, Negros Oriental, Philippines',
+                lat: 9.3330000,
+                lng: 122.8660000
+            }
+        ];
+
+        function openResults() {
+            resultsEl.classList.add('is-open');
+        }
+
+        function closeResults() {
+            resultsEl.classList.remove('is-open');
+        }
+
+        function makeOptionButton(item) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'address-result-btn';
+            button.innerHTML = `
+                <span class="address-result-main">${escapeHtml(item.name || item.label)}</span>
+                <span class="address-result-sub">${escapeHtml(item.label)}</span>
+            `;
+            button.addEventListener('click', function () {
+                chooseAddress(item.label, item.lat, item.lng, item.name);
+            });
+            return button;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
+        }
+
+        function renderResults(results) {
+            resultsEl.innerHTML = '';
+            const remoteOptions = results.filter((item) => {
+                const lat = parseFloat(item.lat);
+                const lng = parseFloat(item.lon);
+                const label = (item.display_name || '').toLowerCase();
+                return isAllowedLatLng(lat, lng)
+                    && label.includes('poblacion')
+                    && label.includes('santa catalina')
+                    && label.includes('negros oriental');
+            }).map((item) => ({
+                name: item.name,
+                label: item.display_name,
+                lat: parseFloat(item.lat),
+                lng: parseFloat(item.lon)
+            }));
+
+            const query = addressInput.value.trim().toLowerCase();
+            const matchingLocalOptions = query
+                ? localOptions.filter((item) => item.label.toLowerCase().includes(query))
+                : localOptions;
+            const typedStreetOption = query.length >= 2
+                ? [{
+                    name: `Use "${addressInput.value.trim()}"`,
+                    label: `${addressInput.value.trim()}, Poblacion, Santa Catalina, Negros Oriental, Philippines`,
+                    lat: 9.3330000,
+                    lng: 122.8660000
+                }]
+                : [];
+            const allowed = [...matchingLocalOptions, ...remoteOptions, ...typedStreetOption]
+                .filter((item, index, all) => all.findIndex((option) => option.label === item.label) === index)
+                .slice(0, 8);
+
+            if (!allowed.length) {
+                resultsEl.innerHTML = '<div class="address-results-empty">Type at least 2 characters to search Poblacion addresses.</div>';
+                openResults();
+                return;
+            }
+
+            allowed.forEach((item) => {
+                resultsEl.appendChild(makeOptionButton(item));
+            });
+            openResults();
+        }
+
+        let searchTimer;
+        addressInput.addEventListener('focus', function () {
+            renderResults([]);
+        });
+
+        addressInput.addEventListener('input', function () {
+            resetStructuredAddress();
+            clearTimeout(searchTimer);
+            const query = addressInput.value.trim();
+            renderResults([]);
+            if (query.length < 3) {
+                return;
+            }
+
+            searchTimer = setTimeout(function () {
+                renderResults([]);
+
+                const params = new URLSearchParams({
+                    format: 'jsonv2',
+                    addressdetails: '1',
+                    limit: '8',
+                    countrycodes: 'ph',
+                    viewbox: '122.80,9.45,123.10,9.20',
+                    bounded: '1',
+                    q: `${query}, Poblacion, Santa Catalina, Negros Oriental, Philippines`
+                });
+
+                fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
+                    headers: { 'Accept': 'application/json' }
+                })
+                    .then((response) => response.ok ? response.json() : [])
+                    .then(renderResults)
+                    .catch(() => setAddressStatus('Address search is unavailable. Try a listed Poblacion landmark.', true));
+            }, 350);
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!resultsEl.contains(event.target) && event.target !== addressInput) {
+                closeResults();
+            }
+        });
+    }
+
+    function fillLocalPoblacionFallback() {
+        const addressInput = document.getElementById('id_complainant_address');
+        if (!addressInput || document.getElementById('id_complainant_latitude')?.value) return;
+        const value = addressInput.value.toLowerCase();
+        if (
+            value.includes('poblacion')
+            && value.includes('santa catalina')
+            && value.includes('negros oriental')
+            && value.includes('philippines')
+        ) {
+            document.getElementById('id_complainant_street_name').value = addressInput.value.split(',')[0].trim();
+            document.getElementById('id_complainant_barangay').value = 'Poblacion';
+            document.getElementById('id_complainant_municipality').value = 'Santa Catalina';
+            document.getElementById('id_complainant_province').value = 'Negros Oriental';
+            document.getElementById('id_complainant_latitude').value = '9.3330000';
+            document.getElementById('id_complainant_longitude').value = '122.8660000';
+            setAddressStatus('Address marked inside Poblacion, Santa Catalina.', false);
+        }
+    }
+
+    /* Patch purpose select with shared .select class */
+    document.addEventListener('DOMContentLoaded', function () {
+        setupAddressDropdown();
+
+        const purposeEl = document.querySelector('[name="purpose"]');
+        if (purposeEl) {
+            purposeEl.classList.add('select');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'select-wrapper';
+            purposeEl.parentNode.insertBefore(wrapper, purposeEl);
+            wrapper.appendChild(purposeEl);
+        }
+
         const hiddenVerificationMethod = document.getElementById('id_verification_method');
         const verificationMethod = hiddenVerificationMethod ? hiddenVerificationMethod.value : 'email';
-        const emailFieldContainer = document.getElementById('email-field-container');
+        const emailFieldContainer  = document.getElementById('email-field-container');
         const confirmEmailContainer = document.getElementById('confirm-email-container');
         const idVerificationSection = document.getElementById('id-verification-section');
-        const emailField = document.querySelector('[name="complainant_email"]');
-        const confirmEmailField = document.querySelector('[name="confirm_email"]');
-        const idTypeField = document.getElementById('id_id_type');
+        const emailField   = document.querySelector('[name="complainant_email"]');
+        const confirmField = document.querySelector('[name="confirm_email"]');
+        const idTypeField  = document.getElementById('id_id_type');
         const validIdField = document.getElementById('id_valid_id');
-        
-        console.log('Verification method:', verificationMethod);
-        
+
         if (verificationMethod === 'id_card') {
-            // Hide email fields for ID verification
-            if (emailFieldContainer) emailFieldContainer.style.display = 'none';
+            if (emailFieldContainer)   emailFieldContainer.style.display  = 'none';
             if (confirmEmailContainer) confirmEmailContainer.style.display = 'none';
-            // Show ID verification section
             if (idVerificationSection) idVerificationSection.style.display = 'block';
-            // Remove email field requirements
-            if (emailField) emailField.removeAttribute('required');
-            if (confirmEmailField) confirmEmailField.removeAttribute('required');
-            // Make ID fields required
-            if (idTypeField) idTypeField.setAttribute('required', 'required');
+            if (emailField)   emailField.removeAttribute('required');
+            if (confirmField) confirmField.removeAttribute('required');
+            if (idTypeField)  idTypeField.setAttribute('required', 'required');
             if (validIdField) validIdField.setAttribute('required', 'required');
         } else {
-            // Email verification - show email fields, hide ID section
-            if (emailFieldContainer) emailFieldContainer.style.display = 'block';
-            if (confirmEmailContainer) confirmEmailContainer.style.display = 'block';
+            if (emailFieldContainer)   emailFieldContainer.style.display  = '';
+            if (confirmEmailContainer) confirmEmailContainer.style.display = '';
             if (idVerificationSection) idVerificationSection.style.display = 'none';
-            // Make email fields required
-            if (emailField) emailField.setAttribute('required', 'required');
-            if (confirmEmailField) confirmEmailField.setAttribute('required', 'required');
-            // Remove ID field requirements
-            if (idTypeField) idTypeField.removeAttribute('required');
+            if (emailField)   emailField.setAttribute('required', 'required');
+            if (confirmField) confirmField.setAttribute('required', 'required');
+            if (idTypeField)  idTypeField.removeAttribute('required');
             if (validIdField) validIdField.removeAttribute('required');
         }
-        
-        // Form validation
+
         const form = document.getElementById('blotterForm');
         if (form) {
-            form.addEventListener('submit', function(e) {
-                const phone = document.querySelector('[name="complainant_phone"]') ? document.querySelector('[name="complainant_phone"]').value.trim() : '';
-                const email = document.querySelector('[name="complainant_email"]') ? document.querySelector('[name="complainant_email"]').value.trim() : '';
-                const confirmEmail = document.querySelector('[name="confirm_email"]') ? document.querySelector('[name="confirm_email"]').value.trim() : '';
-                const method = verificationMethod;
-                const certify = document.getElementById('certify');
+            const addressInput = document.getElementById('id_complainant_address');
+            if (addressInput) {
+                addressInput.addEventListener('change', fillLocalPoblacionFallback);
+            }
+
+            form.addEventListener('submit', function (e) {
+                fillLocalPoblacionFallback();
+                const phone = document.querySelector('[name="complainant_phone"]')?.value.trim() || '';
+                const email = document.querySelector('[name="complainant_email"]')?.value.trim() || '';
+                const confirmEmail = document.querySelector('[name="confirm_email"]')?.value.trim() || '';
+                const certify     = document.getElementById('certify');
                 const dataConsent = document.getElementById('dataConsent');
-                
-                console.log('Submitting form - Method:', method, 'Phone:', phone, 'Email:', email);
-                
-                // Check at least one contact method
-                if (!phone && !email && method !== 'id_card') {
+                const addressLat = document.getElementById('id_complainant_latitude')?.value || '';
+                const addressLng = document.getElementById('id_complainant_longitude')?.value || '';
+
+                if (!addressLat || !addressLng) {
+                    e.preventDefault();
+                    setAddressStatus('Please select a valid Poblacion, Santa Catalina address from the suggestions.', true);
+                    document.getElementById('id_complainant_address')?.focus();
+                    return;
+                }
+                if (!phone && !email && verificationMethod !== 'id_card') {
                     e.preventDefault();
                     alert('Please provide at least a phone number or email address.');
-                    if (document.querySelector('[name="complainant_phone"]')) document.querySelector('[name="complainant_phone"]').focus();
-                    return false;
+                    return;
                 }
-                
-                // Email verification validation
-                if (method === 'email') {
+                if (verificationMethod === 'email') {
                     if (!email) {
                         e.preventDefault();
                         alert('Please provide an email address for verification.');
-                        if (document.querySelector('[name="complainant_email"]')) document.querySelector('[name="complainant_email"]').focus();
-                        return false;
+                        return;
                     }
                     if (email !== confirmEmail) {
                         e.preventDefault();
                         alert('Email addresses do not match. Please re-enter your email.');
-                        if (document.querySelector('[name="confirm_email"]')) document.querySelector('[name="confirm_email"]').focus();
-                        return false;
+                        document.querySelector('[name="confirm_email"]')?.focus();
+                        return;
                     }
                 }
-                
-                // ID verification validation
-                if (method === 'id_card') {
-                    const idType = document.querySelector('[name="id_type"]') ? document.querySelector('[name="id_type"]').value : '';
-                    const validId = document.querySelector('[name="valid_id"]') ? document.querySelector('[name="valid_id"]').files.length : 0;
-                    if (!idType) {
-                        e.preventDefault();
-                        alert('Please select the type of ID you are uploading.');
-                        return false;
-                    }
-                    if (validId === 0) {
-                        e.preventDefault();
-                        alert('Please upload a valid ID for verification.');
-                        return false;
-                    }
+                if (verificationMethod === 'id_card') {
+                    const idType  = document.querySelector('[name="id_type"]')?.value || '';
+                    const validId = document.querySelector('[name="valid_id"]')?.files.length || 0;
+                    if (!idType)    { e.preventDefault(); alert('Please select the type of ID.'); return; }
+                    if (!validId)   { e.preventDefault(); alert('Please upload a valid ID.'); return; }
                 }
-                
-                // Check certifications
-                if (!certify.checked) {
-                    e.preventDefault();
-                    alert('Please certify that the information provided is true and correct.');
-                    certify.focus();
-                    return false;
+                if (!certify.checked)     { e.preventDefault(); alert('Please certify that the information is true and correct.'); return; }
+                if (!dataConsent.checked) { e.preventDefault(); alert('Please consent to the Data Privacy Act agreement.'); return; }
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" aria-hidden="true"></span> Submitting...';
                 }
-                
-                if (!dataConsent.checked) {
-                    e.preventDefault();
-                    alert('Please consent to the Data Privacy Act agreement.');
-                    dataConsent.focus();
-                    return false;
-                }
-                
-                console.log('Form validation passed');
-                return true;
             });
         }
-        
-        // Reset button confirmation
-        const resetBtn = document.querySelector('.btn-reset');
+
+        const resetBtn = document.querySelector('.btn-secondary[type="reset"]');
         if (resetBtn) {
-            resetBtn.addEventListener('click', function(e) {
-                if (!confirm('Are you sure you want to clear all form data?')) {
-                    e.preventDefault();
-                }
+            resetBtn.addEventListener('click', function (e) {
+                if (!confirm('Are you sure you want to clear all form data?')) e.preventDefault();
             });
         }
-    }); 
+    });
 </script>
 {% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'kapitan_portal/kapitan_base.html' %}
+{% block title %}Resident Export Requests - Kapitan Portal{% endblock %}
+{% block nav_residents %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .page-heading { font-size: 1.5rem; font-weight: 700; margin: 0 0 6px; }
+    .muted { color: var(--muted); }
+    .request-card, .history-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+    .privacy-warning { background: #fffbeb; border: 1px solid #f59e0b; border-radius: 6px; padding: 12px 14px; margin-bottom: 16px; color: #78350f; font-size: .82rem; }
+    .filter-grid { display: grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap: 10px; margin-bottom: 10px; }
+    .field-label { display: block; font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 6px; }
+    .filter-grid select, .reason-field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font: inherit; background: #fff; }
+    .reason-field { margin-bottom: 12px; }
+    .btn-submit { background: var(--sidebar-bg); color: #fff; border: 0; border-radius: 6px; padding: 10px 14px; text-decoration: none; font-size: .8rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    .data-table th, .data-table td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    .data-table th { background: var(--bg); font-size: .72rem; text-transform: uppercase; color: var(--muted); }
+    .status-badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 9px; font-size: .72rem; font-weight: 700; text-transform: uppercase; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-approved { background: #dcfce7; color: #166534; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    @media (max-width: 900px) { .filter-grid { grid-template-columns: 1fr; } .table-scroll { overflow-x: auto; } .btn-submit { width: 100%; justify-content: center; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-heading"><i class="fas fa-shield-alt"></i> Resident Export Requests</h2>
+        <p class="muted">Submit filter-based requests for Admin review and CSV generation.</p>
+    </div>
+</div>
+
+<div class="privacy-warning">
+    Kapitan access is limited to export request submission. Resident records and export files are available only to Admin.
+</div>
+
+<div class="request-card">
+    <form method="post" action="{% url 'kapitan_portal:resident_export_request' %}">
+        {% csrf_token %}
+        <div class="filter-grid">
+            <div>
+                <label class="field-label" for="purok">Purok</label>
+                <select id="purok" name="purok">
+                    <option value="">All Puroks</option>
+                    {% for value, label in purok_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="field-label" for="age_group">Age Group</label>
+                <select id="age_group" name="age_group">
+                    {% for value, label in age_group_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="field-label" for="sex">Gender</label>
+                <select id="sex" name="sex">
+                    {% for value, label in sex_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="reason-field">
+            <label class="field-label" for="reason">Official Purpose</label>
+            <textarea id="reason" name="reason" rows="3" placeholder="Reason for export request" required></textarea>
+        </div>
+        <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Submit Request</button>
+    </form>
+</div>
+
+<div class="history-card">
+    <h3 style="font-size: 1rem; margin-bottom: 12px;">My Export Requests</h3>
+    <div class="table-scroll">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Filters</th>
+                    <th>Purpose</th>
+                    <th>Status</th>
+                    <th>Reviewed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request_obj in export_requests %}
+                <tr>
+                    <td>{{ request_obj.requested_at|date:"M d, Y h:i A" }}</td>
+                    <td>{{ request_obj.filter_summary }}</td>
+                    <td>{{ request_obj.reason|truncatechars:90 }}</td>
+                    <td><span class="status-badge status-{{ request_obj.status }}">{{ request_obj.get_status_display }}</span></td>
+                    <td>
+                        {% if request_obj.reviewed_at %}
+                            {{ request_obj.reviewed_at|date:"M d, Y h:i A" }}
+                        {% else %}
+                            <span class="muted">Pending Admin review</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="muted">No export requests submitted yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

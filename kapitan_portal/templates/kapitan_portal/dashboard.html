@@ -1,0 +1,721 @@
+{% extends 'kapitan_portal/kapitan_base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Kapitan Portal{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Stats Row */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 28px;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    
+    .stat-icon.blue {
+        background: #dbeafe;
+        color: #3b82f6;
+    }
+    
+    .stat-icon.yellow {
+        background: #fef3c7;
+        color: #f59e0b;
+    }
+    
+    .stat-icon.green {
+        background: #dcfce7;
+        color: #22c55e;
+    }
+    
+    .stat-icon.purple {
+        background: #e9d5ff;
+        color: #9333ea;
+    }
+    
+    .stat-info {
+        flex: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        line-height: 1.2;
+    }
+    
+    .stat-sub {
+        font-size: 0.65rem;
+        color: var(--muted);
+        margin-top: 4px;
+    }
+    
+    /* Main Grid */
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 24px;
+    }
+    
+    /* Card Styles */
+    .card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    
+    .card:last-child {
+        margin-bottom: 0;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 20px;
+        border-bottom: 2px solid var(--yellow);
+        background: var(--white);
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+    
+    .card-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .card-title i {
+        color: var(--yellow);
+    }
+    
+    .btn-outline {
+        background: transparent;
+        color: var(--slate);
+        border: 1.5px solid var(--border);
+        padding: 5px 12px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .btn-outline:hover {
+        background: var(--yellow-soft);
+        border-color: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    /* Data Table */
+    .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+        min-width: 600px;
+    }
+    
+    .data-table thead th {
+        background: var(--bg);
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+    
+    .data-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.1s;
+    }
+    
+    .data-table tbody tr:hover {
+        background: #f9fafb;
+    }
+    
+    .data-table tbody tr:last-child {
+        border-bottom: none;
+    }
+    
+    .data-table td {
+        padding: 10px 14px;
+        vertical-align: middle;
+    }
+    
+    .ref-no {
+        font-weight: 700;
+        color: var(--charcoal);
+        font-family: monospace;
+        font-size: 0.8rem;
+    }
+    
+    /* Badges */
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+    
+    .badge-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .badge-approved {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .badge-completed {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .badge-for_approval {
+        background: #fed7aa;
+        color: #c2410c;
+    }
+    
+    .badge-settled {
+        background: #dcfce7;
+        color: #166534;
+    }
+    
+    .badge-scheduled {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    /* Action Buttons */
+    .action-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        padding: 4px 10px;
+        border-radius: 5px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: opacity 0.15s;
+    }
+    
+    .btn-action:hover {
+        opacity: 0.85;
+    }
+    
+    .btn-dark {
+        background: #1a1d23;
+        color: #fff;
+    }
+    
+    .btn-ghost {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+    }
+    
+    .btn-ghost:hover {
+        color: var(--text);
+    }
+    
+    /* Upcoming Items List */
+    .items-list {
+        padding: 8px 0;
+    }
+    
+    .list-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .list-item:hover {
+        background: var(--cream);
+    }
+    
+    .list-item-info {
+        flex: 1;
+    }
+    
+    .list-item-title {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text);
+        margin-bottom: 4px;
+    }
+    
+    .list-item-meta {
+        font-size: 0.7rem;
+        color: var(--muted);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    
+    .list-item-date {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--muted);
+    }
+    
+    .empty-state i {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 10px;
+        opacity: 0.4;
+    }
+    
+    .empty-state p {
+        font-size: 0.8rem;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1100px) {
+        .stats-row {
+            gap: 16px;
+        }
+        
+        .stat-card {
+            padding: 16px;
+        }
+        
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            font-size: 1.2rem;
+        }
+        
+        .stat-value {
+            font-size: 1.3rem;
+        }
+    }
+    
+    @media (max-width: 992px) {
+        .main-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .stats-row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .stats-row {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .stat-card {
+            padding: 14px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+        }
+        
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .btn-outline {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .list-item {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .action-group {
+            width: 100%;
+        }
+        
+        .btn-action {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .stat-card {
+            padding: 12px;
+        }
+        
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            font-size: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 1.2rem;
+        }
+        
+        .stat-label {
+            font-size: 0.65rem;
+        }
+        
+        .card-header {
+            padding: 10px 14px;
+        }
+        
+        .card-title {
+            font-size: 0.85rem;
+        }
+        
+        .data-table td,
+        .data-table th {
+            padding: 8px 10px;
+            font-size: 0.7rem;
+        }
+        
+        .badge {
+            padding: 2px 8px;
+            font-size: 0.6rem;
+        }
+        
+        .btn-action {
+            padding: 4px 8px;
+            font-size: 0.65rem;
+        }
+        
+        .list-item {
+            padding: 10px 12px;
+        }
+        
+        .list-item-title {
+            font-size: 0.8rem;
+        }
+        
+        .list-item-meta {
+            font-size: 0.65rem;
+            gap: 8px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <h2 class="page-heading">
+        <i class="fas fa-chart-line" style="color: var(--yellow);"></i> Barangay Dashboard
+    </h2>
+    
+    <!-- Stats Row -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon blue">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Total Blotters</div>
+                <div class="stat-value">{{ total_blotters|default:0 }}</div>
+                <div class="stat-sub">Active cases</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon yellow">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Pending Hearings</div>
+                <div class="stat-value">{{ pending_hearings|default:0 }}</div>
+                <div class="stat-sub">Awaiting schedule</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">Settled Cases</div>
+                <div class="stat-value">{{ settled_hearings|default:0 }}</div>
+                <div class="stat-sub">Successfully mediated</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <div class="stat-label">For Approval</div>
+                <div class="stat-value">{{ for_approval|default:0 }}</div>
+                <div class="stat-sub">Pending review</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Grid -->
+    <div class="main-grid">
+        
+        <!-- Left Column - Upcoming Hearings -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-calendar-alt"></i> Upcoming Hearings
+                </div>
+                <a href="{% url 'kapitan_portal:hearing_list' %}" class="btn-outline">View All</a>
+            </div>
+            <div class="items-list">
+                {% if upcoming_hearings %}
+                    {% for hearing in upcoming_hearings %}
+                    <div class="list-item">
+                        <div class="list-item-info">
+                            <div class="list-item-title">
+                                {{ hearing.blotter.blotter_number }} - {{ hearing.blotter.complainant_name }} vs {{ hearing.blotter.respondent_name|default:"Respondent" }}
+                            </div>
+                            <div class="list-item-meta">
+                                <span class="list-item-date">
+                                    <i class="fas fa-calendar"></i> {{ hearing.hearing_date|date:"M d, Y" }}
+                                </span>
+                                <span class="list-item-date">
+                                    <i class="fas fa-clock"></i> {{ hearing.hearing_date|date:"h:i A" }}
+                                </span>
+                                <span class="list-item-date">
+                                    <i class="fas fa-map-marker-alt"></i> {{ hearing.location|truncatechars:25 }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="action-group">
+                            <a href="{% url 'kapitan_portal:hearing_detail' hearing.id %}" class="btn-action btn-dark">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-week"></i>
+                        <p>No upcoming hearings scheduled</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Right Column - Pending Approvals Summary -->
+        <div>
+            <!-- Pending Certificate Approvals -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-file-certificate"></i> Pending Certificate Approvals
+                    </div>
+                    <a href="{% url 'kapitan_portal:certificate_list' %}" class="btn-outline">View All</a>
+                </div>
+                <div class="items-list">
+                    {% if pending_cert_requests %}
+                        {% for cert in pending_cert_requests %}
+                        <div class="list-item">
+                            <div class="list-item-info">
+                                <div class="list-item-title">
+                                    {{ cert.request_id }} - {{ cert.full_name }}
+                                </div>
+                                <div class="list-item-meta">
+                                    <span>
+                                        <i class="fas fa-file"></i> {{ cert.get_request_type_display }}
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-calendar"></i> {{ cert.date_submitted|date:"M d, Y" }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="action-group">
+                                <a href="{% url 'kapitan_portal:certificate_detail' cert.id %}" class="btn-action btn-dark">
+                                    <i class="fas fa-eye"></i> Review
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>No pending certificate approvals</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Quick Statistics -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-chart-pie"></i> Quick Stats
+                    </div>
+                </div>
+                <div class="items-list">
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-gavel"></i> Total Blotter Cases</span>
+                        <strong>{{ total_blotters|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-check-circle"></i> Resolved Cases</span>
+                        <strong>{{ resolved_blotters|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-balance-scale"></i> Settled Hearings</span>
+                        <strong>{{ settled_hearings|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-clock"></i> Pending Hearings</span>
+                        <strong>{{ pending_hearings|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-file-certificate"></i> Certificates Processed</span>
+                        <strong>{{ total_certificates|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-address-card"></i> Total Residents</span>
+                        <strong>{{ total_residents|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-home"></i> Households</span>
+                        <strong>{{ total_households|default:0 }}</strong>
+                    </div>
+                    <div class="list-item" style="justify-content: space-between;">
+                        <span><i class="fas fa-user-clock"></i> Seniors / Minors / Voter-age</span>
+                        <strong>{{ senior_count|default:0 }} / {{ minor_count|default:0 }} / {{ voter_age_count|default:0 }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Blotters Table -->
+    <div class="card" style="margin-top: 24px;">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-list"></i> Recent Blotter Cases
+            </div>
+            <a href="{% url 'staff_module:staff_blotter_list' %}" class="btn-outline">View All</a>
+        </div>
+        <div class="table-wrapper">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Blotter #</th>
+                        <th>Complainant</th>
+                        <th>Respondent</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for blotter in recent_blotters %}
+                    <tr>
+                        <td class="ref-no">{{ blotter.blotter_number }}</div>
+                        <td>{{ blotter.complainant_name|truncatechars:20 }}</div>
+                        <td>{{ blotter.respondent_name|default:"—"|truncatechars:20 }}</div>
+                        <td>{{ blotter.get_incident_type_display|truncatechars:15 }}</div>
+                        <td>
+                            {% if blotter.status == 'pending' %}
+                                <span class="badge badge-pending">Pending</span>
+                            {% elif blotter.status == 'resolved' %}
+                                <span class="badge badge-approved">Resolved</span>
+                            {% elif blotter.status == 'scheduled' %}
+                                <span class="badge badge-scheduled">Scheduled</span>
+                            {% else %}
+                                <span class="badge">{{ blotter.get_status_display }}</span>
+                            {% endif %}
+                        </div>
+                        <td style="white-space: nowrap;">{{ blotter.created_at|date:"M d, Y" }}</div>
+                        <td>
+                            <div class="action-group">
+                                <a href="{% url 'staff_module:staff_blotter_detail' blotter.id %}" class="btn-action btn-dark">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <p>No blotter records found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

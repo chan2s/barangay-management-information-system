@@ -1,0 +1,310 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Summary Report - BIMS{% endblock %}
+{% block nav_reports %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-container { padding: 0; }
+    
+    .page-header { margin-bottom: 24px; }
+    .page-heading { font-size: 1.5rem; font-weight: 700; margin: 0 0 8px 0; }
+    .page-heading i { color: var(--yellow); margin-right: 10px; }
+    .page-description { color: var(--muted); font-size: 0.85rem; }
+    
+    .filter-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+    }
+    
+    .filter-card-title {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 14px;
+    }
+    
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: flex-end;
+    }
+    
+    .filter-group { flex: 1; min-width: 140px; }
+    .filter-group label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+    
+    .filter-group input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        background: var(--bg);
+        outline: none;
+    }
+    
+    .filter-group input:focus {
+        border-color: #6b7280;
+        background: var(--white);
+    }
+    
+    .filter-actions { display: flex; gap: 8px; align-items: center; }
+    
+    .btn-filter {
+        background: var(--sidebar-bg);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-filter:hover { opacity: 0.85; }
+    
+    .btn-reset {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        padding: 8px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-reset:hover { color: var(--text); }
+    
+    .btn-print, .btn-export {
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .btn-print {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+    }
+    
+    .btn-export {
+        background: var(--sidebar-bg);
+        color: white;
+    }
+    
+    .btn-print:hover, .btn-export:hover { opacity: 0.85; }
+    
+    .result-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .result-count {
+        font-size: 0.78rem;
+        color: var(--muted);
+        background: var(--bg);
+        padding: 6px 12px;
+        border-radius: 20px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        text-align: center;
+    }
+    
+    .stat-card .number { font-size: 2rem; font-weight: 700; color: var(--sidebar-bg); margin-bottom: 8px; }
+    .stat-card .label { font-size: 0.8rem; color: var(--muted); }
+    .stat-card small { font-size: 0.7rem; color: var(--sidebar-bg); display: block; margin-top: 8px; }
+    
+    .table-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    
+    .table-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .table-card-title { font-size: 0.88rem; font-weight: 600; }
+    
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    .data-table thead th {
+        background: var(--bg);
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+    }
+    .data-table tbody tr { border-bottom: 1px solid var(--border); }
+    .data-table td { padding: 10px 14px; }
+    
+    .date-badge {
+        font-size: 0.78rem;
+        color: var(--muted);
+        margin-bottom: 24px;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-row { flex-direction: column; }
+        .filter-actions { width: 100%; }
+        .btn-filter, .btn-reset { flex: 1; justify-content: center; }
+        .stats-grid { grid-template-columns: 1fr; }
+        .data-table { display: block; overflow-x: auto; }
+    }
+    
+    @media print {
+        .filter-card, .filter-actions, .sidebar, .topbar, .btn-print, .btn-export, .btn-reset { display: none; }
+        .report-container { padding: 0; }
+        .stat-card { break-inside: avoid; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="page-header">
+        <h2 class="page-heading"><i class="fas fa-chart-pie"></i> Summary Report</h2>
+        <p class="page-description">Overall dashboard summary statistics</p>
+    </div>
+    
+    <div class="filter-card">
+        <div class="filter-card-title"><i class="fas fa-filter"></i> Select Date Range</div>
+        <form method="get" id="filterForm">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Date From</label>
+                    <input type="date" name="date_from" value="{{ date_from|default:'' }}">
+                </div>
+                <div class="filter-group">
+                    <label>Date To</label>
+                    <input type="date" name="date_to" value="{{ date_to|default:'' }}">
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter"><i class="fas fa-search"></i> Generate</button>
+                    <a href="{% url 'staff_module:summary_report' %}" class="btn-reset"><i class="fas fa-undo"></i> Reset</a>
+                    <button type="button" class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+                    <button type="button" class="btn-export" id="exportBtn"><i class="fas fa-file-excel"></i> Export</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="date-badge">
+        <i class="fas fa-calendar-alt"></i> Period: {{ date_from|default:"Start" }} to {{ date_to|default:"End" }}
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ total_blotters|default:0 }}</div>
+            <div class="label">Total Blotter Cases</div>
+            <small>{{ resolved_blotters|default:0 }} Resolved</small>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ total_certificates|default:0 }}</div>
+            <div class="label">Certificate Requests</div>
+            <small>{{ approved_certificates|default:0 }} Approved</small>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ total_hearings|default:0 }}</div>
+            <div class="label">Hearings Conducted</div>
+            <small>{{ settled_hearings|default:0 }} Settled</small>
+        </div>
+    </div>
+    
+    <div class="table-card">
+        <div class="table-card-header">
+            <span class="table-card-title"><i class="fas fa-gavel"></i> Blotter Cases Summary</span>
+        </div>
+        <table class="data-table">
+            <thead><tr><th>Metric</th><th>Count</th><th>Percentage</th></tr></thead>
+            <tbody>
+                <tr><td>Total Cases</td><td>{{ total_blotters|default:0 }}</td><td>100%</td></tr>
+                <tr><td>Resolved Cases</td><td>{{ resolved_blotters|default:0 }}</td><td>{% widthratio resolved_blotters total_blotters 100 %}%</td></tr>
+                <tr><td>Pending Cases</td><td>{{ pending_blotters|default:0 }}</td><td>{% widthratio pending_blotters total_blotters 100 %}%</td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="table-card">
+        <div class="table-card-header">
+            <span class="table-card-title"><i class="fas fa-file-certificate"></i> Certificate Requests Summary</span>
+        </div>
+        <table class="data-table">
+            <thead><tr><th>Metric</th><th>Count</th><th>Percentage</th></tr></thead>
+            <tbody>
+                <tr><td>Total Requests</td><td>{{ total_certificates|default:0 }}</td><td>100%</td></tr>
+                <tr><td>Approved</td><td>{{ approved_certificates|default:0 }}</td><td>{% widthratio approved_certificates total_certificates 100 %}%</td></tr>
+                <tr><td>For Approval</td><td>{{ for_approval_certificates|default:0 }}</td><td>{% widthratio for_approval_certificates total_certificates 100 %}%</td></tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="table-card">
+        <div class="table-card-header">
+            <span class="table-card-title"><i class="fas fa-gavel"></i> Hearings Summary</span>
+        </div>
+        <table class="data-table">
+            <thead><tr><th>Metric</th><th>Count</th><th>Percentage</th></tr></thead>
+            <tbody>
+                <tr><td>Total Hearings</td><td>{{ total_hearings|default:0 }}</td><td>100%</td></tr>
+                <tr><td>Settled</td><td>{{ settled_hearings|default:0 }}</td><td>{% widthratio settled_hearings total_hearings 100 %}%</td></tr>
+                <tr><td>Unsettled</td><td>{{ unsettled_hearings|default:0 }}</td><td>{% widthratio unsettled_hearings total_hearings 100 %}%</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        window.location.href = "{% url 'staff_module:summary_report' %}?export=excel&date_from={{ date_from }}&date_to={{ date_to }}";
+    });
+</script>
+{% endblock %}

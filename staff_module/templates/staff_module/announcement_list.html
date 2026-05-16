@@ -1,0 +1,568 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Announcements - BIMS{% endblock %}
+{% block nav_announcements %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Updated colors to match appointment list */
+    .announcement-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .page-heading {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0;
+    }
+    
+    .page-heading i {
+        color: var(--yellow);
+        margin-right: 10px;
+    }
+    
+    /* View Toggle - Updated colors */
+    .view-toggle {
+        display: flex;
+        gap: 8px;
+        background: var(--bg);
+        padding: 4px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border);
+    }
+    
+    .view-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        color: var(--muted);
+        transition: all 0.2s;
+    }
+    
+    .view-btn.active {
+        background: var(--sidebar-bg);
+        color: #fff;
+    }
+    
+    /* Create Button - Updated to match appointment list */
+    .btn-create {
+        background: var(--sidebar-bg);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: opacity 0.15s;
+    }
+    
+    .btn-create:hover {
+        opacity: 0.85;
+        color: #fff;
+        transform: none;
+    }
+    
+    /* Filter Bar - Updated colors */
+    .filter-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .filter-btn {
+        padding: 6px 16px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        background: var(--white);
+        color: var(--slate);
+        border: 1px solid var(--border);
+    }
+    
+    .filter-btn:hover {
+        background: var(--yellow-soft);
+        border-color: var(--yellow);
+        color: var(--charcoal);
+    }
+    
+    .filter-btn.active {
+        background: var(--sidebar-bg);
+        color: #fff;
+        border-color: var(--sidebar-bg);
+    }
+    
+    /* Announcements Grid */
+    .announcements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 24px;
+        margin-bottom: 24px;
+    }
+    
+    .announcements-grid.list-view {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Announcement Card - Updated colors */
+    .announcement-card {
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: all 0.2s;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .announcement-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .announcement-priority {
+        height: 4px;
+    }
+    
+    .priority-normal { background: #6c757d; }
+    .priority-important { background: #f59e0b; }
+    .priority-urgent { background: #dc3545; }
+    
+    .announcement-body {
+        padding: 20px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .announcement-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        line-height: 1.3;
+    }
+    
+    /* Priority Badges - Updated colors */
+    .priority-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.66rem;
+        font-weight: 600;
+    }
+    
+    .priority-normal-badge { background: #f3f4f6; color: #6b7280; }
+    .priority-important-badge { background: #fef3c7; color: #92400e; }
+    .priority-urgent-badge { background: #fee2e2; color: #991b1b; }
+    
+    .announcement-meta {
+        font-size: 0.7rem;
+        color: var(--muted);
+        margin-bottom: 12px;
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .announcement-meta span {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    
+    .announcement-content {
+        color: var(--slate);
+        font-size: 0.8rem;
+        line-height: 1.6;
+        margin-bottom: 16px;
+        flex: 1;
+    }
+    
+    .announcement-content p {
+        margin-bottom: 8px;
+    }
+    
+    .announcement-image {
+        width: 100%;
+        max-height: 180px;
+        object-fit: cover;
+        border-radius: var(--radius-sm);
+        margin-top: 12px;
+    }
+    
+    /* Action Buttons - Updated to match appointment list */
+    .announcement-actions {
+        display: flex;
+        gap: 8px;
+        padding-top: 16px;
+        margin-top: auto;
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
+    }
+    
+    .btn-icon {
+        padding: 4px 10px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.7rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        transition: opacity 0.15s;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .btn-icon:hover {
+        opacity: 0.8;
+    }
+    
+    .btn-edit {
+        background: #1a1d23;
+        color: #fff;
+    }
+    
+    .btn-toggle {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+    }
+    
+    .btn-toggle:hover {
+        color: var(--text);
+    }
+    
+    .btn-delete {
+        background: #dc3545;
+        color: #fff;
+    }
+    
+    /* Status Badges - Updated colors */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.66rem;
+        font-weight: 600;
+    }
+    
+    .status-inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+    
+    .status-expired {
+        background: #fef3c7;
+        color: #92400e;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        background: var(--white);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        color: var(--muted);
+    }
+    
+    .empty-state i {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
+        opacity: 0.4;
+    }
+    
+    .empty-state p {
+        font-size: 0.82rem;
+    }
+    
+    /* Pagination - Updated colors */
+    .pagination {
+        margin-top: 24px;
+        display: flex;
+        justify-content: center;
+        gap: 6px;
+        align-items: center;
+    }
+    
+    .pagination a {
+        padding: 5px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        color: var(--muted);
+        background: var(--white);
+        border: 1px solid var(--border);
+        font-size: 0.75rem;
+        font-weight: 500;
+        transition: all 0.15s;
+    }
+    
+    .pagination a:hover {
+        background: var(--bg);
+        color: var(--text);
+    }
+    
+    .pagination .current {
+        padding: 5px 10px;
+        background: var(--sidebar-bg);
+        color: #fff;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        border-color: var(--sidebar-bg);
+    }
+    
+    /* List View Specific */
+    .announcements-grid.list-view .announcement-card {
+        flex-direction: row;
+    }
+    
+    .announcements-grid.list-view .announcement-priority {
+        width: 4px;
+        height: auto;
+    }
+    
+    .announcements-grid.list-view .announcement-body {
+        flex: 1;
+    }
+    
+    .announcements-grid.list-view .announcement-image {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        margin: 0;
+        border-radius: var(--radius-sm);
+    }
+    
+    .announcements-grid.list-view .image-wrapper {
+        padding: 16px 0 16px 16px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .announcements-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .announcements-grid.list-view .announcement-card {
+            flex-direction: column;
+        }
+        
+        .announcements-grid.list-view .image-wrapper {
+            padding: 0 16px 0 16px;
+        }
+        
+        .announcements-grid.list-view .announcement-image {
+            width: 100%;
+            height: auto;
+        }
+        
+        .filter-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .announcement-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .view-toggle {
+            align-self: flex-start;
+        }
+        
+        .announcement-actions {
+            width: 100%;
+        }
+        
+        .btn-icon {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="announcement-header">
+        <h2 class="page-heading">
+            <i class="fas fa-bullhorn"></i> Announcements
+        </h2>
+        <div style="display: flex; gap: 16px; align-items: center;">
+            <div class="view-toggle">
+                <span class="view-btn grid-view active" onclick="setView('grid')">
+                    <i class="fas fa-th-large"></i>
+                </span>
+                <span class="view-btn list-view" onclick="setView('list')">
+                    <i class="fas fa-list"></i>
+                </span>
+            </div>
+            <a href="{% url 'staff_module:announcement_create' %}" class="btn-create">
+                <i class="fas fa-plus"></i> New Announcement
+            </a>
+        </div>
+    </div>
+    
+    <div class="filter-bar">
+        <div class="filter-group">
+            <a href="?status=all" class="filter-btn {% if status_filter == 'all' or not status_filter %}active{% endif %}">
+                <i class="fas fa-list"></i> All
+            </a>
+            <a href="?status=active" class="filter-btn {% if status_filter == 'active' %}active{% endif %}">
+                <i class="fas fa-check-circle"></i> Active
+            </a>
+            <a href="?status=expired" class="filter-btn {% if status_filter == 'expired' %}active{% endif %}">
+                <i class="fas fa-clock"></i> Expired
+            </a>
+        </div>
+        <span style="font-size: 0.75rem; color: var(--muted);">
+            <i class="fas fa-file-alt"></i> Total: {{ announcements.paginator.count }} announcements
+        </span>
+    </div>
+    
+    <div class="announcements-grid" id="announcementsGrid">
+        {% for announcement in announcements %}
+        <div class="announcement-card">
+            <div class="announcement-priority priority-{{ announcement.priority }}"></div>
+            <div class="announcement-body">
+                <div class="announcement-title">
+                    {{ announcement.title }}
+                    <span class="priority-badge priority-{{ announcement.priority }}-badge">
+                        <i class="fas {{ announcement.get_priority_icon }}"></i>
+                        {{ announcement.get_priority_display }}
+                    </span>
+                    {% if not announcement.is_active %}
+                    <span class="status-badge status-inactive">
+                        <i class="fas fa-ban"></i> Inactive
+                    </span>
+                    {% endif %}
+                    {% if announcement.is_expired %}
+                    <span class="status-badge status-expired">
+                        <i class="fas fa-hourglass-end"></i> Expired
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="announcement-meta">
+                    <span><i class="fas fa-user"></i> {{ announcement.created_by.get_full_name|default:announcement.created_by.username }}</span>
+                    <span><i class="fas fa-calendar"></i> {{ announcement.created_at|date:"M d, Y h:i A" }}</span>
+                    {% if announcement.expires_at %}
+                    <span><i class="fas fa-hourglass-end"></i> Expires: {{ announcement.expires_at|date:"M d, Y" }}</span>
+                    {% endif %}
+                </div>
+                <div class="announcement-content">
+                    {{ announcement.content|linebreaksbr|truncatechars:200 }}
+                </div>
+                {% if announcement.image %}
+                <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" class="announcement-image">
+                {% endif %}
+                <div class="announcement-actions">
+                    <a href="{% url 'staff_module:announcement_edit' announcement.id %}" class="btn-icon btn-edit" title="Edit Announcement">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <a href="{% url 'staff_module:announcement_toggle_status' announcement.id %}" class="btn-icon btn-toggle" title="Toggle Status">
+                        <i class="fas fa-{% if announcement.is_active %}ban{% else %}check-circle{% endif %}"></i>
+                        {% if announcement.is_active %}Deactivate{% else %}Activate{% endif %}
+                    </a>
+                    <a href="{% url 'staff_module:announcement_delete' announcement.id %}" class="btn-icon btn-delete" title="Delete Announcement" onclick="return confirm('Are you sure you want to delete this announcement? This action cannot be undone.')">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-bullhorn"></i>
+            <p>No announcements yet.</p>
+            <p style="font-size: 0.75rem; margin-top: 8px;">Click "New Announcement" to create one.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if announcements.has_other_pages %}
+    <div class="pagination">
+        {% if announcements.has_previous %}
+        <a href="?page={{ announcements.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+            <i class="fas fa-chevron-left"></i> Prev
+        </a>
+        {% endif %}
+        
+        <span class="current">
+            {{ announcements.number }} / {{ announcements.paginator.num_pages }}
+        </span>
+        
+        {% if announcements.has_next %}
+        <a href="?page={{ announcements.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}">
+            Next <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    // Save view preference in localStorage
+    function setView(view) {
+        const grid = document.getElementById('announcementsGrid');
+        const gridBtn = document.querySelector('.view-btn.grid-view');
+        const listBtn = document.querySelector('.view-btn.list-view');
+        
+        if (view === 'grid') {
+            grid.classList.remove('list-view');
+            gridBtn.classList.add('active');
+            listBtn.classList.remove('active');
+            localStorage.setItem('announcementView', 'grid');
+        } else {
+            grid.classList.add('list-view');
+            listBtn.classList.add('active');
+            gridBtn.classList.remove('active');
+            localStorage.setItem('announcementView', 'list');
+        }
+    }
+    
+    // Load saved view preference
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedView = localStorage.getItem('announcementView');
+        if (savedView === 'list') {
+            setView('list');
+        }
+    });
+</script>
+{% endblock %}

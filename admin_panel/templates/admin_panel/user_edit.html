@@ -1,0 +1,345 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% load static %}
+
+{% block title %}Edit User - Admin Panel{% endblock %}
+{% block nav_users %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-shell {
+        max-width: 920px;
+        margin: 0 auto;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+        flex-wrap: wrap;
+    }
+
+    .page-heading {
+        font-size: 1.45rem;
+        font-weight: 800;
+        margin: 0 0 5px;
+        color: var(--text);
+    }
+
+    .page-description {
+        color: var(--muted);
+        font-size: .86rem;
+    }
+
+    .user-summary {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+
+    .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--yellow);
+        color: var(--charcoal);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.1rem;
+        flex: 0 0 auto;
+    }
+
+    .summary-name {
+        font-weight: 800;
+        font-size: 1rem;
+        color: var(--text);
+    }
+
+    .summary-meta {
+        color: var(--muted);
+        font-size: .78rem;
+        margin-top: 3px;
+    }
+
+    .form-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .card-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: .95rem;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+    .card-title i {
+        color: #7c6500;
+    }
+
+    .card-body {
+        padding: 18px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .form-group {
+        min-width: 0;
+    }
+
+    .form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: .72rem;
+        font-weight: 800;
+        color: var(--muted);
+        margin-bottom: 6px;
+        text-transform: uppercase;
+    }
+
+    .form-control {
+        width: 100%;
+        min-height: 40px;
+        padding: 9px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font: inherit;
+        font-size: .86rem;
+        color: var(--text);
+        background: #fff;
+    }
+
+    .form-control:focus {
+        outline: 2px solid rgba(245, 211, 0, .35);
+        border-color: #d4b900;
+    }
+
+    .form-control[disabled] {
+        color: var(--muted);
+        background: #f9fafb;
+    }
+
+    .help-text {
+        color: var(--muted);
+        font-size: .72rem;
+        margin-top: 5px;
+        line-height: 1.45;
+    }
+
+    .check-row {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 40px;
+        padding: 9px 11px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: #f9fafb;
+        font-size: .84rem;
+    }
+
+    .check-row input {
+        width: 16px;
+        height: 16px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border);
+    }
+
+    .btn-submit,
+    .btn-cancel,
+    .btn-danger {
+        border: 0;
+        border-radius: var(--radius-sm);
+        padding: 10px 15px;
+        text-decoration: none;
+        font-size: .82rem;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        min-height: 40px;
+    }
+
+    .btn-submit {
+        background: var(--sidebar-bg);
+        color: #fff;
+    }
+
+    .btn-cancel {
+        background: #f3f4f6;
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .btn-danger {
+        background: #dc2626;
+        color: #fff;
+    }
+
+    .btn-submit:hover,
+    .btn-danger:hover {
+        opacity: .92;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+    }
+
+    @media (max-width: 720px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions,
+        .btn-submit,
+        .btn-cancel,
+        .btn-danger {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-shell">
+    <div class="page-header">
+        <div>
+            <h2 class="page-heading"><i class="fas fa-user-pen"></i> Edit User</h2>
+            <p class="page-description">Update profile details, staff role, and account access.</p>
+        </div>
+        <a href="{% url 'admin_panel:user_list' %}" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i> Back to Users
+        </a>
+    </div>
+
+    <div class="user-summary">
+        <div class="avatar">{{ edit_user.username|slice:":1"|upper }}</div>
+        <div>
+            <div class="summary-name">{{ edit_user.get_full_name|default:edit_user.username }}</div>
+            <div class="summary-meta">
+                @{{ edit_user.username }} | Joined {{ edit_user.date_joined|date:"M d, Y" }}
+                {% if edit_user.is_superuser %}| Superuser{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="card-header">
+            <div class="card-title"><i class="fas fa-id-card"></i> Account Details</div>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input id="username" class="form-control" type="text" value="{{ edit_user.username }}" disabled>
+                        <div class="help-text">Username changes are not enabled in this form.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input id="email" class="form-control" type="email" name="email" value="{{ edit_user.email }}" placeholder="user@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input id="first_name" class="form-control" type="text" name="first_name" value="{{ edit_user.first_name }}" placeholder="First name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input id="last_name" class="form-control" type="text" name="last_name" value="{{ edit_user.last_name }}" placeholder="Last name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" class="form-control" name="role">
+                            {% for value, label in role_choices %}
+                                <option value="{{ value }}" {% if staff_profile and staff_profile.role == value %}selected{% elif not staff_profile and value == 'staff' %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="position">Position</label>
+                        <input id="position" class="form-control" type="text" name="position" value="{{ staff_profile.position|default:'' }}" placeholder="e.g., Barangay Secretary">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contact_number">Contact Number</label>
+                        <input id="contact_number" class="form-control" type="text" name="contact_number" value="{{ staff_profile.contact_number|default:'' }}" placeholder="09123456789">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Staff Site Access</label>
+                        <label class="check-row">
+                            <input type="checkbox" name="is_staff" {% if edit_user.is_staff %}checked{% endif %}>
+                            Allow Django admin/staff access flag
+                        </label>
+                    </div>
+
+                    <div class="form-group full">
+                        <label for="password">New Password</label>
+                        <input id="password" class="form-control" type="password" name="password" placeholder="Leave blank to keep current password">
+                        <div class="help-text">Optional. Enter at least 6 characters only when changing the password.</div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'admin_panel:user_list' %}" class="btn-cancel">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                    {% if not edit_user.is_superuser and edit_user.id != user.id %}
+                        <a href="{% url 'admin_panel:user_delete' edit_user.id %}" class="btn-danger">
+                            <i class="fas fa-trash"></i> Delete User
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

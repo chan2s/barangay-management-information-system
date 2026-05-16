@@ -1,0 +1,750 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>{% block title %}BIMS Kapitan Portal{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-bg: #1a1d23;
+            --sidebar-hover: #2a2d35;
+            --sidebar-active: #2a2d35;
+            --sidebar-text: #9ca3af;
+            --sidebar-text-active: #ffffff;
+            --sidebar-accent: #f5d300;
+            --sidebar-width: 260px;
+            --sidebar-width-mobile: 260px;
+            --bg: #f4f6f9;
+            --white: #ffffff;
+            --border: #e5e7eb;
+            --text: #111827;
+            --muted: #6b7280;
+            --yellow: #f5d300;
+            --toast-success: #22c55e;
+            --toast-error: #ef4444;
+            --toast-warning: #f59e0b;
+            --toast-info: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Mobile Menu Toggle Button */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--sidebar-bg);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .mobile-menu-toggle:hover {
+            background: var(--yellow);
+            color: var(--sidebar-bg);
+        }
+        
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-overlay.active {
+            display: block;
+        }
+
+        /* Toast Container */
+        .toast-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast-item {
+            min-width: 320px;
+            max-width: 420px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            pointer-events: auto;
+            overflow: hidden;
+            animation: slideInRight 0.3s ease forwards;
+            position: relative;
+        }
+
+        .toast-item.slide-out {
+            animation: slideOutRight 0.3s ease forwards;
+        }
+
+        .toast-success { border-left: 4px solid var(--toast-success); }
+        .toast-error { border-left: 4px solid var(--toast-error); }
+        .toast-warning { border-left: 4px solid var(--toast-warning); }
+        .toast-info { border-left: 4px solid var(--toast-info); }
+
+        .toast-success .toast-icon { background: var(--toast-success); color: white; }
+        .toast-error .toast-icon { background: var(--toast-error); color: white; }
+        .toast-warning .toast-icon { background: var(--toast-warning); color: white; }
+        .toast-info .toast-icon { background: var(--toast-info); color: white; }
+
+        .toast-success .toast-progress { background: var(--toast-success); }
+        .toast-error .toast-progress { background: var(--toast-error); }
+        .toast-warning .toast-progress { background: var(--toast-warning); }
+        .toast-info .toast-progress { background: var(--toast-info); }
+
+        .toast-inner {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            gap: 14px;
+        }
+
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .toast-content { flex: 1; }
+        .toast-title { font-weight: 700; font-size: 14px; margin-bottom: 2px; color: var(--text); }
+        .toast-message { font-size: 13px; color: var(--muted); line-height: 1.4; }
+
+        .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--muted);
+            padding: 4px;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover { color: var(--text); }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            animation: progress 4s linear forwards;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        @media (max-width: 576px) {
+            .toast-container { top: 70px; right: 10px; left: 10px; }
+            .toast-item { min-width: auto; width: 100%; max-width: none; }
+        }
+
+        /* Kapitan Sidebar */
+        .kapitan-sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100%;
+            z-index: 100;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 18px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .brand-icon {
+            width: 40px; height: 40px;
+            background: var(--yellow);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-icon i { font-size: 20px; color: #1a1d23; }
+
+        .brand-text {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .brand-text span {
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: var(--sidebar-text);
+            display: block;
+        }
+
+        .sidebar-nav {
+            padding: 16px 0;
+            flex: 1;
+        }
+
+        .nav-section-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.25);
+            text-transform: uppercase;
+            padding: 10px 18px 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .nav-link i { width: 20px; font-size: 1rem; }
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link.active { background: var(--sidebar-active); color: #fff; }
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--yellow);
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.06);
+            margin: 10px 18px;
+        }
+
+        /* Main Content */
+        .kapitan-main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Top Bar */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--white);
+            padding: 0 28px;
+            height: 60px;
+            border-bottom: 2px solid var(--yellow);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .topbar-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .topbar-title span { color: var(--yellow); }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg);
+            padding: 6px 15px;
+            border-radius: 30px;
+        }
+
+        .user-pill-name { font-size: 0.85rem; font-weight: 600; }
+        .user-pill-role { font-size: 0.65rem; color: var(--yellow); font-weight: 600; }
+        .user-avatar {
+            width: 36px; height: 36px;
+            background: var(--yellow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* Content */
+        .content { 
+            padding: 24px 28px; 
+            flex: 1; 
+        }
+        .page-heading { 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 24px; 
+        }
+
+        /* Mobile Sidebar */
+        .mobile-menu-toggle {
+            display: none;
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 992px) {
+            .content {
+                padding: 20px 24px;
+            }
+            .page-heading {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 60px;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+            }
+            
+            .kapitan-sidebar {
+                transform: translateX(-100%);
+                width: 260px;
+            }
+            
+            .kapitan-sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .kapitan-main {
+                margin-left: 0;
+            }
+            
+            .topbar {
+                padding: 0 16px;
+            }
+            
+            .topbar-title {
+                font-size: 0.85rem;
+            }
+            
+            .user-pill {
+                padding: 4px 12px;
+                gap: 8px;
+            }
+            
+            .user-pill-name {
+                font-size: 0.75rem;
+            }
+            
+            .user-avatar {
+                width: 30px;
+                height: 30px;
+                font-size: 0.75rem;
+            }
+            
+            .content {
+                padding: 16px;
+            }
+            
+            .page-heading {
+                font-size: 1.2rem;
+                margin-bottom: 16px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .topbar-title span {
+                display: none;
+            }
+            
+            .user-pill .user-pill-info {
+                display: none;
+            }
+            
+            .user-pill {
+                background: transparent;
+                padding: 0;
+            }
+            
+            .topbar {
+                justify-content: flex-end;
+            }
+            
+            .content {
+                padding: 12px;
+            }
+            
+            .page-heading {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .content {
+                padding: 10px;
+            }
+            
+            .page-heading {
+                font-size: 1rem;
+                margin-bottom: 12px;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-menu-toggle {
+                display: none !important;
+            }
+        }
+        
+        /* Scrollbar styling */
+        .kapitan-sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .kapitan-sidebar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        
+        .kapitan-sidebar::-webkit-scrollbar-thumb {
+            background: var(--yellow);
+            border-radius: 5px;
+        }
+        
+        /* Loading state for buttons */
+        .btn-loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <!-- Mobile Menu Toggle Button -->
+    <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Pass Django messages to JavaScript -->
+    <script>
+        // Collect Django messages and convert to JSON
+        var djangoMessages = [];
+        {% if messages %}
+            {% for message in messages %}
+            djangoMessages.push({
+                message: "{{ message.message|escapejs }}",
+                tags: "{{ message.tags|escapejs }}"
+            });
+            {% endfor %}
+        {% endif %}
+        
+        // Store messages in a data attribute for JavaScript to read
+        document.body.setAttribute('data-django-messages', JSON.stringify(djangoMessages));
+    </script>
+
+    <aside class="kapitan-sidebar" id="kapitanSidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon"><i class="fas fa-balance-scale"></i></div>
+            <div class="brand-text">BIMS Kapitan<span>Barangay Poblacion</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-label">Main</div>
+            <a href="{% url 'kapitan_portal:dashboard' %}" class="nav-link {% block nav_dashboard %}{% endblock %}">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </a>
+            <a href="{% url 'kapitan_portal:appointment_list' %}" class="nav-link {% block nav_appointments %}{% endblock %}">
+                <i class="fas fa-calendar-alt"></i> Appointments
+            </a>
+            <div class="nav-divider"></div>
+            <a href="{% url 'kapitan_portal:certificate_list' %}" class="nav-link {% block nav_certificates %}{% endblock %}">
+                <i class="fas fa-file-certificate"></i> Certificates
+            </a>
+            <div class="nav-divider"></div>
+            <a href="{% url 'kapitan_portal:hearing_list' %}" class="nav-link {% block nav_hearings %}{% endblock %}">
+                <i class="fas fa-gavel"></i> Hearings
+            </a>
+            <div class="nav-divider"></div>
+            <a href="{% url 'kapitan_portal:resident_list' %}" class="nav-link {% block nav_residents %}{% endblock %}">
+                <i class="fas fa-shield-alt"></i> Resident Exports
+            </a>
+            <div class="nav-divider"></div>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-link" style="width: 100%; border: 0; background: transparent; cursor: pointer; font: inherit;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </form>
+        </nav>
+    </aside>
+
+    <div class="kapitan-main">
+        <header class="topbar">
+            <div class="topbar-left">
+                <span class="topbar-title">Kapitan Portal <span>| Barangay Poblacion</span></span>
+            </div>
+            <div class="user-pill">
+                <div class="user-pill-info">
+                    <div class="user-pill-name">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="user-pill-role">Kapitan / Punong Barangay</div>
+                </div>
+                <div class="user-avatar">{{ user.username|slice:":1"|upper }}</div>
+            </div>
+        </header>
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('kapitanSidebar');
+            const toggleBtn = document.getElementById('mobileMenuToggle');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            
+            function closeSidebar() {
+                if (sidebar) sidebar.classList.remove('open');
+                if (overlay) overlay.classList.remove('active');
+            }
+            
+            function openSidebar() {
+                if (sidebar) sidebar.classList.add('open');
+                if (overlay) overlay.classList.add('active');
+            }
+            
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    if (sidebar && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    } else {
+                        openSidebar();
+                    }
+                });
+            }
+            
+            if (overlay) {
+                overlay.addEventListener('click', closeSidebar);
+            }
+            
+            // Close sidebar when clicking a link on mobile
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
+            
+            // Close sidebar on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
+                    closeSidebar();
+                }
+            });
+            
+            // Handle window resize
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (window.innerWidth > 768 && sidebar && sidebar.classList.contains('open')) {
+                        closeSidebar();
+                    }
+                }, 250);
+            });
+        });
+    </script>
+
+    <!-- Toast Notification System Script -->
+    <script>
+        (function() {
+            let toastQueue = [];
+            let isShowing = false;
+            
+            const titles = {
+                'success': 'Success',
+                'error': 'Error',
+                'warning': 'Warning',
+                'info': 'Information'
+            };
+            
+            const icons = {
+                'success': '✓',
+                'error': '✗',
+                'warning': '⚠',
+                'info': 'ℹ'
+            };
+            
+            function showNextToast() {
+                if (isShowing || toastQueue.length === 0) return;
+                isShowing = true;
+                const toast = toastQueue.shift();
+                createToastElement(toast.type, toast.message, toast.title);
+            }
+            
+            function createToastElement(type, message, customTitle = null) {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+                
+                const toast = document.createElement('div');
+                toast.className = `toast-item toast-${type}`;
+                
+                const title = customTitle || titles[type] || 'Notification';
+                const icon = icons[type] || 'ℹ';
+                
+                toast.innerHTML = `
+                    <div class="toast-inner">
+                        <div class="toast-icon"><span style="font-weight: bold;">${icon}</span></div>
+                        <div class="toast-content">
+                            <div class="toast-title">${escapeHtml(title)}</div>
+                            <div class="toast-message">${escapeHtml(message)}</div>
+                        </div>
+                        <button class="toast-close" onclick="this.closest('.toast-item').remove()">×</button>
+                    </div>
+                    <div class="toast-progress"></div>
+                `;
+                
+                container.appendChild(toast);
+                
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.classList.add('slide-out');
+                        setTimeout(() => {
+                            if (toast.parentNode) toast.remove();
+                            isShowing = false;
+                            showNextToast();
+                        }, 300);
+                    }
+                }, 4000);
+                
+                setTimeout(() => {
+                    const progress = toast.querySelector('.toast-progress');
+                    if (progress) progress.style.animation = 'none';
+                }, 4000);
+            }
+            
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            window.toast = {
+                success: function(message, title = null) {
+                    toastQueue.push({ type: 'success', message: message, title: title });
+                    showNextToast();
+                },
+                error: function(message, title = null) {
+                    toastQueue.push({ type: 'error', message: message, title: title });
+                    showNextToast();
+                },
+                warning: function(message, title = null) {
+                    toastQueue.push({ type: 'warning', message: message, title: title });
+                    showNextToast();
+                },
+                info: function(message, title = null) {
+                    toastQueue.push({ type: 'info', message: message, title: title });
+                    showNextToast();
+                }
+            };
+            
+            // Process Django messages from the data attribute
+            function processDjangoMessages() {
+                const messagesData = document.body.getAttribute('data-django-messages');
+                if (messagesData) {
+                    try {
+                        const messages = JSON.parse(messagesData);
+                        messages.forEach(msg => {
+                            let type = msg.tags;
+                            if (type === 'error') type = 'error';
+                            else if (type === 'success') type = 'success';
+                            else if (type === 'warning') type = 'warning';
+                            else type = 'info';
+                            
+                            window.toast[type](msg.message);
+                        });
+                        document.body.removeAttribute('data-django-messages');
+                    } catch(e) {
+                        console.error('Error parsing messages:', e);
+                    }
+                }
+            }
+            
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', processDjangoMessages);
+            } else {
+                processDjangoMessages();
+            }
+        })();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

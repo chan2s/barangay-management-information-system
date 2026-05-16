@@ -1,0 +1,454 @@
+{% extends 'kapitan_portal/kapitan_base.html' %}
+{% load static %}
+
+{% block title %}Approve Appointment - Kapitan Portal{% endblock %}
+{% block nav_pending_appointments %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-heading {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 8px 0;
+    }
+    
+    .page-heading i {
+        color: #10b981;
+        margin-right: 10px;
+    }
+    
+    .page-description {
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+    
+    .card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        padding: 16px 20px;
+        border-bottom: 2px solid #10b981;
+        background: white;
+    }
+    
+    .card-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .card-title i {
+        color: #10b981;
+    }
+    
+    .card-body {
+        padding: 24px;
+    }
+    
+    .info-box {
+        background: #f9fafb;
+        padding: 16px;
+        border-radius: 8px;
+        margin-bottom: 24px;
+    }
+    
+    .info-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        width: 140px;
+        font-weight: 600;
+        color: #6b7280;
+        font-size: 0.75rem;
+    }
+    
+    .info-value {
+        flex: 1;
+        font-size: 0.85rem;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 6px;
+    }
+    
+    .form-group label i {
+        margin-right: 6px;
+        color: #10b981;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-family: inherit;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .help-text {
+        font-size: 0.7rem;
+        color: #6b7280;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .btn-submit {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s;
+    }
+    
+    .btn-submit:hover {
+        background: #059669;
+        transform: translateY(-1px);
+    }
+    
+    .btn-submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .btn-cancel {
+        background: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+        padding: 10px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-cancel:hover {
+        color: #374151;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 450px;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-overlay.active .modal-container {
+        transform: scale(1);
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .modal-header i {
+        font-size: 24px;
+        color: #10b981;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        color: #111827;
+    }
+    
+    .modal-body {
+        padding: 24px;
+    }
+    
+    .modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+        line-height: 1.5;
+    }
+    
+    .modal-body .success-text {
+        background: #dcfce7;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 16px;
+        font-size: 0.8rem;
+        color: #166534;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+    
+    .modal-btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .modal-btn-confirm {
+        background: #10b981;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .modal-btn-confirm:hover {
+        background: #059669;
+    }
+    
+    .modal-btn-cancel:hover {
+        background: #e5e7eb;
+    }
+    
+    @media (max-width: 768px) {
+        .info-row {
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .info-label {
+            width: 100%;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+        
+        .btn-submit, .btn-cancel {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <div class="page-header">
+        <h2 class="page-heading">
+            <i class="fas fa-check-circle"></i> Approve Appointment
+        </h2>
+        <p class="page-description">Review and approve this appointment request</p>
+    </div>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <i class="fas fa-file-alt"></i>
+                Appointment Details
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="info-box">
+                <div class="info-row">
+                    <div class="info-label">Reference:</div>
+                    <div class="info-value"><strong>{{ appointment.reference_number }}</strong></div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Resident:</div>
+                    <div class="info-value">{{ appointment.resident_name }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Contact:</div>
+                    <div class="info-value">{{ appointment.resident_contact }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Date & Time:</div>
+                    <div class="info-value">{{ appointment.appointment_date|date:"F d, Y h:i A" }}</div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">Purpose:</div>
+                    <div class="info-value">{{ appointment.purpose|truncatechars:100 }}</div>
+                </div>
+            </div>
+            
+            <form method="post" id="approveForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note"></i> Additional Notes (Optional)</label>
+                    <textarea name="notes" class="form-control" rows="3" placeholder="Add any special instructions or notes...">{{ appointment.notes }}</textarea>
+                    <div class="help-text">These notes will be included in the approval notification</div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-submit" id="showModalBtn">
+                        <i class="fas fa-check-circle"></i> Approve Appointment
+                    </button>
+                    <a href="{% url 'kapitan_portal:for_approval_appointments' %}" class="btn-cancel">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <i class="fas fa-question-circle"></i>
+            <h3>Confirm Approval</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to approve this appointment?</p>
+            <p style="font-size: 0.85rem; color: #6b7280;">This action will:</p>
+            <ul style="margin: 8px 0 0 20px; color: #6b7280; font-size: 0.8rem;">
+                <li>Approve the appointment request</li>
+                <li>Notify the resident via email (if provided)</li>
+                <li>Add the appointment to the schedule</li>
+            </ul>
+            <div class="success-text">
+                <i class="fas fa-info-circle"></i> Approval will be recorded with your name and timestamp.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-btn-cancel" id="closeModalBtn">Cancel</button>
+            <button type="button" class="modal-btn-confirm" id="confirmApproveBtn">
+                <i class="fas fa-check"></i> Yes, Approve
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('confirmModal');
+    const showModalBtn = document.getElementById('showModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const confirmApproveBtn = document.getElementById('confirmApproveBtn');
+    const approveForm = document.getElementById('approveForm');
+    
+    // Show modal
+    showModalBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        modal.classList.add('active');
+    });
+    
+    // Close modal
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    
+    // Confirm approval
+    confirmApproveBtn.addEventListener('click', function() {
+        const submitBtn = document.getElementById('showModalBtn');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+        approveForm.submit();
+    });
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

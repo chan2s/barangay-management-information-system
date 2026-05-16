@@ -3,106 +3,205 @@
 
 {% block extra_css %}
 <style>
-    /* Signup page specific styles that work with dashboard.css */
     .signup-section {
         min-height: 100vh;
         display: flex;
-        align-items: center;
+ align-items: center;
         justify-content: center;
-        padding: 100px 0 80px;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 100px 0;
+        position: relative;
+        z-index: 1;
     }
 
     .signup-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        padding: 40px;
-        max-width: 450px;
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 48px 40px;
+        max-width: 500px;
         margin: 0 auto;
-        transition: transform 0.3s ease;
+        position: relative;
+        z-index: 2;
+        transition: transform 0.25s, box-shadow 0.25s;
+        box-shadow: var(--shadow-md);
     }
 
     .signup-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .signup-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--yellow-mid);
+        border-radius: var(--radius) var(--radius) 0 0;
     }
 
     .signup-logo {
-        width: 100px;
-        height: 100px;
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .signup-logo-icon {
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
-        object-fit: cover;
+        background: var(--yellow-soft);
+        border: 3px solid var(--yellow-mid);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        color: var(--charcoal);
+        margin-bottom: 20px;
+    }
+
+    .signup-logo h2 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.8rem;
+        color: var(--charcoal);
+        margin-bottom: 8px;
+    }
+
+    .signup-logo p {
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
         display: block;
-        margin: 0 auto 20px;
-        border: 3px solid #667eea;
-        padding: 5px;
-    }
-
-    .signup-card h2 {
-        text-align: center;
-        color: #333;
-        margin-bottom: 30px;
-        font-weight: 700;
-        font-family: 'Inter', sans-serif;
-    }
-
-    .signup-card input {
-        width: 100%;
-        padding: 12px 15px;
-        margin: 10px 0;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        font-size: 16px;
-        transition: all 0.3s ease;
-    }
-
-    .signup-card input:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
-    }
-
-    .signup-card button {
-        width: 100%;
-        padding: 12px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 16px;
+        font-size: 0.85rem;
         font-weight: 600;
+        color: var(--slate);
+        margin-bottom: 8px;
+    }
+
+    .form-label i {
+        margin-right: 8px;
+        color: var(--yellow-mid);
+    }
+
+    .signup-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.95rem;
+        color: var(--charcoal);
+        background: var(--white);
+        transition: all 0.2s;
+    }
+
+    .signup-input:focus {
+        outline: none;
+        border-color: var(--yellow-mid);
+        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+    }
+
+    .password-hint {
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-top: 8px;
+        padding-left: 12px;
+        border-left: 2px solid var(--yellow-mid);
+    }
+
+    .password-hint ul {
+        margin: 4px 0 0 20px;
+        padding: 0;
+    }
+
+    .terms-group {
+        margin: 24px 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .terms-group input {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
         cursor: pointer;
-        margin-top: 20px;
-        transition: transform 0.3s ease;
+        accent-color: var(--yellow-mid);
     }
 
-    .signup-card button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+    .terms-group label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        line-height: 1.4;
+        cursor: pointer;
     }
 
-    .signup-card p {
-        text-align: center;
-        margin-top: 25px;
-        margin-bottom: 0;
-    }
-
-    .signup-card a {
-        color: #667eea;
+    .terms-group a {
+        color: var(--yellow-accent);
         text-decoration: none;
         font-weight: 600;
     }
 
-    .signup-card a:hover {
-        text-decoration: underline;
+    .btn-register {
+        width: 100%;
+        background: var(--charcoal);
+        color: var(--white);
+        border: 2px solid var(--charcoal);
+        border-radius: var(--radius-sm);
+        padding: 14px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
     }
 
-    /* Alert messages styling */
-    .alert-message {
-        margin-bottom: 20px;
-        padding: 10px;
-        border-radius: 8px;
+    .btn-register:hover {
+        background: var(--yellow-mid);
+        color: var(--charcoal);
+        border-color: var(--yellow-mid);
+        transform: translateY(-2px);
+    }
+
+    .login-link {
         text-align: center;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1.5px solid var(--border);
+        font-size: 0.9rem;
+        color: var(--muted);
+    }
+
+    .login-link a {
+        color: var(--yellow-accent);
+        text-decoration: none;
+        font-weight: 700;
+    }
+
+    .login-link a:hover {
+        color: var(--charcoal);
+    }
+
+    .alert-message {
+        margin-bottom: 24px;
+        padding: 12px 16px;
+        border-radius: var(--radius-sm);
+        text-align: center;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        justify-content: center;
     }
 
     .alert-error {
@@ -111,24 +210,44 @@
         border: 1px solid #fcc;
     }
 
-    .alert-success {
-        background-color: #efe;
-        color: #3c3;
-        border: 1px solid #cfc;
+    @media (max-width: 576px) {
+        .signup-card {
+            padding: 32px 24px;
+            margin: 0 20px;
+        }
+        
+        .signup-logo-icon {
+            width: 64px;
+            height: 64px;
+            font-size: 2rem;
+        }
+        
+        .signup-logo h2 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+<div class="auth-circle-1"></div>
+<div class="auth-circle-2"></div>
+
 <section class="signup-section">
     <div class="container">
         <div class="signup-card">
-            <img src="{% static 'images/logo.jpg' %}" class="signup-logo" alt="BIMS Logo">
-            <h2>Create Account</h2>
+            <div class="signup-logo">
+                <div class="signup-logo-icon">
+                    <i class="bi bi-person-plus-fill"></i>
+                </div>
+                <h2>Create Account</h2>
+                <p>Join Barangay Santa Catalina</p>
+            </div>
 
             {% if messages %}
                 {% for message in messages %}
                     <div class="alert-message alert-{{ message.tags }}">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
                         {{ message }}
                     </div>
                 {% endfor %}
@@ -136,15 +255,51 @@
 
             <form method="POST">
                 {% csrf_token %}
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Register</button>
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-person-fill"></i> Username
+                    </label>
+                    <input type="text" name="username" class="signup-input" placeholder="Choose a username" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-envelope-fill"></i> Email Address
+                    </label>
+                    <input type="email" name="email" class="signup-input" placeholder="your@email.com" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="bi bi-lock-fill"></i> Password
+                    </label>
+                    <input type="password" name="password" class="signup-input" placeholder="Create a password" required>
+                    <div class="password-hint">
+                        Password must have:
+                        <ul>
+                            <li>At least 8 characters</li>
+                            <li>Uppercase & lowercase letters</li>
+                            <li>At least one number</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="terms-group">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">
+                        I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-register">
+                    <i class="bi bi-check-circle"></i> Create Account
+                </button>
             </form>
 
-            <p>
-                Already have an account? <a href="{% url 'login' %}">Back to Login</a>
-            </p>
+            <div class="login-link">
+                Already have an account?
+                <a href="{% url 'login' %}">Sign In</a>
+            </div>
         </div>
     </div>
 </section>

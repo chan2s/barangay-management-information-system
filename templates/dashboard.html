@@ -62,7 +62,6 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* Dot grid background pattern */
   .hero::before {
     content: '';
     position: absolute;
@@ -71,9 +70,11 @@
     background-size: 28px 28px;
     opacity: 0.18;
     pointer-events: none;
+    z-index: 0;
   }
 
-  /* Decorative circle shapes */
+  /* REMOVED hero::after background-image seal — replaced with .hero-seal element */
+
   .hero-circle-1 {
     position: absolute;
     top: -80px; right: -80px;
@@ -82,6 +83,7 @@
     border: 48px solid var(--yellow-light);
     opacity: 0.5;
     animation: floatY 8s ease-in-out infinite;
+    z-index: 0;
   }
   .hero-circle-2 {
     position: absolute;
@@ -91,17 +93,57 @@
     border: 28px solid var(--yellow-light);
     opacity: 0.35;
     animation: floatY 11s ease-in-out infinite reverse;
+    z-index: 0;
   }
   .hero-strip {
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 5px;
     background: var(--yellow-mid);
+    z-index: 2;
+  }
+
+  /* ============ HERO SEAL (logo fix) ============ */
+  .hero-seal {
+    position: absolute;
+    top: 50%;
+    right: 6%;
+    transform: translateY(-50%);
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 1;
+    border: 5px solid var(--yellow-mid);
+    box-shadow:
+      0 0 0 14px rgba(245, 211, 0, 0.13),
+      0 0 0 28px rgba(245, 211, 0, 0.06),
+      var(--shadow-lg);
+    animation: floatY 8s ease-in-out infinite;
+    background: var(--yellow-soft);
+  }
+
+  .hero-seal img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.93;
+    filter: contrast(1.05) saturate(1.08);
   }
 
   @keyframes floatY {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-20px); }
+  }
+
+  /* Fix floatY for .hero-seal since it uses translateY(-50%) baseline */
+  .hero-seal {
+    animation: floatYSeal 8s ease-in-out infinite;
+  }
+
+  @keyframes floatYSeal {
+    0%, 100% { transform: translateY(-50%); }
+    50% { transform: translateY(calc(-50% - 20px)); }
   }
 
   .hero-inner {
@@ -196,79 +238,155 @@
     transform: translateY(-2px);
   }
 
-  /* Hero right: visual card stack */
-  .hero-visual {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+  .btn-certificate {
+    background: var(--yellow-mid);
+    color: var(--charcoal);
+    border-color: var(--yellow-mid);
+  }
+  .btn-certificate:hover {
+    background: var(--yellow-accent);
   }
 
-  .hero-card {
+  /* ============ ANNOUNCEMENTS SECTION ============ */
+  .announcements-section {
+    padding: 60px 0;
+    background: var(--cream);
+    position: relative;
+  }
+
+  .announcements-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, #d4c870 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0.08;
+    pointer-events: none;
+  }
+
+  .announcements-header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .announcements-header .section-eyebrow {
+    justify-content: center;
+  }
+
+  .announcements-header .section-title {
+    text-align: center;
+  }
+
+  .announcements-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .announcement-card {
     background: var(--white);
-    border: 1.5px solid var(--border);
     border-radius: var(--radius);
-    padding: 20px 24px;
+    padding: 28px;
+    border: 1.5px solid var(--border);
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .announcement-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+  }
+
+  .priority-normal::before { background: #6c757d; }
+  .priority-important::before { background: #ffc107; }
+  .priority-urgent::before { background: #dc3545; }
+
+  .announcement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--yellow-mid);
+  }
+
+  .announcement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .priority-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  .priority-normal .priority-badge { background: #e9ecef; color: #6c757d; }
+  .priority-important .priority-badge { background: #fff3cd; color: #856404; }
+  .priority-urgent .priority-badge { background: #f8d7da; color: #721c24; }
+
+  .announcement-date {
+    font-size: 0.7rem;
+    color: var(--muted);
     display: flex;
     align-items: center;
-    gap: 16px;
-    box-shadow: var(--shadow-md);
-    animation: slideInRight 0.7s ease both;
-  }
-  .hero-card:nth-child(2) { animation-delay: 0.15s; margin-left: 20px; }
-  .hero-card:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes slideInRight {
-    from { opacity: 0; transform: translateX(40px); }
-    to   { opacity: 1; transform: translateX(0); }
+    gap: 5px;
   }
 
-  .hero-card-icon {
-    width: 48px; height: 48px;
-    border-radius: 12px;
-    background: var(--yellow-soft);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem;
-    flex-shrink: 0;
-    border: 1.5px solid var(--yellow-light);
-  }
-
-  .hero-card-title { font-weight: 700; font-size: 0.95rem; color: var(--charcoal); }
-  .hero-card-desc { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-
-  /* ============ STATS ============ */
-  .stats-bar {
-    background: var(--charcoal);
-    padding: 36px 0;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-  }
-
-  .stat-item {
-    text-align: center;
-    padding: 16px 24px;
-    border-right: 1px solid rgba(255,255,255,0.1);
-    opacity: 0;
-    animation: fadeUp 0.6s ease forwards;
-  }
-  .stat-item:last-child { border-right: none; }
-  .stat-item:nth-child(1) { animation-delay: 0.1s; }
-  .stat-item:nth-child(2) { animation-delay: 0.2s; }
-  .stat-item:nth-child(3) { animation-delay: 0.3s; }
-  .stat-item:nth-child(4) { animation-delay: 0.4s; }
-
-  .stat-number {
+  .announcement-card h3 {
     font-family: 'DM Serif Display', serif;
-    font-size: 2.6rem;
-    color: var(--yellow-mid);
-    line-height: 1;
-    margin-bottom: 4px;
+    font-size: 1.25rem;
+    color: var(--charcoal);
+    margin-bottom: 14px;
+    line-height: 1.3;
   }
-  .stat-label { color: rgba(255,255,255,0.6); font-size: 0.82rem; font-weight: 500; }
+
+  .announcement-content {
+    color: var(--slate);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .announcement-image {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    margin-top: 16px;
+  }
+
+  .no-announcements {
+    text-align: center;
+    padding: 60px;
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+  }
+
+  .no-announcements i {
+    font-size: 48px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .no-announcements p {
+    color: var(--muted);
+  }
 
   /* ============ SECTIONS ============ */
   .section { padding: 88px 0; }
@@ -450,50 +568,97 @@
   }
   .step-item p { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
 
-  /* ============ OFFICIALS ============ */
-  .officials-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+  /* ============ OFFICIALS SECTION - PYRAMID LAYOUT ============ */
+  .officials-pyramid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     margin-top: 48px;
+    gap: 24px;
   }
+
+  .pyramid-row {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+
+  .pyramid-row-1 .official-card { min-width: 220px; }
+  .pyramid-row-2 .official-card { min-width: 200px; }
+  .pyramid-row-3 .official-card { min-width: 180px; }
+  .pyramid-row-4 .official-card { min-width: 200px; }
 
   .official-card {
     background: var(--white);
     border: 1.5px solid var(--border);
     border-radius: var(--radius);
-    padding: 28px 20px;
+    padding: 20px 16px;
     text-align: center;
     transition: transform 0.25s, box-shadow 0.25s;
+    flex: 0 0 auto;
   }
+
   .official-card:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
   }
 
   .official-avatar {
-    width: 72px; height: 72px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     background: var(--yellow-soft);
     border: 3px solid var(--yellow-mid);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin: 0 auto 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .official-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .official-avatar i,
+  .official-avatar .fa,
+  .official-avatar .fas {
+    font-size: 2.5rem;
     color: var(--charcoal);
   }
 
   .official-card h5 {
     font-weight: 700;
-    font-size: 0.92rem;
+    font-size: 0.85rem;
     color: var(--charcoal);
     margin-bottom: 4px;
   }
+
   .official-card span {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.65rem;
     color: var(--muted);
     line-height: 1.4;
   }
+
+  .official-leader {
+    border-color: var(--yellow-mid);
+    background: linear-gradient(135deg, var(--white) 0%, var(--yellow-soft) 100%);
+  }
+
+  .official-leader .official-avatar {
+    width: 120px;
+    height: 120px;
+    border-width: 4px;
+  }
+
+  .official-leader h5 { font-size: 1rem; color: var(--charcoal); }
+  .official-leader span { font-size: 0.7rem; }
 
   /* ============ EMERGENCY BANNER ============ */
   .emergency-banner {
@@ -666,22 +831,52 @@
     .features-grid { grid-template-columns: 1fr 1fr; }
     .steps-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
     .steps-grid::before { display: none; }
-    .officials-grid { grid-template-columns: 1fr 1fr; }
     .contact-grid { grid-template-columns: 1fr; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .stat-item { border-bottom: 1px solid rgba(255,255,255,0.1); border-right: none; }
     .stat-item:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.1); }
+    .announcements-grid { grid-template-columns: 1fr; gap: 24px; }
+
+    /* Hide seal on tablet and below */
+    .hero-seal { display: none; }
+
+    .pyramid-row { gap: 16px; }
+    .pyramid-row-1 .official-card { min-width: 200px; }
+    .official-avatar { width: 80px; height: 80px; }
+    .official-leader .official-avatar { width: 100px; height: 100px; }
+  }
+
+  @media (max-width: 768px) {
+    .pyramid-row {
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+    .pyramid-row-1 .official-card,
+    .pyramid-row-2 .official-card,
+    .pyramid-row-3 .official-card,
+    .pyramid-row-4 .official-card {
+      min-width: 260px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .official-avatar { width: 90px; height: 90px; }
+    .official-leader .official-avatar { width: 110px; height: 110px; }
   }
 
   @media (max-width: 575px) {
     .hero { padding: 110px 0 60px; }
     .features-grid { grid-template-columns: 1fr; }
     .steps-grid { grid-template-columns: 1fr; }
-    .officials-grid { grid-template-columns: 1fr 1fr; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
     .hero-actions { flex-direction: column; }
     .btn-primary-hero, .btn-outline-hero { justify-content: center; }
     .emergency-inner { flex-direction: column; align-items: flex-start; }
+    .announcement-card { padding: 20px; }
+    .pyramid-row-1 .official-card,
+    .pyramid-row-2 .official-card,
+    .pyramid-row-3 .official-card,
+    .pyramid-row-4 .official-card { min-width: 100%; }
   }
 </style>
 {% endblock %}
@@ -694,80 +889,79 @@
   <div class="hero-circle-1"></div>
   <div class="hero-circle-2"></div>
 
+  <!-- ✅ FIXED: Barangay seal now a real visible element -->
+  <div class="hero-seal">
+    <img src="{% static 'images/poblacionseal.jpg' %}" alt="Barangay Poblacion Seal">
+  </div>
+
   <div class="container">
     <div class="hero-inner">
-      <!-- Left: Text -->
       <div class="hero-text">
         <div class="hero-eyebrow fade-up d1">
           <i class="bi bi-shield-fill-check"></i> Official Barangay Portal
         </div>
         <h1 class="fade-up d2">
           Barangay<br>
-          <em>Santa Catalina</em><br>
+          <em>Poblacion, Santa Catalina</em><br>
           Serves You
         </h1>
         <p class="hero-sub fade-up d3">
-          A modern, transparent, and community-focused Barangay Integrated Management System — built to serve every resident of Santa Catalina.
+          A modern, transparent, and community-focused Barangay Integrated Management System — built to serve every resident of Barangay Poblacion, Santa Catalina.
         </p>
-        <div class="hero-actions fade-up d4">
-          <a href="/blotter/file/" class="btn-primary-hero">
-            <i class="bi bi-file-earmark-plus-fill"></i> Report a Blotter
+        {% comment %} <div class="hero-actions fade-up d4">
+          <a href="/blotter/verify-email/" class="btn-primary-hero">
+            <i class="bi bi-file-earmark-plus-fill"></i> File Blotter
+          </a>
+          <a href="/certificates/" class="btn-primary-hero btn-certificate">
+            <i class="bi bi-file-text-fill"></i> Request Certificate
           </a>
           <a href="/blotter/track/" class="btn-outline-hero">
             <i class="bi bi-search"></i> Track Your Blotter
           </a>
-        </div>
-      </div>
-
-      <!-- Right: Visual cards -->
-      <div class="hero-visual">
-        <div class="hero-card">
-          <div class="hero-card-icon">📋</div>
-          <div>
-            <div class="hero-card-title">File a Blotter</div>
-            <div class="hero-card-desc">Submit incident reports quickly and securely online</div>
-          </div>
-        </div>
-        <div class="hero-card">
-          <div class="hero-card-icon">🔍</div>
-          <div>
-            <div class="hero-card-title">Track Your Case</div>
-            <div class="hero-card-desc">Real-time status updates on your filed blotter</div>
-          </div>
-        </div>
-        <div class="hero-card">
-          <div class="hero-card-icon">🏛️</div>
-          <div>
-            <div class="hero-card-title">Community Governance</div>
-            <div class="hero-card-desc">Transparent leadership for Santa Catalina residents</div>
-          </div>
-        </div>
+        </div> {% endcomment %}
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== STATS BAR ===== -->
-<section class="stats-bar">
+<!-- ===== ANNOUNCEMENTS SECTION ===== -->
+<section class="announcements-section">
   <div class="container">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-number">4,200+</div>
-        <div class="stat-label">Registered Residents</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">98%</div>
-        <div class="stat-label">Cases Resolved</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">24/7</div>
-        <div class="stat-label">Emergency Response</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">1,150+</div>
-        <div class="stat-label">Blotters Filed</div>
-      </div>
+    <div class="announcements-header reveal">
+      <div class="section-eyebrow" style="justify-content: center;">Latest Updates</div>
+      <h2 class="section-title" style="text-align: center;">Barangay Announcements</h2>
+      <p class="section-desc" style="text-align: center; margin: 0 auto;">Stay informed with the latest news and announcements from Barangay Poblacion.</p>
     </div>
+
+    {% if announcements %}
+    <div class="announcements-grid">
+      {% for announcement in announcements %}
+      <div class="announcement-card priority-{{ announcement.priority }} reveal reveal-delay-{% cycle '1' '2' '3' %}">
+        <div class="announcement-header">
+          <span class="priority-badge">
+            <i class="bi bi-{% if announcement.priority == 'urgent' %}exclamation-triangle-fill{% elif announcement.priority == 'important' %}star-fill{% else %}info-circle-fill{% endif %}"></i>
+            {{ announcement.get_priority_display }}
+          </span>
+          <span class="announcement-date">
+            <i class="bi bi-calendar3"></i> {{ announcement.created_at|date:"M d, Y" }}
+          </span>
+        </div>
+        <h3>{{ announcement.title }}</h3>
+        <div class="announcement-content">
+          {{ announcement.content|truncatechars:250|linebreaksbr }}
+        </div>
+        {% if announcement.image %}
+        <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" class="announcement-image">
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-announcements reveal">
+      <i class="bi bi-megaphone"></i>
+      <p>No announcements at the moment. Check back later for updates!</p>
+    </div>
+    {% endif %}
   </div>
 </section>
 
@@ -777,19 +971,19 @@
     <div class="reveal">
       <div class="section-eyebrow">About the Barangay</div>
       <h2 class="section-title">Guided by Purpose,<br>Driven by Community</h2>
-      <p class="section-desc">Barangay Santa Catalina is committed to upholding the rights and welfare of every resident through accessible, efficient, and transparent governance.</p>
+      <p class="section-desc">Barangay Poblacion is committed to upholding the rights and welfare of every resident through accessible, efficient, and transparent governance.</p>
     </div>
 
     <div class="mv-grid">
       <div class="mv-card reveal reveal-delay-1">
-        <div class="mv-card-icon">🎯</div>
+        {% comment %} <div class="mv-card-icon">🎯</div> {% endcomment %}
         <h3>Our Mission</h3>
-        <p>To provide accessible, efficient, and transparent government services to every resident of Barangay Santa Catalina. We are committed to maintaining peace, order, and sustainable community development through inclusive governance and active citizen participation.</p>
+        <p>To provide accessible, efficient, and transparent government services to every resident of Barangay Poblacion. We are committed to maintaining peace, order, and sustainable community development through inclusive governance and active citizen participation.</p>
       </div>
       <div class="mv-card reveal reveal-delay-2">
-        <div class="mv-card-icon">🌟</div>
+        {% comment %} <div class="mv-card-icon">🌟</div> {% endcomment %}
         <h3>Our Vision</h3>
-        <p>A progressive, peaceful, and prosperous Barangay Santa Catalina where every resident enjoys a high quality of life, supported by a responsive local government that upholds justice, unity, and community empowerment.</p>
+        <p>A progressive, peaceful, and prosperous Barangay Poblacion where every resident enjoys a high quality of life, supported by a responsive local government that upholds justice, unity, and community empowerment.</p>
       </div>
     </div>
   </div>
@@ -806,46 +1000,41 @@
 
     <div class="features-grid">
       <div class="feature-card reveal">
-        <div class="feature-icon">📝</div>
+        {% comment %} <div class="feature-icon">📝</div> {% endcomment %}
         <h4>Online Blotter Filing</h4>
         <p>File incident reports online at any time, from anywhere. No need to visit the barangay hall to report an incident.</p>
       </div>
       <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon">🔍</div>
+        {% comment %} <div class="feature-icon">📄</div> {% endcomment %}
+        <h4>Certificate Requests</h4>
+        <p>Request Barangay Clearance, Certificate of Indigency, Residency Certificate, and Barangay ID online.</p>
+      </div>
+        <div class="feature-card reveal">
+        {% comment %} <div class="feature-icon">📝</div> {% endcomment %}
+        <h4>Certificate Tracking</h4>
+        <p>Track the status of your certificate requests in real-time. Get updates on processing and availability.</p>
+      </div>
+      <div class="feature-card reveal reveal-delay-2">
+        {% comment %} <div class="feature-icon">🔍</div> {% endcomment %}
         <h4>Blotter Case Tracking</h4>
         <p>Monitor the real-time status of your filed blotter using your reference number. Stay informed every step of the way.</p>
       </div>
-      <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon">👥</div>
-        <h4>Frontdesk Management</h4>
-        <p>Barangay staff can manage, update, and process all filed blotters and resident requests through a dedicated dashboard.</p>
-      </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon">📊</div>
+      <div class="feature-card reveal reveal-delay-1">
+        {% comment %} <div class="feature-icon">📊</div> {% endcomment %}
         <h4>Admin Dashboard</h4>
         <p>Full administrative control over the system — manage officials, generate reports, and monitor barangay operations.</p>
-      </div>
-      <div class="feature-card reveal reveal-delay-1">
-        <div class="feature-icon">🔔</div>
-        <h4>Notifications & Alerts</h4>
-        <p>Get timely updates on your case status and important barangay announcements directly through the system.</p>
-      </div>
-      <div class="feature-card reveal reveal-delay-2">
-        <div class="feature-icon">🔒</div>
-        <h4>Secure & Private</h4>
-        <p>All resident data and case information are securely stored and protected. Your privacy is our top priority.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ===== HOW IT WORKS ===== -->
-<section class="section">
+{% comment %} <section class="section">
   <div class="container">
     <div class="reveal" style="text-align:center;">
       <div class="section-eyebrow" style="justify-content:center;">How It Works</div>
-      <h2 class="section-title" style="text-align:center;">File a Blotter in<br>4 Simple Steps</h2>
-      <p class="section-desc" style="text-align:center; margin:0 auto 0;">Our streamlined process makes reporting incidents quick and straightforward for all residents.</p>
+      <h2 class="section-title" style="text-align:center;">Request a Certificate in<br>4 Simple Steps</h2>
+      <p class="section-desc" style="text-align:center; margin:0 auto 0;">Our streamlined process makes requesting barangay certificates quick and easy.</p>
     </div>
 
     <div class="steps-grid">
@@ -856,73 +1045,106 @@
       </div>
       <div class="step-item reveal reveal-delay-1">
         <div class="step-num">2</div>
-        <h4>Fill the Form</h4>
-        <p>Complete the blotter form with accurate details about the incident.</p>
+        <h4>Select Certificate Type</h4>
+        <p>Choose the certificate you need: Clearance, Indigency, Residency, or Barangay ID.</p>
       </div>
       <div class="step-item reveal reveal-delay-2">
         <div class="step-num">3</div>
-        <h4>Submit & Receive ID</h4>
-        <p>Submit your report and receive a unique reference number to track your case.</p>
+        <h4>Fill & Submit</h4>
+        <p>Complete the online application form with your personal details.</p>
       </div>
       <div class="step-item reveal reveal-delay-3">
         <div class="step-num">4</div>
-        <h4>Track Your Case</h4>
-        <p>Use your reference number to monitor your case status anytime, anywhere.</p>
+        <h4>Claim at Barangay Hall</h4>
+        <p>Receive notification when your certificate is ready for claiming.</p>
       </div>
     </div>
   </div>
-</section>
+</section> {% endcomment %}
 
-<!-- ===== OFFICIALS ===== -->
+<!-- ===== OFFICIALS SECTION - PYRAMID LAYOUT ===== -->
 <section class="section section-alt">
   <div class="container">
     <div class="reveal">
       <div class="section-eyebrow">Leadership</div>
       <h2 class="section-title">Barangay Officials</h2>
-      <p class="section-desc">Meet the dedicated public servants leading Barangay Santa Catalina.</p>
+      <p class="section-desc">Meet the dedicated public servants leading Barangay Poblacion.</p>
     </div>
 
-    <div class="officials-grid">
-      <div class="official-card reveal">
-        <div class="official-avatar">👤</div>
-        <h5>Hon. [Punong Barangay]</h5>
-        <span>Punong Barangay</span>
+    <div class="officials-pyramid">
+      <!-- Row 1: Punong Barangay (Top - Center) -->
+      <div class="pyramid-row pyramid-row-1">
+        <div class="official-card official-leader reveal">
+          <div class="official-avatar">
+            <img src="{% static 'images/PUNONG BARANGAY.png' %}" alt="Punong Barangay">
+          </div>
+          <h5>Hon. Welmer Ta-ala</h5>
+          <span>Punong Barangay</span>
+        </div>
       </div>
-      <div class="official-card reveal reveal-delay-1">
-        <div class="official-avatar">👤</div>
-        <h5>Hon. [Kagawad 1]</h5>
-        <span>Kagawad — Peace & Order</span>
+
+      <!-- Row 2: 2 Kagawads -->
+      <div class="pyramid-row pyramid-row-2">
+        <div class="official-card reveal reveal-delay-1">
+          <div class="official-avatar">
+            <img src="{% static 'images/HON. LEAH ANQUIE.png' %}" alt="Hon. Leah Anquie">
+          </div>
+          <h5>Hon. Leah Anquie</h5>
+          <span>Kagawad</span>
+        </div>
+        <div class="official-card reveal reveal-delay-1">
+          <div class="official-avatar">
+            <img src="{% static 'images/HON. LORNA MAMIGO.png' %}" alt="Hon. Lorna Mamigo">
+          </div>
+          <h5>Hon. Lorna Mamigo</h5>
+          <span>Kagawad</span>
+        </div>
       </div>
-      <div class="official-card reveal reveal-delay-1">
-        <div class="official-avatar">👤</div>
-        <h5>Hon. [Kagawad 2]</h5>
-        <span>Kagawad — Health & Sanitation</span>
+
+      <!-- Row 3: 3 Kagawads -->
+      <div class="pyramid-row pyramid-row-3">
+        <div class="official-card reveal reveal-delay-2">
+          <div class="official-avatar">
+            <img src="{% static 'images/HON. LUDEM CATUBAY.png' %}" alt="Hon. Ludem Catubay">
+          </div>
+          <h5>Hon. Ludem Catubay</h5>
+          <span>Kagawad</span>
+        </div>
+        <div class="official-card reveal reveal-delay-2">
+          <div class="official-avatar">
+            <img src="{% static 'images/HON. MARY ANN BOLAY-OG.png' %}" alt="Hon. Mary Ann Bolay-og">
+          </div>
+          <h5>Hon. Mary Ann Bolay-og</h5>
+          <span>Kagawad</span>
+        </div>
+        <div class="official-card reveal reveal-delay-2">
+          <div class="official-avatar">
+            <img src="{% static 'images/HON. RIC PAJENTE.png' %}" alt="Hon. Ric Pajente">
+          </div>
+          <h5>Hon. Ric Pajente</h5>
+          <span>Kagawad</span>
+        </div>
       </div>
-      <div class="official-card reveal reveal-delay-2">
-        <div class="official-avatar">👤</div>
-        <h5>Hon. [Kagawad 3]</h5>
-        <span>Kagawad — Education</span>
+
+      <!-- Row 4: 2 Kagawads -->
+      <div class="pyramid-row pyramid-row-4">
+        <div class="official-card reveal reveal-delay-3">
+          <div class="official-avatar">
+            <img src="{% static 'images/HON. RICHARD IKE ELECTONA.png' %}" alt="Hon. Richard Ike Electona">
+          </div>
+          <h5>Hon. Richard Ike Electona</h5>
+          <span>Kagawad</span>
+        </div>
+        {% comment %} <div class="official-card reveal reveal-delay-3">
+          <div class="official-avatar">
+            <i class="fas fa-user-graduate"></i>
+          </div>
+          <h5>SK Chairperson</h5>
+          <span>SK Chairperson</span>
+        </div> {% endcomment %}
       </div>
-      <div class="official-card reveal">
-        <div class="official-avatar">👤</div>
-        <h5>Hon. [Kagawad 4]</h5>
-        <span>Kagawad — Infrastructure</span>
-      </div>
-      <div class="official-card reveal reveal-delay-1">
-        <div class="official-avatar">👤</div>
-        <h5>Hon. [Kagawad 5]</h5>
-        <span>Kagawad — Environment</span>
-      </div>
-      <div class="official-card reveal reveal-delay-1">
-        <div class="official-avatar">👤</div>
-        <h5>Hon. [Kagawad 6]</h5>
-        <span>Kagawad — Social Services</span>
-      </div>
-      <div class="official-card reveal reveal-delay-2">
-        <div class="official-avatar">👤</div>
-        <h5>[SK Chairperson]</h5>
-        <span>SK Chairperson</span>
-      </div>
+
+
     </div>
   </div>
 </section>
@@ -932,16 +1154,16 @@
   <div class="container">
     <div class="emergency-inner">
       <div style="display:flex;align-items:center;gap:16px;">
-        <div class="emergency-icon">🚨</div>
+        {% comment %} <div class="emergency-icon">🚨</div> {% endcomment %}
         <div class="emergency-text">
-          <h4>Emergency Hotlines</h4>
+          <h4>Hotlines</h4>
           <p>Available 24 hours a day, 7 days a week</p>
         </div>
       </div>
       <div class="emergency-numbers">
         <div class="emergency-num">
           <span>Barangay Hall</span>
-          <strong>(032) 000-0000</strong>
+          <strong>092834221</strong>
         </div>
         <div class="emergency-num">
           <span>Police (PNP)</span>
@@ -949,7 +1171,7 @@
         </div>
         <div class="emergency-num">
           <span>Fire Station</span>
-          <strong>(032) 000-0001</strong>
+          <strong>0968993251</strong>
         </div>
         <div class="emergency-num">
           <span>NDRRMC</span>
@@ -961,7 +1183,7 @@
 </section>
 
 <!-- ===== CONTACT ===== -->
-<section class="section" id="contact">
+{% comment %} <section class="section" id="contact">
   <div class="container">
     <div class="reveal">
       <div class="section-eyebrow">Get in Touch</div>
@@ -970,32 +1192,27 @@
     </div>
 
     <div class="contact-grid">
-      <!-- Info -->
       <div class="reveal reveal-delay-1">
         <div class="contact-info-list">
           <div class="contact-info-item">
-            <div class="contact-info-icon">📍</div>
             <div>
               <h6>Barangay Hall Address</h6>
-              <p>Barangay Santa Catalina, [Municipality], Cebu, Philippines</p>
+              <p>Barangay Poblacion, Santa Catalina, Negros Oriental, Philippines</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-info-icon">📞</div>
             <div>
               <h6>Phone Number</h6>
-              <p>(032) 000-0000<br>Available Mon–Fri, 8AM–5PM</p>
+              <p>09123456789<br>Available Mon–Fri, 8AM–5PM</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-info-icon">✉️</div>
             <div>
               <h6>Email Address</h6>
-              <p>brgy.santacatalina@example.gov.ph</p>
+              <p>brgy.poblacion@bims.gov.ph</p>
             </div>
           </div>
           <div class="contact-info-item">
-            <div class="contact-info-icon">🕐</div>
             <div>
               <h6>Office Hours</h6>
               <p>Monday to Friday: 8:00 AM – 5:00 PM<br>Saturday: 8:00 AM – 12:00 PM</p>
@@ -1004,7 +1221,6 @@
         </div>
       </div>
 
-      <!-- Form -->
       <div class="contact-form reveal reveal-delay-2">
         <h3>Send a Message</h3>
         <div class="form-group">
@@ -1027,13 +1243,12 @@
       </div>
     </div>
   </div>
-</section>
+</section> {% endcomment %}
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  // Scroll reveal
   const revealEls = document.querySelectorAll('.reveal');
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
@@ -1045,7 +1260,6 @@
   }, { threshold: 0.12 });
   revealEls.forEach(el => observer.observe(el));
 
-  // Animate stat numbers
   function animateCount(el, target, suffix = '') {
     let start = 0;
     const duration = 1800;

@@ -1,0 +1,784 @@
+{% extends 'admin_panel/admin_base.html' %}
+{% block title %}Residents - Admin Panel{% endblock %}
+{% block nav_residents %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* ── Base scale (matches dashboard) ── */
+    html { font-size: 15px; }
+
+    .resident-page { display: flex; flex-direction: column; gap: 16px; }
+
+    /* ── Page Header ── */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #7c6500;
+        background: #fff8d7;
+        border: 1px solid #f4dd73;
+        border-radius: 999px;
+        padding: 5px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .page-heading {
+        font-size: 1.55rem;
+        font-weight: 800;
+        margin: 0 0 4px;
+        letter-spacing: -0.02em;
+        color: var(--text);
+    }
+
+    .page-subtitle {
+        color: var(--sub);
+        font-size: 0.93rem;
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* ── Buttons ── */
+    .btn-primary, .btn-secondary, .btn-danger, .btn-success, .btn-icon {
+        border: 0;
+        border-radius: var(--radius-sm);
+        padding: 9px 16px;
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        min-height: 40px;
+        white-space: nowrap;
+        transition: opacity 0.15s, background 0.15s;
+    }
+
+    .btn-primary  { background: var(--ink); color: #fff; }
+    .btn-secondary { background: #f3f4f6; color: var(--text); border: 1px solid var(--border); }
+    .btn-danger   { background: #dc2626; color: #fff; }
+    .btn-success  { background: #166534; color: #fff; }
+    .btn-icon     { width: 40px; padding: 0; background: #f3f4f6; color: var(--text); border: 1px solid var(--border); font-size: 0.85rem; }
+
+    .btn-primary:hover, .btn-success:hover, .btn-danger:hover { opacity: 0.88; }
+    .btn-secondary:hover, .btn-icon:hover { background: #e5e7eb; }
+
+    /* ── Metric Strip ── */
+    .metric-strip {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(140px, 1fr));
+        gap: 12px;
+    }
+
+    .metric-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        transition: box-shadow 0.2s;
+    }
+
+    .metric-card:hover { box-shadow: var(--shadow-md); }
+
+    .metric-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: var(--radius-sm);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .metric-icon.warning { background: #fef3c7; color: #92400e; }
+    .metric-icon.success { background: #dcfce7; color: #166534; }
+
+    .metric-label {
+        color: var(--muted);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 4px;
+    }
+
+    .metric-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+        font-family: 'DM Mono', monospace;
+    }
+
+    /* ── Privacy Warning ── */
+    .privacy-warning {
+        background: #fffbeb;
+        border: 1px solid #f59e0b;
+        border-left: 4px solid #f59e0b;
+        border-radius: var(--radius-sm);
+        padding: 13px 16px;
+        color: #78350f;
+        font-size: 0.88rem;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        line-height: 1.5;
+    }
+
+    .privacy-warning i { margin-top: 2px; flex-shrink: 0; }
+
+    /* ── Section Panel ── */
+    .section-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--text);
+    }
+
+    .section-title i { color: var(--gold-dim); font-size: 0.88rem; }
+    .section-body { padding: 18px; }
+
+    /* ── Filter Grid ── */
+    .filter-grid {
+        display: grid;
+        grid-template-columns: minmax(220px, 2fr) repeat(4, minmax(140px, 1fr)) auto auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    .field-group { min-width: 0; }
+
+    .field-label {
+        display: block;
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
+    }
+
+    .input-control {
+        width: 100%;
+        min-height: 40px;
+        padding: 9px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        font: inherit;
+        font-size: 0.88rem;
+        color: var(--text);
+        transition: border-color 0.15s, outline 0.15s;
+    }
+
+    .input-control:focus {
+        outline: 2px solid rgba(240, 192, 64, 0.35);
+        border-color: #d4b900;
+    }
+
+    /* ── Export Grid ── */
+    .export-grid {
+        display: grid;
+        grid-template-columns: minmax(180px, 0.7fr) minmax(240px, 1fr) auto;
+        gap: 12px;
+        align-items: end;
+    }
+
+    /* ── Workflow Rows ── */
+    .workflow-list { display: flex; flex-direction: column; }
+
+    .workflow-row {
+        display: grid;
+        grid-template-columns: minmax(200px, 1fr) minmax(240px, 1.4fr) auto;
+        gap: 16px;
+        align-items: center;
+        padding: 14px 18px;
+        border-top: 1px solid var(--border);
+        transition: background 0.1s;
+    }
+
+    .workflow-row:first-child { border-top: 0; }
+    .workflow-row:hover { background: var(--bg); }
+
+    .workflow-user {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+        font-size: 0.88rem;
+    }
+
+    .avatar.soft { background: var(--gold); color: var(--ink); }
+
+    .workflow-title, .resident-name {
+        font-weight: 700;
+        color: var(--text);
+        font-size: 0.9rem;
+    }
+
+    .workflow-meta, .resident-meta {
+        color: var(--sub);
+        font-size: 0.8rem;
+        line-height: 1.45;
+        margin-top: 1px;
+    }
+
+    .workflow-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    /* ── Badges ── */
+    .status-badge, .flag-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+        letter-spacing: 0.02em;
+    }
+
+    .status-approved { background: #dcfce7; color: #166534; }
+    .status-pending  { background: #fef3c7; color: #92400e; }
+
+    .flag-badge         { background: #eef2ff; color: #3730a3; margin: 0 3px 3px 0; }
+    .flag-badge.neutral { background: #f3f4f6; color: #4b5563; }
+    .flag-badge.warning { background: #fff7ed; color: #9a3412; }
+
+    /* ── Table Toolbar ── */
+    .table-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .table-count {
+        color: var(--sub);
+        font-size: 0.85rem;
+    }
+
+    /* ── Data Table ── */
+    .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+    .data-table {
+        width: 100%;
+        min-width: 980px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.88rem;
+    }
+
+    .data-table th, .data-table td {
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--border);
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    .data-table th {
+        background: var(--bg);
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+        font-weight: 700;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        white-space: nowrap;
+    }
+
+    .data-table tbody tr { transition: background 0.1s; }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover { background: var(--bg); }
+
+    .resident-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 200px;
+    }
+
+    .address-cell {
+        max-width: 260px;
+        line-height: 1.5;
+        font-size: 0.85rem;
+        color: var(--sub);
+    }
+
+    .contact-cell {
+        white-space: nowrap;
+        line-height: 1.6;
+        font-size: 0.88rem;
+    }
+
+    .action-group {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+        padding: 40px 16px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+
+    .empty-state i {
+        font-size: 1.8rem;
+        display: block;
+        margin-bottom: 10px;
+        opacity: 0.2;
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 12px 18px;
+        background: var(--bg);
+        border-top: 1px solid var(--border);
+    }
+
+    .pagination span {
+        font-size: 0.85rem;
+        color: var(--sub);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 1200px) {
+        .filter-grid {
+            grid-template-columns: repeat(3, minmax(150px, 1fr));
+        }
+        .filter-grid .field-group:first-child { grid-column: span 3; }
+        .export-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+        .metric-strip { grid-template-columns: repeat(2, 1fr); }
+        .workflow-row { grid-template-columns: 1fr; align-items: flex-start; }
+        .workflow-actions { justify-content: flex-start; }
+    }
+
+    @media (max-width: 700px) {
+        .metric-strip { grid-template-columns: repeat(2, 1fr); }
+        .filter-grid { grid-template-columns: 1fr; }
+        .filter-grid .field-group:first-child { grid-column: auto; }
+        .header-actions { width: 100%; }
+        .btn-primary, .btn-secondary, .btn-success, .btn-danger { width: 100%; justify-content: center; }
+        .section-header { align-items: flex-start; }
+        .page-heading { font-size: 1.3rem; }
+    }
+
+    @media (max-width: 480px) {
+        .metric-strip { grid-template-columns: 1fr 1fr; gap: 8px; }
+        .metric-value { font-size: 1.25rem; }
+        .metric-card { padding: 12px; }
+        .section-body { padding: 14px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="resident-page">
+
+    <!-- ── Page Header ── -->
+    <div class="page-header">
+        <div>
+            <div class="eyebrow"><i class="fas fa-address-card"></i> Resident Registry</div>
+            <h2 class="page-heading">Residents</h2>
+            <p class="page-subtitle">Centralized resident records, household details, and export oversight.</p>
+        </div>
+        <div class="header-actions">
+            {% if has_filters %}
+                <a href="{% url 'admin_panel:resident_list' %}" class="btn-secondary">
+                    <i class="fas fa-rotate-left"></i> Clear Filters
+                </a>
+            {% endif %}
+            {% if can_manage %}
+                <a href="{% url 'admin_panel:resident_create' %}" class="btn-primary">
+                    <i class="fas fa-plus"></i> Add Resident
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ── Metric Strip ── -->
+    <div class="metric-strip">
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-filter"></i></div>
+            <div>
+                <div class="metric-label">Matching Records</div>
+                <div class="metric-value">{{ total_count }}</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon"><i class="fas fa-users"></i></div>
+            <div>
+                <div class="metric-label">Active Residents</div>
+                <div class="metric-value">{{ total_residents }}</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon warning"><i class="fas fa-hourglass-half"></i></div>
+            <div>
+                <div class="metric-label">Pending Exports</div>
+                <div class="metric-value">{{ pending_export_count }}</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon success"><i class="fas fa-file-csv"></i></div>
+            <div>
+                <div class="metric-label">Approved Exports</div>
+                <div class="metric-value">{{ approved_export_count }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Privacy Warning ── -->
+    <div class="privacy-warning">
+        <i class="fas fa-shield-alt"></i>
+        <span>Resident information is protected under the Data Privacy Act of 2012. Unauthorized use, disclosure, or distribution of this data is strictly prohibited.</span>
+    </div>
+
+    <!-- ── Search & Filters ── -->
+    <div class="section-panel">
+        <div class="section-header">
+            <h3 class="section-title">
+                <i class="fas fa-magnifying-glass"></i> Search &amp; Filters
+            </h3>
+            {% if has_filters %}<span class="table-count">Filtered view active</span>{% endif %}
+        </div>
+        <div class="section-body">
+            <form method="get" class="filter-grid">
+                <div class="field-group">
+                    <label class="field-label" for="resident-search">Search</label>
+                    <input id="resident-search" class="input-control" type="text" name="search"
+                           value="{{ search_query }}" placeholder="Name, resident ID, contact, email, or household">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="purok-filter">Purok</label>
+                    <select id="purok-filter" class="input-control" name="purok">
+                        <option value="">All Puroks</option>
+                        {% for value, label in purok_choices %}
+                            <option value="{{ value }}" {% if purok_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="age-filter">Age Group</label>
+                    <select id="age-filter" class="input-control" name="age_group">
+                        {% for value, label in age_group_choices %}
+                            <option value="{{ value }}" {% if age_group_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="sex-filter">Gender</label>
+                    <select id="sex-filter" class="input-control" name="sex">
+                        {% for value, label in sex_choices %}
+                            <option value="{{ value }}" {% if sex_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="category-filter">Category</label>
+                    <select id="category-filter" class="input-control" name="category">
+                        <option value="">All Categories</option>
+                        {% for value, label in category_choices %}
+                            <option value="{{ value }}" {% if category_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-search"></i> Search</button>
+                <a href="{% url 'admin_panel:resident_list' %}" class="btn-secondary"><i class="fas fa-rotate-left"></i> Reset</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── Export Request ── -->
+    <div class="section-panel">
+        <div class="section-header">
+            <h3 class="section-title"><i class="fas fa-file-export"></i> Export Request</h3>
+            <span class="table-count">{{ total_count }} record{{ total_count|pluralize }} in current view</span>
+        </div>
+        <div class="section-body">
+            <form method="post" action="{% url 'admin_panel:resident_export_request' %}" class="export-grid">
+                {% csrf_token %}
+                <input type="hidden" name="search" value="{{ search_query }}">
+                <input type="hidden" name="purok" value="{{ purok_filter }}">
+                <input type="hidden" name="age_group" value="{{ age_group_filter }}">
+                <input type="hidden" name="sex" value="{{ sex_filter }}">
+                <div class="field-group">
+                    <label class="field-label" for="export-category">Export Category</label>
+                    <select id="export-category" class="input-control" name="category" required>
+                        {% for value, label in category_choices %}
+                            <option value="{{ value }}" {% if category_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="export-reason">Official Purpose</label>
+                    <input id="export-reason" class="input-control" type="text" name="reason"
+                           placeholder="State the reason for this export request" required>
+                </div>
+                <button type="submit" class="btn-primary"><i class="fas fa-shield-alt"></i> Request Approval</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ── Pending Exports ── -->
+    {% if pending_exports %}
+    <div class="section-panel">
+        <div class="section-header">
+            <h3 class="section-title"><i class="fas fa-clock"></i> Pending Export Approvals</h3>
+            <span class="status-badge status-pending">{{ pending_export_count }} Pending</span>
+        </div>
+        <div class="workflow-list">
+            {% for request_obj in pending_exports %}
+            <form method="post" action="{% url 'admin_panel:resident_export_review' request_obj.id %}" class="workflow-row">
+                {% csrf_token %}
+                <div class="workflow-user">
+                    <span class="avatar">{{ request_obj.requested_by.username|default:"?"|slice:":1"|upper }}</span>
+                    <div>
+                        <div class="workflow-title">{{ request_obj.requested_by|default:"Unknown user" }}</div>
+                        <div class="workflow-meta">{{ request_obj.requested_at|date:"M d, Y h:i A" }}</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="workflow-title">{{ request_obj.filter_summary }}</div>
+                    <div class="workflow-meta">{{ request_obj.reason|truncatechars:110 }}</div>
+                </div>
+                <div class="workflow-actions">
+                    <button name="action" value="approve" class="btn-primary" type="submit">
+                        <i class="fas fa-check"></i> Approve
+                    </button>
+                    <button name="action" value="reject" class="btn-danger" type="submit">
+                        <i class="fas fa-xmark"></i> Reject
+                    </button>
+                </div>
+            </form>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Approved Exports ── -->
+    {% if approved_exports %}
+    <div class="section-panel">
+        <div class="section-header">
+            <h3 class="section-title"><i class="fas fa-download"></i> Approved Export Downloads</h3>
+            <span class="status-badge status-approved">{{ approved_export_count }} Approved</span>
+        </div>
+        <div class="workflow-list">
+            {% for request_obj in approved_exports %}
+            <div class="workflow-row">
+                <div class="workflow-user">
+                    <span class="avatar soft">{{ request_obj.requested_by.username|default:"?"|slice:":1"|upper }}</span>
+                    <div>
+                        <div class="workflow-title">{{ request_obj.requested_by|default:"Unknown user" }}</div>
+                        <div class="workflow-meta">
+                            Approved by {{ request_obj.approved_by|default:"Admin" }}
+                            {% if request_obj.reviewed_at %}on {{ request_obj.reviewed_at|date:"M d, Y h:i A" }}{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="workflow-title">{{ request_obj.filter_summary }}</div>
+                    <div class="workflow-meta">{{ request_obj.reason|truncatechars:110 }}</div>
+                </div>
+                <div class="workflow-actions">
+                    <a href="{% url 'admin_panel:resident_export_download' request_obj.id %}" class="btn-success">
+                        <i class="fas fa-file-csv"></i> Download CSV
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ── Resident Directory ── -->
+    <div class="section-panel">
+        <div class="section-header">
+            <div>
+                <h3 class="section-title"><i class="fas fa-table-list"></i> Resident Directory</h3>
+                <div class="table-count" style="margin-top:4px;">{{ total_count }} record{{ total_count|pluralize }} found</div>
+            </div>
+            {% if has_filters %}
+                <a href="{% url 'admin_panel:resident_list' %}" class="btn-secondary">
+                    <i class="fas fa-rotate-left"></i> Clear
+                </a>
+            {% endif %}
+        </div>
+        <div class="table-scroll">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Resident</th>
+                        <th>Age / Gender</th>
+                        <th>Address</th>
+                        <th>Contact</th>
+                        <th>Household</th>
+                        <th>Flags</th>
+                        <th>Voter</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resident in residents %}
+                    <tr>
+                        <td>
+                            <div class="resident-cell">
+                                <span class="avatar soft">{{ resident.full_name|slice:":1"|upper }}</span>
+                                <div>
+                                    <div class="resident-name">{{ resident.full_name }}</div>
+                                    <div class="resident-meta">{{ resident.resident_id }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="flag-badge neutral">{{ resident.age }} yrs</span>
+                            <span class="flag-badge">{{ resident.get_sex_display }}</span>
+                            <div class="resident-meta" style="margin-top:4px;">{{ resident.birthdate|date:"M d, Y" }}</div>
+                        </td>
+                        <td class="address-cell">{{ resident.address }}</td>
+                        <td class="contact-cell">
+                            <div>{{ resident.contact_number|default:"-" }}</div>
+                            <div class="resident-meta">{{ resident.email|default:"No email" }}</div>
+                        </td>
+                        <td style="font-size:0.88rem;">{{ resident.household_number|default:"-" }}</td>
+                        <td>
+                            {% if resident.is_solo_parent %}<span class="flag-badge warning">Solo Parent</span>{% endif %}
+                            {% if resident.is_indigent %}<span class="flag-badge warning">Indigent</span>{% endif %}
+                            {% if not resident.is_solo_parent and not resident.is_indigent %}
+                                <span class="flag-badge neutral">None</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="flag-badge neutral">{{ resident.get_voter_status_display }}</span>
+                        </td>
+                        <td>
+                            <div class="action-group">
+                                {% if can_manage %}
+                                    <a href="{% url 'admin_panel:resident_edit' resident.id %}"
+                                       class="btn-icon" title="Edit resident" aria-label="Edit resident">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                {% endif %}
+                                {% if can_delete %}
+                                    <form method="post" action="{% url 'admin_panel:resident_delete' resident.id %}"
+                                          onsubmit="return confirm('Archive this resident record?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-icon"
+                                                title="Archive resident" aria-label="Archive resident">
+                                            <i class="fas fa-box-archive"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <i class="fas fa-magnifying-glass"></i>
+                                <div>No resident records match your search.</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if residents.has_other_pages %}
+        <div class="pagination">
+            {% if residents.has_previous %}
+                <a class="btn-secondary" href="?page={{ residents.previous_page_number }}&search={{ search_query }}&purok={{ purok_filter }}&age_group={{ age_group_filter }}&sex={{ sex_filter }}&category={{ category_filter }}">
+                    ← Previous
+                </a>
+            {% endif %}
+            <span>Page {{ residents.number }} of {{ residents.paginator.num_pages }}</span>
+            {% if residents.has_next %}
+                <a class="btn-secondary" href="?page={{ residents.next_page_number }}&search={{ search_query }}&purok={{ purok_filter }}&age_group={{ age_group_filter }}&sex={{ sex_filter }}&category={{ category_filter }}">
+                    Next →
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

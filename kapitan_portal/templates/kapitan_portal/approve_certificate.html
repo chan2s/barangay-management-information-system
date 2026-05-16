@@ -1,0 +1,425 @@
+{% extends 'kapitan_portal/kapitan_base.html' %}
+{% load static %}
+
+{% block title %}Approve Certificate - Kapitan Portal{% endblock %}
+{% block nav_pending_certs %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .approve-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .approve-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a1d23;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid var(--yellow);
+    }
+    .detail-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-label {
+        width: 35%;
+        font-weight: 600;
+        color: #555;
+    }
+    .detail-value {
+        width: 65%;
+        color: #333;
+    }
+    .info-box {
+        background: #f8f9fa;
+        border-left: 4px solid var(--yellow);
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-for_approval { background: #ffa502; color: white; }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+    }
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        resize: vertical;
+        font-family: inherit;
+    }
+    .btn-approve {
+        background: #22c55e;
+        color: white;
+        padding: 12px 30px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+    }
+    .btn-cancel:hover {
+        background: #5a6268;
+    }
+    .file-link {
+        background: var(--yellow);
+        color: #1a1d23;
+        padding: 5px 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 12px;
+        display: inline-block;
+        font-weight: 600;
+    }
+    .image-preview {
+        max-width: 200px;
+        max-height: 150px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .modal-container {
+        background: white;
+        border-radius: 16px;
+        width: 90%;
+        max-width: 450px;
+        transform: scale(0.95);
+        transition: transform 0.3s ease;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    
+    .modal-overlay.active .modal-container {
+        transform: scale(1);
+    }
+    
+    .modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .modal-header i {
+        font-size: 24px;
+        color: #22c55e;
+    }
+    
+    .modal-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        color: #111827;
+    }
+    
+    .modal-body {
+        padding: 24px;
+    }
+    
+    .modal-body p {
+        margin: 0 0 8px 0;
+        color: #374151;
+        line-height: 1.5;
+    }
+    
+    .modal-body .success-text {
+        background: #dcfce7;
+        padding: 12px;
+        border-radius: 8px;
+        margin-top: 16px;
+        font-size: 0.8rem;
+        color: #166534;
+    }
+    
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e5e7eb;
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+    
+    .modal-btn-cancel {
+        background: #f3f4f6;
+        color: #374151;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    
+    .modal-btn-confirm {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 8px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .modal-btn-confirm:hover {
+        background: #16a34a;
+    }
+    
+    .modal-btn-cancel:hover {
+        background: #e5e7eb;
+    }
+    
+    .btn-approve:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="approve-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-heading"><i class="fas fa-gavel"></i> Review Certificate Request</h2>
+        <a href="{% url 'kapitan_portal:for_approval_list' %}" class="btn-cancel">Back to List</a>
+    </div>
+    
+    <!-- Request Information -->
+    <div class="approve-card">
+        <div class="section-title">Request Information</div>
+        <div class="detail-row">
+            <span class="detail-label">Reference Number:</span>
+            <span class="detail-value"><strong>{{ certificate.request_id }}</strong></span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Certificate Type:</span>
+            <span class="detail-value">{{ certificate.get_request_type_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Date Submitted:</span>
+            <span class="detail-value">{{ certificate.date_submitted|date:"F d, Y h:i A" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">
+                <span class="status-badge status-for_approval">{{ certificate.get_status_display }}</span>
+            </span>
+        </div>
+    </div>
+    
+    <!-- Applicant Information -->
+    <div class="approve-card">
+        <div class="section-title">Applicant Information</div>
+        <div class="detail-row">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">{{ certificate.full_name }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Address:</span>
+            <span class="detail-value">{{ certificate.address }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Contact Number:</span>
+            <span class="detail-value">{{ certificate.contact_number|default:"Not provided" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ certificate.email|default:"Not provided" }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Purpose:</span>
+            <span class="detail-value">{{ certificate.purpose|linebreaksbr|default:"Not specified" }}</span>
+        </div>
+    </div>
+    
+    <!-- Documents -->
+    <div class="approve-card">
+        <div class="section-title">Supporting Documents</div>
+        <div class="detail-row">
+            <span class="detail-label">Valid ID:</span>
+            <span class="detail-value">
+                {% if certificate.valid_id %}
+                    <a href="{{ certificate.valid_id.url }}" target="_blank" class="file-link">
+                        <i class="fas fa-eye"></i> View ID Document
+                    </a>
+                    {% if certificate.valid_id.url|lower|slice:"-3:" in 'jpg,png,gif,jpeg' %}
+                        <div><img src="{{ certificate.valid_id.url }}" alt="Valid ID" class="image-preview"></div>
+                    {% endif %}
+                {% else %}
+                    <span class="text-muted">No ID uploaded</span>
+                {% endif %}
+            </span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Proof of Residency:</span>
+            <span class="detail-value">
+                {% if certificate.proof_residency %}
+                    <a href="{{ certificate.proof_residency.url }}" target="_blank" class="file-link" style="background: #17a2b8; color: white;">
+                        <i class="fas fa-eye"></i> View Document
+                    </a>
+                {% else %}
+                    <span class="text-muted">No document uploaded</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    
+    <!-- Approval Form -->
+    <div class="approve-card">
+        <div class="section-title">Kapitan Decision</div>
+        <div class="info-box">
+            <i class="fas fa-info-circle" style="color: var(--yellow);"></i> Please review the application carefully before approving.
+        </div>
+        
+        <form method="post" id="approveForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Remarks (Optional)</label>
+                <textarea name="remarks" rows="3" placeholder="Add any remarks about this approval..."></textarea>
+            </div>
+            
+            <div class="action-buttons">
+                <button type="button" class="btn-approve" id="showModalBtn">
+                    <i class="fas fa-check"></i> Approve Certificate
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-header">
+            <i class="fas fa-question-circle"></i>
+            <h3>Confirm Approval</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to approve this certificate request?</p>
+            <p style="font-size: 0.85rem; color: #6b7280;">This action will:</p>
+            <ul style="margin: 8px 0 0 20px; color: #6b7280; font-size: 0.8rem;">
+                <li>Approve the certificate request</li>
+                <li>Notify the resident via email (if provided)</li>
+                <li>The resident can claim the certificate within 7 days</li>
+            </ul>
+            <div class="success-text">
+                <i class="fas fa-info-circle"></i> Approval will be recorded with your name and timestamp.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="modal-btn-cancel" id="closeModalBtn">Cancel</button>
+            <button type="button" class="modal-btn-confirm" id="confirmApproveBtn">
+                <i class="fas fa-check"></i> Yes, Approve
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('confirmModal');
+    const showModalBtn = document.getElementById('showModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const confirmApproveBtn = document.getElementById('confirmApproveBtn');
+    const approveForm = document.getElementById('approveForm');
+    
+    // Show modal
+    showModalBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        modal.classList.add('active');
+    });
+    
+    // Close modal
+    function closeModal() {
+        modal.classList.remove('active');
+    }
+    
+    closeModalBtn.addEventListener('click', closeModal);
+    
+    // Confirm approval
+    confirmApproveBtn.addEventListener('click', function() {
+        const submitBtn = document.getElementById('showModalBtn');
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        submitBtn.disabled = true;
+        approveForm.submit();
+    });
+    
+    // Close modal when clicking outside
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+    
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

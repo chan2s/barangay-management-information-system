@@ -1,0 +1,144 @@
+{% extends 'staff_module/dashboard.html' %}
+{% load static %}
+
+{% block title %}Release Certificate - Staff Panel{% endblock %}
+
+{% block page_heading %}<i class="fas fa-hand-peace"></i> Release Certificate{% endblock %}
+
+{% block extra_css %}
+<style>
+    .release-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .release-card {
+        background: white;
+        border-radius: 12px;
+        padding: 30px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .info-box {
+        background: #d1ecf1;
+        border-left: 4px solid #17a2b8;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+    .detail-row {
+        display: flex;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .detail-label {
+        width: 35%;
+        font-weight: 600;
+        color: #555;
+    }
+    .detail-value {
+        width: 65%;
+        color: #333;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #555;
+    }
+    textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        resize: vertical;
+        font-family: inherit;
+    }
+    .btn-submit {
+        background: #00b894;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    .btn-cancel {
+        background: #6c757d;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-left: 10px;
+    }
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    .status-approved { background: #55efc4; color: #00b894; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="release-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-hand-peace"></i> Release Certificate</h2>
+        <a href="{% url 'certificates:request_list' %}" class="btn-cancel">Back to List</a>
+    </div>
+    
+    <div class="release-card">
+        <div class="info-box">
+            <strong>Request #: {{ request.request_id }}</strong><br>
+            Applicant: {{ request.full_name }}<br>
+            Certificate Type: {{ request.get_request_type_display }}
+        </div>
+        
+        <div class="detail-row">
+            <span class="detail-label">Reference Number:</span>
+            <span class="detail-value">{{ request.request_id }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Applicant Name:</span>
+            <span class="detail-value">{{ request.full_name }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Certificate Type:</span>
+            <span class="detail-value">{{ request.get_request_type_display }}</span>
+        </div>
+        <div class="detail-row">
+            <span class="detail-label">Current Status:</span>
+            <span class="detail-value">
+                <span class="status-badge status-approved">{{ request.get_status_display }}</span>
+            </span>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Release Remarks (Optional)</label>
+                <textarea name="remarks" rows="4" placeholder="Add any release notes..."></textarea>
+            </div>
+            
+            <div class="alert alert-success" style="background: #d4edda; padding: 12px; border-radius: 6px; margin: 15px 0;">
+                <i class="fas fa-info-circle"></i>
+                Marking this certificate as released will notify the applicant that their certificate is ready for pickup.
+            </div>
+            
+            <div>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-check-circle"></i> Confirm Release
+                </button>
+                <a href="{% url 'certificates:view_request' request.id %}" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

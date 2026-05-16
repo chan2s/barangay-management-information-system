@@ -12,7 +12,7 @@ class PublicBlotterForm(forms.ModelForm):
             ('mediation', 'Request for Mediation'),
             ('complaint', 'Formal Complaint'),
             ('intervention', 'Request for Barangay Intervention'),
-            ('assistance', 'Request for Assistance'),
+            # ('assistance', 'Request for Assistance'),
             ('report', 'Incident Report'),
         ],
         widget=forms.Select(attrs={'class': 'form-control'}),
@@ -39,8 +39,8 @@ class PublicBlotterForm(forms.ModelForm):
             ('', 'Select ID type'),
             ('passport', 'Passport'),
             ('drivers_license', "Driver's License"),
-            ('postal_id', 'Postal ID'),
-            ('umid', 'UMID'),
+            # ('postal_id', 'Postal ID'),
+            # ('umid', 'UMID'),
             ('philhealth', 'PhilHealth ID'),
             ('pagibig', 'Pag-IBIG ID'),
             ('national_id', 'National ID (PhilSys)'),
@@ -58,6 +58,12 @@ class PublicBlotterForm(forms.ModelForm):
         fields = [
             'complainant_name',
             'complainant_address',
+            'complainant_street_name',
+            'complainant_barangay',
+            'complainant_municipality',
+            'complainant_province',
+            'complainant_latitude',
+            'complainant_longitude',
             'complainant_phone',
             'complainant_email',
             'respondent_name',
@@ -79,6 +85,12 @@ class PublicBlotterForm(forms.ModelForm):
             'respondent_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full name of respondent'}),
             'respondent_contact': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'If known'}),
             'incident_location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Specific location/address'}),
+            'complainant_street_name': forms.HiddenInput(),
+            'complainant_barangay': forms.HiddenInput(),
+            'complainant_municipality': forms.HiddenInput(),
+            'complainant_province': forms.HiddenInput(),
+            'complainant_latitude': forms.HiddenInput(),
+            'complainant_longitude': forms.HiddenInput(),
         }
     
     def clean_complainant_phone(self):
@@ -105,6 +117,11 @@ class PublicBlotterForm(forms.ModelForm):
         valid_id = cleaned_data.get('valid_id', '')
         id_type = cleaned_data.get('id_type', '')
         incident_description = cleaned_data.get('incident_description', '')
+        barangay = (cleaned_data.get('complainant_barangay') or '').strip().lower()
+        municipality = (cleaned_data.get('complainant_municipality') or '').strip().lower()
+        province = (cleaned_data.get('complainant_province') or '').strip().lower()
+        latitude = cleaned_data.get('complainant_latitude')
+        longitude = cleaned_data.get('complainant_longitude')
         
         # Require at least one contact method
         if not phone and not email:
@@ -121,6 +138,20 @@ class PublicBlotterForm(forms.ModelForm):
         # Minimum description length (anti-spam)
         if incident_description and len(incident_description.strip()) < 20:
             self.add_error('incident_description', 'Please provide a more detailed description (minimum 20 characters).')
+
+        if not (
+            barangay == 'poblacion'
+            and municipality == 'santa catalina'
+            and province == 'negros oriental'
+            and latitude is not None
+            and longitude is not None
+            and 9.20 <= float(latitude) <= 9.45
+            and 122.80 <= float(longitude) <= 123.10
+        ):
+            self.add_error(
+                'complainant_address',
+                'Please select a valid address in Poblacion, Santa Catalina, Negros Oriental from the suggestions.',
+            )
         
         # Validate incident date is not in future
         incident_date = cleaned_data.get('incident_date')
@@ -154,15 +185,17 @@ class ScheduleForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 3, 'class': 'form-control'}),
         }
 
+from .models import Evidence
+
 class EvidenceForm(forms.ModelForm):
     class Meta:
         model = Evidence
-        fields = ['title', 'evidence_type', 'file', 'description']
+        fields = ['title', 'description', 'file', 'file_type']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control'}),
-            'evidence_type': forms.Select(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Evidence title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Description of evidence...'}),
             'file': forms.FileInput(attrs={'class': 'form-control'}),
-            'description': forms.Textarea(attrs={'rows': 2, 'class': 'form-control'}),
+            'file_type': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class CommentForm(forms.ModelForm):

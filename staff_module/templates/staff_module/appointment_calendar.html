@@ -1,0 +1,367 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Appointment Calendar - Staff{% endblock %}
+{% block nav_appointments %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    .calendar-container {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .calendar-nav {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .month-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--text);
+        min-width: 200px;
+        text-align: center;
+    }
+    
+    .btn-nav {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+    }
+    
+    .btn-nav:hover {
+        background: var(--yellow);
+        border-color: var(--yellow);
+    }
+    
+    .btn-today {
+        background: var(--yellow);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 20px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        margin-bottom: 10px;
+    }
+    
+    .weekday {
+        text-align: center;
+        padding: 12px;
+        font-weight: 700;
+        color: var(--muted);
+        font-size: 0.85rem;
+        background: var(--bg);
+        border-radius: 8px;
+    }
+    
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+    }
+    
+    .calendar-day {
+        min-height: 100px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px;
+        transition: all 0.2s;
+        position: relative;
+    }
+    
+    .calendar-day.other-month {
+        background: #fafafa;
+        opacity: 0.6;
+    }
+    
+    .calendar-day.today {
+        border: 2px solid var(--yellow);
+        background: var(--yellow-light);
+    }
+    
+    .day-number {
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        color: var(--text);
+    }
+    
+    .calendar-day.today .day-number {
+        color: var(--yellow);
+        font-weight: 700;
+    }
+    
+    .appointment-dot {
+        background: var(--yellow);
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        position: absolute;
+        top: 8px;
+        right: 8px;
+    }
+    
+    .appointment-item-cal {
+        font-size: 0.7rem;
+        padding: 4px 6px;
+        margin-bottom: 4px;
+        background: var(--cream);
+        border-radius: 4px;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: all 0.2s;
+    }
+    
+    .appointment-item-cal:hover {
+        background: var(--yellow-soft);
+        transform: translateX(2px);
+    }
+    
+    .appointment-time {
+        font-weight: 600;
+        color: var(--yellow-accent);
+        font-size: 0.65rem;
+    }
+    
+    .appointment-title-cal {
+        color: var(--text);
+        margin-left: 4px;
+    }
+    
+    .more-indicator {
+        font-size: 0.7rem;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 4px;
+        cursor: pointer;
+    }
+    
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: var(--muted);
+    }
+    
+    .back-link {
+        display: inline-block;
+        margin-bottom: 20px;
+        color: var(--yellow);
+        text-decoration: none;
+    }
+    
+    .back-link:hover {
+        text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+        .calendar-day {
+            min-height: 60px;
+        }
+        .appointment-item-cal {
+            display: none;
+        }
+        .calendar-day:hover .appointment-item-cal {
+            display: block;
+            position: absolute;
+            background: white;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            white-space: normal;
+            width: 150px;
+            left: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+    <a href="{% url 'staff_module:appointment_list' %}" class="back-link">
+        <i class="fas fa-arrow-left"></i> Back to Appointments
+    </a>
+    
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <div class="calendar-nav">
+                <button class="btn-nav" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
+                <span class="month-title" id="monthTitle">{{ current_month_name }} {{ current_year }}</span>
+                <button class="btn-nav" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <button class="btn-today" onclick="goToToday()">Today</button>
+        </div>
+        
+        <div class="calendar-weekdays">
+            <div class="weekday">Sun</div>
+            <div class="weekday">Mon</div>
+            <div class="weekday">Tue</div>
+            <div class="weekday">Wed</div>
+            <div class="weekday">Thu</div>
+            <div class="weekday">Fri</div>
+            <div class="weekday">Sat</div>
+        </div>
+        
+        <div class="calendar-days" id="calendarDays">
+            <!-- Calendar will be populated here via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Pass appointments data from Django
+    const appointmentsData = {{ appointments_json|safe }};
+    let currentDate = new Date({{ current_year }}, {{ current_month }} - 1, 1);
+    
+    function formatDate(date) {
+        return date.toISOString().split('T')[0];
+    }
+    
+    function getAppointmentsForDate(dateStr) {
+        return appointmentsData.filter(apt => apt.date === dateStr);
+    }
+    
+    function renderCalendar(year, month) {
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const startingDay = firstDay.getDay();
+        const daysInMonth = lastDay.getDate();
+        
+        // Get previous month days
+        const prevMonthLastDay = new Date(year, month, 0).getDate();
+        
+        const calendarDays = document.getElementById('calendarDays');
+        calendarDays.innerHTML = '';
+        
+        let dayCount = 1;
+        let nextMonthDayCount = 1;
+        
+        // Render 42 days (6 rows)
+        for (let i = 0; i < 42; i++) {
+            let displayDate = null;
+            let className = 'calendar-day';
+            let dayNumber = '';
+            let isCurrentMonth = false;
+            
+            if (i < startingDay) {
+                // Previous month days
+                const prevMonthDate = prevMonthLastDay - (startingDay - i) + 1;
+                dayNumber = prevMonthDate;
+                className = 'calendar-day other-month';
+                displayDate = new Date(year, month - 1, prevMonthDate);
+            } else if (i >= startingDay + daysInMonth) {
+                // Next month days
+                dayNumber = nextMonthDayCount;
+                className = 'calendar-day other-month';
+                displayDate = new Date(year, month + 1, nextMonthDayCount);
+                nextMonthDayCount++;
+            } else {
+                // Current month days
+                dayNumber = dayCount;
+                className = 'calendar-day';
+                isCurrentMonth = true;
+                displayDate = new Date(year, month, dayCount);
+                dayCount++;
+            }
+            
+            const dateStr = formatDate(displayDate);
+            const isToday = formatDate(new Date()) === dateStr;
+            if (isToday) className += ' today';
+            
+            const appointments = getAppointmentsForDate(dateStr);
+            const hasAppointments = appointments.length > 0;
+            
+            const dayDiv = document.createElement('div');
+            dayDiv.className = className;
+            dayDiv.innerHTML = `
+                <div class="day-number">${dayNumber}</div>
+                ${hasAppointments && !isCurrentMonth ? '' : ''}
+            `;
+            
+            // Add appointment items
+            if (hasAppointments && isCurrentMonth) {
+                const displayAppointments = appointments.slice(0, 3);
+                displayAppointments.forEach(apt => {
+                    const aptDiv = document.createElement('div');
+                    aptDiv.className = 'appointment-item-cal';
+                    aptDiv.title = apt.purpose;
+                    aptDiv.onclick = () => window.location.href = `/staff/appointments/${apt.id}/`;
+                    aptDiv.innerHTML = `
+                        <span class="appointment-time">${apt.time}</span>
+                        <span class="appointment-title-cal">${apt.resident_name.split(' ')[0]}</span>
+                    `;
+                    dayDiv.appendChild(aptDiv);
+                });
+                
+                if (appointments.length > 3) {
+                    const moreDiv = document.createElement('div');
+                    moreDiv.className = 'more-indicator';
+                    moreDiv.innerHTML = `+${appointments.length - 3} more`;
+                    dayDiv.appendChild(moreDiv);
+                }
+            } else if (hasAppointments && !isCurrentMonth) {
+                // For other months, just show a dot indicator
+                const dotSpan = document.createElement('span');
+                dotSpan.className = 'appointment-dot';
+                dotSpan.title = `${appointments.length} appointment(s)`;
+                dayDiv.appendChild(dotSpan);
+            }
+            
+            calendarDays.appendChild(dayDiv);
+        }
+    }
+    
+    function changeMonth(delta) {
+        currentDate.setMonth(currentDate.getMonth() + delta);
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        document.getElementById('monthTitle').innerText = `${getMonthName(month)} ${year}`;
+        renderCalendar(year, month);
+    }
+    
+    function goToToday() {
+        currentDate = new Date();
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        document.getElementById('monthTitle').innerText = `${getMonthName(month)} ${year}`;
+        renderCalendar(year, month);
+    }
+    
+    function getMonthName(month) {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        return monthNames[month];
+    }
+    
+    // Initialize calendar
+    const year = {{ current_year }};
+    const month = {{ current_month }} - 1;
+    renderCalendar(year, month);
+</script>
+{% endblock %}

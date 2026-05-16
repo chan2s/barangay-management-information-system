@@ -58,11 +58,53 @@ def blotter_verify_email(request):
             request.session['otp_created_at'] = datetime.datetime.now().isoformat()
             
             try:
-                send_verification_email(email, otp_code)
-                messages.success(request, f'Verification code sent to {email}')
-                return redirect('blotter:verify_otp')
+                # Send email using configured settings
+                subject = '🔐 BIMS - Email Verification Code'
+                message = f"""
+═══════════════════════════════════════════════════════════
+              BARANGAY SANTA CATALINA - BIMS
+                    EMAIL VERIFICATION
+═══════════════════════════════════════════════════════════
+
+Dear Resident,
+
+Your verification code for the Barangay Integrated Management System (BIMS) is:
+
+                    🔐 {otp_code} 🔐
+
+This code will expire in 10 minutes.
+
+If you did not request this verification, please ignore this email.
+
+For concerns, please contact the Barangay Hall.
+
+Thank you,
+Barangay Santa Catalina Administration
+═══════════════════════════════════════════════════════════
+This is an automated message. Please do not reply.
+"""
+                from_email = settings.EMAIL_HOST_USER
+                recipient_list = [email]
+                
+                email_sent = send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    recipient_list,
+                    fail_silently=False,
+                )
+                
+                if email_sent:
+                    messages.success(request, f'✅ Verification code sent to {email}')
+                    return redirect('blotter:verify_otp')
+                else:
+                    messages.error(request, 'Failed to send email. Please try again.')
+                    
             except Exception as e:
-                messages.error(request, f'Failed to send verification email. Please try again.')
+                print(f"Email error details: {str(e)}")
+                messages.error(request, f'Failed to send verification email. Error: {str(e)[:100]}')
+        else:
+            messages.error(request, 'Please enter a valid email address.')
     else:
         form = EmailVerificationForm()
     
@@ -72,7 +114,7 @@ def verify_otp(request):
     """Step 2: Verify OTP code"""
     if not request.session.get('pending_complaint_email'):
         messages.error(request, 'Please start the verification process again.')
-        return redirect('blotter:blotter_verify_email')
+        return redirect('blotter:choose_verification')
     
     if request.method == 'POST':
         form = VerifyOTPForm(request.POST)
@@ -80,6 +122,7 @@ def verify_otp(request):
             entered_otp = form.cleaned_data['otp_code']
             stored_otp = request.session.get('email_otp')
             
+            # Check OTP expiry (10 minutes)
             otp_created = request.session.get('otp_created_at')
             if otp_created:
                 created_time = datetime.datetime.fromisoformat(otp_created)
@@ -89,19 +132,31 @@ def verify_otp(request):
             
             if entered_otp == stored_otp:
                 request.session['email_verified'] = True
-                messages.success(request, 'Email verified successfully! You can now file your blotter.')
+                request.session['verification_method'] = 'email'
+                messages.success(request, '✅ Email verified successfully! You can now file your blotter.')
                 return redirect('blotter:file_blotter')
             else:
-                messages.error(request, 'Invalid OTP code. Please try again.')
+                messages.error(request, '❌ Invalid OTP code. Please try again.')
+        else:
+            messages.error(request, 'Please enter a valid 6-digit code.')
     else:
         form = VerifyOTPForm()
     
-    return render(request, 'verify_otp.html', {'form': form})
+    # Get email for display (masked)
+    email = request.session.get('pending_complaint_email', '')
+    masked_email = ''
+    if email:
+        parts = email.split('@')
+        if len(parts) == 2:
+            masked_email = parts[0][:3] + '***@' + parts[1]
+    
+    return render(request, 'verify_otp.html', {'form': form, 'masked_email': masked_email})
 
 # ====================== CHOOSE VERIFICATION ======================
 def choose_verification(request):
     """Step 0: Let user choose verification method"""
-    request.session.flush()
+    for key in ('email_verified', 'verification_method', 'pending_complaint_email', 'email_otp', 'otp_created_at'):
+        request.session.pop(key, None)
     
     if request.method == 'POST':
         method = request.POST.get('verification_method')
@@ -132,7 +187,7 @@ def file_blotter(request):
                 blotter.verification_method = 'id_card'
                 blotter.verification_status = 'pending_id_verification'
                 blotter.verified_contact = form.cleaned_data.get('complainant_phone') or form.cleaned_data.get('complainant_email')
-                blotter.valid_id_file = form.cleaned_data.get('valid_id')
+                blotter.valid_id_file = request.FILES.get('valid_id')
                 blotter.valid_id_type = form.cleaned_data.get('id_type')
                 blotter.id_verification_status = 'pending'
             else:
@@ -140,18 +195,34 @@ def file_blotter(request):
                 blotter.verification_status = 'pending_review'
                 blotter.verified_contact = form.cleaned_data.get('complainant_email')
             
-            # IMPORTANT: Set is_approved to FALSE - requires staff approval
             blotter.is_approved = False
-            
             blotter.purpose = form.cleaned_data.get('purpose')
             blotter.status = 'pending'
             blotter.ip_address = get_client_ip(request)
             blotter.save()
             
-            # Debug: Print to console to verify
-            print(f"NEW BLOTTER CREATED: {blotter.blotter_number}")
-            print(f"is_approved: {blotter.is_approved}")
-            print(f"status: {blotter.status}")
+            # ===== HANDLE EVIDENCE UPLOADS =====
+            evidence_files = request.FILES.getlist('evidence')
+            for file in evidence_files:
+                if file:
+                    # Determine file type
+                    ext = file.name.split('.')[-1].lower()
+                    if ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
+                        file_type = 'image'
+                    elif ext in ['pdf', 'doc', 'docx', 'txt']:
+                        file_type = 'document'
+                    elif ext in ['mp4', 'avi', 'mov', 'mkv']:
+                        file_type = 'video'
+                    else:
+                        file_type = 'other'
+                    
+                    Evidence.objects.create(
+                        blotter=blotter,
+                        title=f"Evidence - {file.name[:50]}",
+                        file=file,
+                        file_type=file_type,
+                        uploaded_by=request.user if request.user.is_authenticated else None
+                    )
             
             BlotterAuditLog.objects.create(
                 blotter=blotter,
@@ -160,41 +231,10 @@ def file_blotter(request):
                 performed_by=request.user if request.user.is_authenticated else None
             )
             
-            if blotter.verification_method == 'email' and blotter.complainant_email:
-                try:
-                    send_mail(
-                        f'Blotter Received - {blotter.blotter_number}',
-                        f"""
-Republic of the Philippines
-Barangay Poblacion, Santa Catalina, Negros Oriental
-
-BLOTTER RECEIPT
-
-Dear {blotter.complainant_name},
-
-Your blotter complaint has been received and is awaiting staff approval.
-
-Blotter Number: {blotter.blotter_number}
-Date Filed: {blotter.created_at.strftime('%Y-%m-%d %H:%M')}
-Status: Pending Staff Approval
-
-You can track your blotter once it is approved by barangay staff.
-
-For inquiries, please contact the Barangay Hall.
-
-This is an automated message.
-                        """,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [blotter.complainant_email],
-                        fail_silently=True,
-                    )
-                except Exception as e:
-                    print(f"Email send error: {e}")
-            
-            request.session.flush()
+            for key in ('email_verified', 'verification_method', 'pending_complaint_email', 'email_otp', 'otp_created_at'):
+                request.session.pop(key, None)
             
             messages.success(request, f'Your blotter has been submitted! Your blotter number is: {blotter.blotter_number}')
-            messages.info(request, 'Your blotter is pending staff approval. You will be notified once approved.')
             
             return render(request, 'blotter_success.html', {'blotter': blotter})
         else:

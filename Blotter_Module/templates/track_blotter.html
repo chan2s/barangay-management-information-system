@@ -1,145 +1,365 @@
-{% extends 'blotter_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Blotter Tracking System – BIMS{% endblock %}
 
 {% block extra_css %}
 <style>
-    /* Formal Government Style */
+    :root {
+        --white: #ffffff;
+        --cream: #fefcf3;
+        --yellow-soft: #fdf6d3;
+        --yellow-light: #fef0a0;
+        --yellow-mid: #f5d300;
+        --yellow-accent: #e6c200;
+        --charcoal: #1a1a2e;
+        --slate: #3d3d5c;
+        --muted: #6b6b8a;
+        --border: #e8e4d0;
+        --shadow-sm: 0 2px 8px rgba(26,26,46,0.06);
+        --shadow-md: 0 8px 32px rgba(26,26,46,0.10);
+        --shadow-lg: 0 24px 64px rgba(26,26,46,0.13);
+        --radius: 16px;
+        --radius-sm: 8px;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+    }
+
     .track-container {
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 20px;
+        padding: 40px 20px;
     }
-    
+
+    /* Formal Card Styling with Yellow Theme */
     .formal-card {
-        background: white;
-        border: 1px solid #d4d4d4;
-        border-radius: 0;
-        margin-bottom: 25px;
-        box-shadow: none;
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 28px;
+        box-shadow: var(--shadow-md);
+        transition: transform 0.25s, box-shadow 0.25s;
+        overflow: hidden;
     }
-    
+
+    .formal-card:hover {
+        box-shadow: var(--shadow-lg);
+    }
+
     .formal-card .card-header {
-        background: #f8f9fa;
-        border-bottom: 2px solid #8B0000;
-        padding: 15px 20px;
-        font-family: 'Times New Roman', serif;
+        background: linear-gradient(135deg, var(--charcoal) 0%, #2a2a3e 100%);
+        border-bottom: 3px solid var(--yellow-mid);
+        padding: 18px 24px;
     }
-    
+
     .formal-card .card-header h5 {
-        color: #2c3e52;
-        font-weight: 600;
+        color: var(--white);
+        font-weight: 700;
         margin: 0;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 1rem;
     }
-    
+
+    .formal-card .card-header h5 i {
+        color: var(--yellow-mid);
+        margin-right: 8px;
+    }
+
     .formal-card .card-body {
-        padding: 25px;
+        padding: 28px;
     }
-    
+
+    /* Search Form */
     .search-input {
-        border: 1px solid #ccc;
-        border-radius: 0;
-        font-family: 'Times New Roman', serif;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 12px 16px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        width: 100%;
     }
-    
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--yellow-mid);
+        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
+    }
+
     .btn-search {
-        background: #2c3e52;
-        border: none;
-        border-radius: 0;
-        padding: 10px 20px;
-        font-family: 'Times New Roman', serif;
+        background: var(--charcoal);
+        border: 2px solid var(--charcoal);
+        border-radius: var(--radius-sm);
+        padding: 12px 24px;
+        font-family: 'DM Sans', sans-serif;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 1px;
+        color: var(--white);
+        transition: all 0.2s;
+        width: 100%;
     }
-    
+
     .btn-search:hover {
-        background: #1a2a3a;
+        background: var(--yellow-mid);
+        border-color: var(--yellow-mid);
+        color: var(--charcoal);
+        transform: translateY(-2px);
     }
-    
+
+    /* Info Sections */
     .info-section {
-        margin-bottom: 25px;
+        margin-bottom: 28px;
     }
-    
+
     .info-section-title {
-        background: #f0f4f8;
-        padding: 8px 12px;
-        border-left: 4px solid #8B0000;
-        margin-bottom: 15px;
-        font-size: 16px;
-        font-weight: 600;
-        color: #2c3e52;
+        background: var(--cream);
+        padding: 10px 15px;
+        border-left: 4px solid var(--yellow-mid);
+        margin-bottom: 16px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--charcoal);
         text-transform: uppercase;
-        font-family: 'Times New Roman', serif;
+        letter-spacing: 0.5px;
+        font-family: 'DM Sans', sans-serif;
     }
-    
+
+    .info-section-title i {
+        color: var(--yellow-mid);
+        margin-right: 8px;
+    }
+
     .info-row {
         display: flex;
-        padding: 8px 0;
-        border-bottom: 1px dotted #e0e0e0;
+        padding: 10px 0;
+        border-bottom: 1px dotted var(--border);
     }
-    
+
     .info-label {
         width: 35%;
-        font-weight: 600;
-        color: #555;
-        font-size: 13px;
+        font-weight: 700;
+        color: var(--slate);
+        font-size: 0.8rem;
         text-transform: uppercase;
+        letter-spacing: 0.3px;
     }
-    
+
     .info-value {
         width: 65%;
-        color: #333;
+        color: var(--charcoal);
         font-weight: 500;
+        font-size: 0.9rem;
     }
-    
+
+    /* Status Badges */
     .status-formal {
         display: inline-block;
         padding: 5px 15px;
-        font-weight: 600;
+        font-weight: 700;
         text-transform: uppercase;
-        font-size: 12px;
+        font-size: 0.7rem;
         letter-spacing: 1px;
+        border-radius: 20px;
     }
-    
-    .status-pending { background: #fff3cd; color: #856404; border-left: 3px solid #ffc107; }
-    .status-scheduled { background: #cfe2ff; color: #084298; border-left: 3px solid #0d6efd; }
+
+    .status-pending { background: var(--yellow-soft); color: #856404; border-left: 3px solid var(--warning); }
+    .status-scheduled { background: #cfe2ff; color: #084298; border-left: 3px solid var(--info); }
     .status-in_progress { background: #cff4fc; color: #055160; border-left: 3px solid #0dcaf0; }
-    .status-resolved { background: #d1e7dd; color: #0f5132; border-left: 3px solid #198754; }
-    .status-unsettled { background: #f8d7da; color: #842029; border-left: 3px solid #dc3545; }
-    
+    .status-resolved { background: #d1e7dd; color: var(--success); border-left: 3px solid var(--success); }
+    .status-unsettled { background: #f8d7da; color: var(--danger); border-left: 3px solid var(--danger); }
+
+    /* Hearing Section */
     .hearing-formal {
-        background: #f8f9fa;
-        border: 1px solid #dee2e6;
+        background: var(--cream);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
         padding: 20px;
         margin-top: 15px;
     }
-    
+
     .hearing-title {
-        color: #8B0000;
+        color: var(--charcoal);
         font-weight: 700;
         margin-bottom: 15px;
         padding-bottom: 8px;
-        border-bottom: 2px solid #dee2e6;
+        border-bottom: 2px solid var(--yellow-mid);
         text-transform: uppercase;
-        font-size: 14px;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
     }
-    
+
+    .hearing-title i {
+        color: var(--yellow-mid);
+        margin-right: 8px;
+    }
+
+    .history-item {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        margin-top: 10px;
+        border-left: 3px solid var(--muted);
+        border-radius: var(--radius-sm);
+    }
+
+    /* Official Stamp */
     .official-stamp {
         margin-top: 20px;
         padding-top: 15px;
-        border-top: 1px solid #dee2e6;
+        border-top: 1px solid var(--border);
         text-align: center;
-        font-size: 11px;
-        color: #888;
+        font-size: 0.7rem;
+        color: var(--muted);
         font-style: italic;
     }
-    
+
+    .official-stamp i {
+        color: var(--yellow-mid);
+        margin-right: 4px;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        margin-top: 28px;
+        text-align: center;
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+    }
+
+    .btn-outline-secondary {
+        background: transparent;
+        color: var(--slate);
+        border: 2px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 10px 24px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-outline-secondary:hover {
+        border-color: var(--yellow-mid);
+        background: var(--yellow-soft);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary-custom {
+        background: var(--charcoal);
+        color: var(--white);
+        border: 2px solid var(--charcoal);
+        border-radius: var(--radius-sm);
+        padding: 10px 24px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary-custom:hover {
+        background: var(--yellow-mid);
+        color: var(--charcoal);
+        border-color: var(--yellow-mid);
+        transform: translateY(-2px);
+    }
+
+    /* Alert Messages */
+    .alert-message {
+        margin-bottom: 24px;
+        padding: 14px 18px;
+        border-radius: var(--radius-sm);
+        text-align: center;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    .alert-error {
+        background-color: #fef3f2;
+        color: var(--danger);
+        border: 1px solid #fecaca;
+        border-left: 4px solid var(--danger);
+    }
+
+    .alert-success {
+        background-color: #f0fdf4;
+        color: var(--success);
+        border: 1px solid #bbf7d0;
+        border-left: 4px solid var(--success);
+    }
+
+    .alert-info {
+        background-color: #eff6ff;
+        color: var(--info);
+        border: 1px solid #bfdbfe;
+        border-left: 4px solid var(--info);
+    }
+
     hr {
-        border-top: 2px solid #dee2e6;
+        border-top: 2px solid var(--border);
         margin: 20px 0;
+    }
+
+    .text-muted {
+        color: var(--muted) !important;
+    }
+
+    @media (max-width: 768px) {
+        .track-container {
+            padding: 20px 16px;
+        }
+
+        .formal-card .card-body {
+            padding: 20px;
+        }
+
+        .info-row {
+            flex-direction: column;
+            padding: 8px 0;
+        }
+
+        .info-label {
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            width: 100%;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-outline-secondary, .btn-primary-custom {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media print {
+        .btn-search, .action-buttons, .formal-card .card-header, .alert-message {
+            display: none;
+        }
+        
+        .formal-card {
+            box-shadow: none;
+            border: 1px solid #000;
+        }
+        
+        .info-section-title {
+            background: none;
+        }
     }
 </style>
 {% endblock %}
@@ -149,10 +369,10 @@
     <!-- Search Form -->
     <div class="formal-card">
         <div class="card-header">
-            <h5><i class="bi bi-search me-2"></i> OFFICIAL BLOTTER TRACKING SYSTEM</h5>
+            <h5><i class="bi bi-search"></i> OFFICIAL BLOTTER TRACKING SYSTEM</h5>
         </div>
         <div class="card-body">
-            <p class="text-muted mb-4" style="font-size: 14px;">Please enter your official blotter number to track the status of your complaint filed with the Barangay.</p>
+            <p class="text-muted mb-4" style="font-size: 0.85rem;">Please enter your official blotter number to track the status of your complaint filed with the Barangay.</p>
             
             <form method="post">
                 {% csrf_token %}
@@ -160,7 +380,7 @@
                     <div class="col-md-8">
                         <input type="text" 
                                name="blotter_number" 
-                               class="form-control search-input" 
+                               class="search-input" 
                                placeholder="Enter Blotter Number (e.g., BL-2026-0001)"
                                value="{{ searched_number|default:'' }}"
                                required>
@@ -169,8 +389,8 @@
                         </small>
                     </div>
                     <div class="col-md-4">
-                        <button type="submit" class="btn btn-search w-100 text-white">
-                            <i class="bi bi-search me-2"></i> TRACK
+                        <button type="submit" class="btn-search">
+                            <i class="bi bi-search"></i> TRACK
                         </button>
                     </div>
                 </div>
@@ -181,10 +401,9 @@
     <!-- Messages -->
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
-                <i class="bi bi-{% if message.tags == 'error' %}exclamation-circle{% else %}check-circle{% endif %} me-2"></i>
+            <div class="alert-message alert-{{ message.tags }}">
+                <i class="bi bi-{% if message.tags == 'error' %}exclamation-triangle-fill{% elif message.tags == 'success' %}check-circle-fill{% else %}info-circle-fill{% endif %}"></i>
                 {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         {% endfor %}
     {% endif %}
@@ -193,7 +412,7 @@
     {% if blotter %}
     <div class="formal-card">
         <div class="card-header">
-            <h5><i class="bi bi-file-text me-2"></i> OFFICIAL BLOTTER RECORD</h5>
+            <h5><i class="bi bi-file-text"></i> OFFICIAL BLOTTER RECORD</h5>
         </div>
         <div class="card-body">
             
@@ -230,7 +449,7 @@
             <!-- Complainant Information -->
             <div class="info-section">
                 <div class="info-section-title">
-                    <i class="bi bi-person-fill me-2"></i> COMPLAINANT INFORMATION
+                    <i class="bi bi-person-fill"></i> COMPLAINANT INFORMATION
                 </div>
                 <div class="info-row">
                     <span class="info-label">Full Name:</span>
@@ -249,7 +468,7 @@
             <!-- Respondent Information -->
             <div class="info-section">
                 <div class="info-section-title">
-                    <i class="bi bi-person-badge me-2"></i> RESPONDENT INFORMATION
+                    <i class="bi bi-person-badge"></i> RESPONDENT INFORMATION
                 </div>
                 <div class="info-row">
                     <span class="info-label">Full Name:</span>
@@ -270,7 +489,7 @@
             <!-- Incident Details -->
             <div class="info-section">
                 <div class="info-section-title">
-                    <i class="bi bi-exclamation-triangle me-2"></i> INCIDENT REPORT
+                    <i class="bi bi-exclamation-triangle"></i> INCIDENT REPORT
                 </div>
                 <div class="info-row">
                     <span class="info-label">Incident Type:</span>
@@ -294,7 +513,7 @@
             {% if blotter.schedules.all %}
             <div class="info-section">
                 <div class="info-section-title">
-                    <i class="bi bi-calendar-check me-2"></i> KATARUNGANG PAMBARANGAY PROCEEDINGS
+                    <i class="bi bi-calendar-check"></i> KATARUNGANG PAMBARANGAY PROCEEDINGS
                 </div>
                 
                 <!-- Upcoming Mediation -->
@@ -302,7 +521,7 @@
                     {% if hearing.outcome == 'pending' or hearing.outcome == 'rescheduled' %}
                     <div class="hearing-formal">
                         <div class="hearing-title">
-                            <i class="bi bi-gavel me-2"></i> SCHEDULED MEDIATION / CONCILIATION
+                            <i class="bi bi-gavel"></i> SCHEDULED MEDIATION / CONCILIATION
                         </div>
                         <div class="info-row">
                             <span class="info-label">Type of Session:</span>
@@ -338,7 +557,7 @@
                 <!-- Hearing History -->
                 {% for hearing in blotter.schedules.all %}
                     {% if hearing.outcome == 'completed' or hearing.outcome == 'settled' or hearing.outcome == 'unsettled' %}
-                    <div style="background: #f5f5f5; padding: 12px 15px; margin-top: 10px; border-left: 3px solid #6c757d;">
+                    <div class="history-item">
                         <div class="info-row">
                             <span class="info-label">Previous Session:</span>
                             <span class="info-value">{{ hearing.hearing_date|date:"F d, Y" }}</span>
@@ -366,16 +585,16 @@
             <!-- Official Footer -->
             <hr>
             <div class="official-stamp">
-                <i class="bi bi-shield-fill-check me-1"></i> This is a system-generated document. For official verification, contact the Barangay Secretary.
+                <i class="bi bi-shield-fill-check"></i> This is a system-generated document. For official verification, contact the Barangay Secretary.
             </div>
             
             <!-- Action Buttons -->
-            <div class="mt-4 text-center">
-                <button onclick="window.print()" class="btn btn-outline-secondary me-2">
-                    <i class="bi bi-printer me-1"></i> PRINT OFFICIAL COPY
+            <div class="action-buttons">
+                <button onclick="window.print()" class="btn-outline-secondary">
+                    <i class="bi bi-printer"></i> PRINT OFFICIAL COPY
                 </button>
-                <a href="/blotter/file/" class="btn btn-primary">
-                    <i class="bi bi-file-earmark-plus me-1"></i> FILE NEW COMPLAINT
+                <a href="/blotter/file/" class="btn-primary-custom">
+                    <i class="bi bi-file-earmark-plus"></i> FILE NEW COMPLAINT
                 </a>
             </div>
         </div>

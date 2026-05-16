@@ -1,0 +1,533 @@
+{% extends 'staff_module/staff_base.html' %}
+{% load static %}
+
+{% block title %}Blotter Report - BIMS{% endblock %}
+{% block nav_reports %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Matching Appointment List Design */
+    .report-container {
+        padding: 0;
+    }
+    
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-heading {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 8px 0;
+    }
+    
+    .page-heading i {
+        color: var(--yellow);
+        margin-right: 10px;
+    }
+    
+    .page-description {
+        color: var(--muted);
+        font-size: 0.85rem;
+    }
+    
+    /* Filter Card */
+    .filter-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+    }
+    
+    .filter-card-title {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 14px;
+    }
+    
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: flex-end;
+    }
+    
+    .filter-group {
+        flex: 1;
+        min-width: 140px;
+    }
+    
+    .filter-group label {
+        display: block;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 0.8rem;
+        font-family: 'Inter', sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        outline: none;
+        transition: border-color 0.15s;
+    }
+    
+    .filter-group input:focus,
+    .filter-group select:focus {
+        border-color: #6b7280;
+        background: var(--white);
+    }
+    
+    .filter-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding-bottom: 1px;
+    }
+    
+    .btn-filter {
+        background: var(--sidebar-bg);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: opacity 0.15s;
+    }
+    
+    .btn-filter:hover {
+        opacity: 0.85;
+    }
+    
+    .btn-reset {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+        padding: 8px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s;
+    }
+    
+    .btn-reset:hover {
+        color: var(--text);
+    }
+    
+    .btn-export {
+        background: #22c55e;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: var(--radius-sm);
+        cursor: pointer;
+        font-size: 0.78rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: opacity 0.15s;
+        text-decoration: none;
+    }
+    
+    .btn-export:hover {
+        opacity: 0.85;
+        color: white;
+    }
+    
+    /* Result Bar */
+    .result-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .result-count {
+        font-size: 0.78rem;
+        color: var(--muted);
+    }
+    
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        text-align: center;
+        transition: all 0.2s;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .stat-card .number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--sidebar-bg);
+    }
+    
+    .stat-card .label {
+        font-size: 0.7rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+    
+    /* Table Card */
+    .table-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+    
+    .table-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .table-card-title {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text);
+    }
+    
+    .total-badge {
+        background: var(--blue-light);
+        color: var(--blue);
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 20px;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8rem;
+    }
+    
+    .data-table thead th {
+        background: var(--bg);
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 0.7rem;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+    
+    .data-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: background 0.1s;
+    }
+    
+    .data-table tbody tr:hover {
+        background: #f9fafb;
+    }
+    
+    .data-table td {
+        padding: 10px 14px;
+        vertical-align: middle;
+    }
+    
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 20px;
+        font-size: 0.66rem;
+        font-weight: 600;
+    }
+    
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-resolved { background: #dcfce7; color: #166534; }
+    .badge-scheduled { background: #dbeafe; color: #1e40af; }
+    
+    .empty-state {
+        text-align: center;
+        padding: 48px 20px;
+        color: var(--muted);
+    }
+    
+    .empty-state i {
+        font-size: 2rem;
+        display: block;
+        margin-bottom: 10px;
+        opacity: 0.4;
+    }
+    
+    /* Chart Card */
+    .chart-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+    
+    .chart-card-title {
+        font-size: 0.88rem;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 16px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-row {
+            flex-direction: column;
+        }
+        .filter-actions {
+            width: 100%;
+        }
+        .btn-filter, .btn-reset, .btn-export {
+            flex: 1;
+            justify-content: center;
+        }
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .chart-container {
+            height: 250px;
+        }
+        .data-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2 class="page-heading">
+            <i class="fas fa-gavel"></i> Blotter Report
+        </h2>
+        <p class="page-description">View blotter cases statistics and details</p>
+    </div>
+    
+    <!-- Filter Card -->
+    <div class="filter-card">
+        <div class="filter-card-title">
+            <i class="fas fa-filter"></i> Filter Report
+        </div>
+        <form method="get" id="filterForm">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Date From</label>
+                    <input type="date" name="date_from" value="{{ date_from|default:'' }}">
+                </div>
+                <div class="filter-group">
+                    <label>Date To</label>
+                    <input type="date" name="date_to" value="{{ date_to|default:'' }}">
+                </div>
+                <div class="filter-group">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="">All Status</option>
+                        {% for code, label in status_choices %}
+                        <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Incident Type</label>
+                    <select name="incident_type">
+                        <option value="">All Types</option>
+                        {% for code, label in incident_choices %}
+                        <option value="{{ code }}" {% if incident_type == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter">
+                        <i class="fas fa-search"></i> Apply
+                    </button>
+                    <a href="{% url 'staff_module:blotter_report' %}" class="btn-reset">
+                        <i class="fas fa-undo"></i> Reset
+                    </a>
+                    <a href="?export=excel&date_from={{ date_from|default:'' }}&date_to={{ date_to|default:'' }}&status={{ status_filter|default:'' }}&incident_type={{ incident_type|default:'' }}" class="btn-export">
+                        <i class="fas fa-file-excel"></i> Export
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Result Bar -->
+    <div class="result-bar">
+        <span class="result-count">{{ total_blotters|default:0 }} blotter cases found</span>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="number">{{ total_blotters|default:0 }}</div>
+            <div class="label">Total Cases</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ pending_count|default:0 }}</div>
+            <div class="label">Pending</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ resolved_count|default:0 }}</div>
+            <div class="label">Resolved</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">{{ scheduled_count|default:0 }}</div>
+            <div class="label">Scheduled</div>
+        </div>
+    </div>
+    
+    <!-- Chart Card -->
+    {% if incident_stats %}
+    <div class="chart-card">
+        <div class="chart-card-title">
+            <i class="fas fa-chart-bar"></i> Incident Types Distribution
+        </div>
+        <div class="chart-container">
+            <canvas id="incidentChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-card-header">
+            <span class="table-card-title">
+                <i class="fas fa-list"></i> Recent Blotter Cases
+            </span>
+            <span class="total-badge">{{ blotters|length }} records</span>
+        </div>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Blotter #</th>
+                    <th>Complainant</th>
+                    <th>Respondent</th>
+                    <th>Incident Type</th>
+                    <th>Status</th>
+                    <th>Date Filed</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for blotter in blotters %}
+                <tr>
+                    <td><strong>{{ blotter.blotter_number }}</strong></td>
+                    <td>{{ blotter.complainant_name|truncatechars:25 }}</td>
+                    <td>{{ blotter.respondent_name|default:"—"|truncatechars:25 }}</td>
+                    <td>{{ blotter.get_incident_type_display }}</td>
+                    <td>
+                        {% if blotter.status == 'pending' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% elif blotter.status == 'resolved' %}
+                            <span class="badge badge-resolved">Resolved</span>
+                        {% elif blotter.status == 'scheduled' %}
+                            <span class="badge badge-scheduled">Scheduled</span>
+                        {% else %}
+                            <span class="badge">{{ blotter.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ blotter.created_at|date:"Y-m-d" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No blotter records found</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const incidentLabels = [{% for stat in incident_stats %}'{{ stat.type|escapejs }}',{% endfor %}];
+        const incidentData = [{% for stat in incident_stats %}{{ stat.count }},{% endfor %}];
+        
+        if (incidentLabels.length > 0 && incidentData.length > 0) {
+            const ctx = document.getElementById('incidentChart').getContext('2d');
+            const colors = ['#1a1d23', '#f5d300', '#f59e0b', '#22c55e', '#3b82f6', '#8b5cf6'];
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: incidentLabels,
+                    datasets: [{
+                        label: 'Number of Cases',
+                        data: incidentData,
+                        backgroundColor: colors.slice(0, incidentLabels.length),
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

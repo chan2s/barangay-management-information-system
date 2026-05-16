@@ -44,6 +44,12 @@ class Blotter(models.Model):
     # Complainant
     complainant_name = models.CharField(max_length=255)
     complainant_address = models.TextField(blank=True, null=True)
+    complainant_street_name = models.CharField(max_length=255, blank=True)
+    complainant_barangay = models.CharField(max_length=100, blank=True)
+    complainant_municipality = models.CharField(max_length=100, blank=True)
+    complainant_province = models.CharField(max_length=100, blank=True)
+    complainant_latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    complainant_longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
     complainant_phone = models.CharField(max_length=20, blank=True, null=True)
     complainant_email = models.EmailField(blank=True, null=True)
 
@@ -184,27 +190,31 @@ class Schedule(models.Model):
 
 # ====================== EVIDENCE MODEL ======================
 class Evidence(models.Model):
-    EVIDENCE_TYPES = [
-        ('photo', 'Photo'),
+    FILE_TYPE_CHOICES = [
+        ('image', 'Image'),
         ('document', 'Document'),
         ('video', 'Video'),
-        ('audio', 'Audio'),
         ('other', 'Other'),
     ]
     
     blotter = models.ForeignKey('Blotter', on_delete=models.CASCADE, related_name='evidences')
     title = models.CharField(max_length=200)
-    evidence_type = models.CharField(max_length=20, choices=EVIDENCE_TYPES, default='document')
-    file = models.FileField(
-        upload_to='evidence/%Y/%m/%d/',
-        validators=[FileExtensionValidator(['pdf', 'jpg', 'jpeg', 'png', 'mp4', 'mp3', 'doc', 'docx'])]
-    )
     description = models.TextField(blank=True, null=True)
-    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    file = models.FileField(upload_to='evidence/%Y/%m/%d/')
+    file_type = models.CharField(max_length=20, choices=FILE_TYPE_CHOICES, default='image')
+    uploaded_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='uploaded_evidences')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return self.title
+    
+    def is_image(self):
+        ext = self.file.name.split('.')[-1].lower()
+        return ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']
+    
+    class Meta:
+        ordering = ['-uploaded_at']
+        verbose_name_plural = 'Evidences'
 
 
 # ====================== AUDIT LOG MODEL ======================

@@ -1,83 +1,393 @@
-{% extends 'blotter_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block title %}Choose Verification Method – BIMS{% endblock %}
 
+{% block extra_css %}
+<style>
+    .verification-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background: var(--cream);
+        position: relative;
+    }
+
+    .verification-container::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(circle, #d4c870 1px, transparent 1px);
+        background-size: 28px 28px;
+        opacity: 0.12;
+        pointer-events: none;
+    }
+
+    .verification-card {
+        background: var(--white);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
+
+    .verification-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--yellow-mid);
+        z-index: 1;
+    }
+
+    .verification-header {
+        text-align: center;
+        padding: 40px 40px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .verification-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--yellow-soft);
+        border: 3px solid var(--yellow-mid);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .verification-icon i {
+        font-size: 2.5rem;
+        color: var(--charcoal);
+    }
+
+    .verification-header h2 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.8rem;
+        color: var(--charcoal);
+        margin-bottom: 8px;
+    }
+
+    .verification-header p {
+        color: var(--muted);
+        font-size: 0.9rem;
+    }
+
+    .options-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 28px;
+        padding: 32px 40px;
+    }
+
+    .option-card {
+        background: var(--white);
+        border: 2px solid var(--border);
+        border-radius: var(--radius);
+        transition: all 0.25s ease;
+        overflow: hidden;
+    }
+
+    .option-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--yellow-mid);
+        box-shadow: var(--shadow-md);
+    }
+
+    .option-body {
+        padding: 32px 24px;
+        text-align: center;
+    }
+
+    .option-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .option-icon i {
+        font-size: 2rem;
+    }
+
+    .email-icon {
+        background: linear-gradient(135deg, var(--yellow-soft) 0%, var(--yellow-light) 100%);
+    }
+
+    .email-icon i {
+        color: var(--charcoal);
+    }
+
+    .id-icon {
+        background: linear-gradient(135deg, var(--cream) 0%, var(--yellow-soft) 100%);
+    }
+
+    .id-icon i {
+        color: var(--charcoal);
+    }
+
+    .option-card h3 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.3rem;
+        color: var(--charcoal);
+        margin-bottom: 12px;
+    }
+
+    .option-badge {
+        display: inline-block;
+        background: var(--yellow-soft);
+        color: var(--charcoal);
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+    }
+
+    .feature-list {
+        text-align: left;
+        margin: 20px 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .feature-list li {
+        font-size: 0.85rem;
+        color: var(--muted);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .feature-list li i {
+        color: var(--yellow-mid);
+        font-size: 1rem;
+        width: 20px;
+    }
+
+    .info-note {
+        background: var(--cream);
+        border-left: 4px solid var(--yellow-mid);
+        padding: 14px 16px;
+        margin: 16px 0 0;
+        font-size: 0.8rem;
+        text-align: left;
+        border-radius: var(--radius-sm);
+    }
+
+    .info-note i {
+        color: var(--yellow-mid);
+        margin-right: 8px;
+    }
+
+    .info-note strong {
+        color: var(--charcoal);
+    }
+
+    .btn-verify {
+        width: 100%;
+        padding: 12px 20px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border-radius: var(--radius-sm);
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+        border: 2px solid;
+        margin-top: 16px;
+    }
+
+    .btn-verify-email {
+        background: var(--charcoal);
+        color: var(--white);
+        border-color: var(--charcoal);
+    }
+
+    .btn-verify-email:hover {
+        background: var(--yellow-mid);
+        color: var(--charcoal);
+        border-color: var(--yellow-mid);
+        transform: translateY(-2px);
+    }
+
+    .btn-verify-id {
+        background: var(--white);
+        color: var(--charcoal);
+        border-color: var(--yellow-mid);
+    }
+
+    .btn-verify-id:hover {
+        background: var(--yellow-mid);
+        color: var(--charcoal);
+        border-color: var(--yellow-mid);
+        transform: translateY(-2px);
+    }
+
+    .info-footer {
+        background: var(--cream);
+        padding: 20px 40px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .info-footer-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--yellow-soft);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .info-footer-icon i {
+        font-size: 1.2rem;
+        color: var(--charcoal);
+    }
+
+    .info-footer-content {
+        flex: 1;
+    }
+
+    .info-footer-content strong {
+        display: block;
+        color: var(--charcoal);
+        font-size: 0.9rem;
+        margin-bottom: 4px;
+    }
+
+    .info-footer-content p {
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .options-grid {
+            grid-template-columns: 1fr;
+            padding: 24px;
+            gap: 20px;
+        }
+
+        .verification-header {
+            padding: 32px 24px 16px;
+        }
+
+        .verification-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .info-footer {
+            padding: 20px 24px;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .option-body {
+            padding: 24px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-shield-lock-fill" style="font-size: 48px; color: #667eea;"></i>
-                        <h4 class="mt-3">Verify Your Identity</h4>
-                        <p class="text-muted">Choose how you want to verify your identity before filing a blotter</p>
+<div class="verification-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="verification-card">
+                    <div class="verification-header">
+                        <div class="verification-icon">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <h2>Verify Your Identity</h2>
+                        <p>Choose how you want to verify your identity before filing a blotter</p>
                     </div>
-                    
-                    <div class="row g-4">
+
+                    <div class="options-grid">
                         <!-- Email Option -->
-                        <div class="col-md-6">
-                            <div class="card h-100 border-2" style="border: 2px solid #e0e0e0;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-3">
-                                        <i class="bi bi-envelope-fill" style="font-size: 48px; color: #667eea;"></i>
-                                    </div>
-                                    <h5>Email Verification</h5>
-                                    <p class="text-muted small">Recommended for faster processing</p>
-                                    <ul class="text-start small mb-4">
-                                        <li>Receive 6-digit OTP via email</li>
-                                        <li>Instant verification</li>
-                                        <li>Proceed immediately to blotter form</li>
-                                    </ul>
-                                    <form method="post">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="verification_method" value="email">
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            <i class="bi bi-envelope-check me-2"></i> Verify via Email
-                                        </button>
-                                    </form>
+                        <div class="option-card">
+                            <div class="option-body">
+                                <div class="option-icon email-icon">
+                                    <i class="bi bi-envelope-fill"></i>
                                 </div>
+                                <h3>Email Verification</h3>
+                                <span class="option-badge">
+                                    <i class="bi bi-lightning-charge-fill me-1"></i> Recommended
+                                </span>
+                                <ul class="feature-list">
+                                    <li><i class="bi bi-check-circle-fill"></i> Receive 6-digit OTP via email</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> Instant verification</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> Proceed immediately to blotter form</li>
+                                </ul>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="verification_method" value="email">
+                                    <button type="submit" class="btn-verify btn-verify-email">
+                                        <i class="bi bi-envelope-check"></i> Verify via Email
+                                    </button>
+                                </form>
                             </div>
                         </div>
-                        
+
                         <!-- ID Option -->
-                        <div class="col-md-6">
-                            <div class="card h-100 border-2" style="border: 2px solid #e0e0e0;">
-                                <div class="card-body text-center p-4">
-                                    <div class="mb-3">
-                                        <i class="bi bi-person-badge-fill" style="font-size: 48px; color: #ffa502;"></i>
-                                    </div>
-                                    <h5>Valid ID Verification</h5>
-                                    <p class="text-muted small">For those without email</p>
-                                    <ul class="text-start small mb-4">
-                                        <li>Upload government-issued ID</li>
-                                        <li>Manual verification by barangay (1-2 days)</li>
-                                        <li>No email address required</li>
-                                    </ul>
-                                    
-                                    <!-- NEW NOTE BOX -->
-                                    <div class="alert alert-warning text-start mt-3" style="background: #fff8e1; border-left: 4px solid #ffa502; padding: 10px; font-size: 13px;">
-                                        <i class="bi bi-info-circle-fill me-2" style="color: #ffa502;"></i>
-                                        <strong>What happens next:</strong> After clicking "Verify via Valid ID", you will be directed to the blotter form where you can upload your valid ID. The barangay will review your ID within 1-2 business days.
-                                    </div>
-                                    
-                                    <form method="post">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="verification_method" value="id_card">
-                                        <button type="submit" class="btn btn-warning w-100 mt-2">
-                                            <i class="bi bi-upload me-2"></i> Verify via Valid ID
-                                        </button>
-                                    </form>
+                        <div class="option-card">
+                            <div class="option-body">
+                                <div class="option-icon id-icon">
+                                    <i class="bi bi-person-badge-fill"></i>
                                 </div>
+                                <h3>Valid ID Verification</h3>
+                                <span class="option-badge">
+                                    <i class="bi bi-clock-history me-1"></i> For offline users
+                                </span>
+                                <ul class="feature-list">
+                                    <li><i class="bi bi-check-circle-fill"></i> Upload government-issued ID</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> Manual verification by barangay</li>
+                                    <li><i class="bi bi-check-circle-fill"></i> No email address required</li>
+                                </ul>
+                                
+                                <div class="info-note">
+                                    <i class="bi bi-info-circle-fill"></i>
+                                    <strong>What happens next:</strong> After verification, you'll be directed to the blotter form where you can upload your valid ID. The barangay will review your ID within 1-2 business days.
+                                </div>
+                                
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="verification_method" value="id_card">
+                                    <button type="submit" class="btn-verify btn-verify-id">
+                                        <i class="bi bi-upload"></i> Verify via Valid ID
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="alert alert-info mt-4">
-                        <i class="bi bi-info-circle-fill me-2"></i>
-                        <strong>Why verify?</strong> Verification helps prevent fake and spam reports. 
-                        Your information is protected under the Data Privacy Act of 2012.
+
+                    <div class="info-footer">
+                        <div class="info-footer-icon">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </div>
+                        <div class="info-footer-content">
+                            <strong>Why verify?</strong>
+                            <p>Verification helps prevent fake and spam reports. Your information is protected under the Data Privacy Act of 2012 (Republic Act No. 10173).</p>
+                        </div>
                     </div>
                 </div>
             </div>
