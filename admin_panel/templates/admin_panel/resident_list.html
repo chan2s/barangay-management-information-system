@@ -740,7 +740,9 @@
             <span class="table-count">{{ total_count }} record{{ total_count|pluralize }} in current view</span>
         </div>
         <div class="section-body">
-            <form method="post" action="{% url 'admin_panel:resident_export_request' %}" class="export-grid">
+            <form method="post" action="{% url 'admin_panel:resident_export_request' %}" class="export-grid"
+                  data-loading-title="Submitting export request"
+                  data-loading-subtitle="BIMS is routing this request for approval.">
                 {% csrf_token %}
                 <input type="hidden" name="search" value="{{ search_query }}">
                 <input type="hidden" name="purok" value="{{ purok_filter }}">
@@ -787,10 +789,26 @@
                     <div class="workflow-meta">{{ request_obj.reason|truncatechars:110 }}</div>
                 </div>
                 <div class="workflow-actions">
-                    <button name="action" value="approve" class="btn btn-primary" type="submit">
+                    <button name="action" value="approve" class="btn btn-primary" type="submit"
+                            data-confirm="true"
+                            data-confirm-title="Approve export request?"
+                            data-confirm-subtitle="Resident data access"
+                            data-confirm-message="This will allow the approved admin to generate and download a CSV for the selected resident filters."
+                            data-confirm-text="Approve Request"
+                            data-confirm-variant="info"
+                            data-loading-title="Approving export request"
+                            data-loading-subtitle="BIMS is updating the export workflow.">
                         <i class="fas fa-check"></i> Approve
                     </button>
-                    <button name="action" value="reject" class="btn btn-danger" type="submit">
+                    <button name="action" value="reject" class="btn btn-danger" type="submit"
+                            data-confirm="true"
+                            data-confirm-title="Reject export request?"
+                            data-confirm-subtitle="Resident data access"
+                            data-confirm-message="This request will be marked as rejected and the CSV download will remain unavailable."
+                            data-confirm-text="Reject Request"
+                            data-confirm-variant="danger"
+                            data-loading-title="Rejecting export request"
+                            data-loading-subtitle="BIMS is closing this export workflow.">
                         <i class="fas fa-xmark"></i> Reject
                     </button>
                 </div>
@@ -825,7 +843,15 @@
                     <div class="workflow-meta">{{ request_obj.reason|truncatechars:110 }}</div>
                 </div>
                 <div class="workflow-actions">
-                    <a href="{% url 'admin_panel:resident_export_download' request_obj.id %}" class="btn btn-success">
+                    <a href="{% url 'admin_panel:resident_export_download' request_obj.id %}" class="btn btn-success"
+                       data-confirm-link="true"
+                       data-confirm-title="Download approved resident export?"
+                       data-confirm-subtitle="CSV file generation"
+                       data-confirm-message="BIMS will prepare a CSV containing the approved resident data for this request."
+                       data-confirm-text="Download CSV"
+                       data-confirm-variant="info"
+                       data-loading-title="Preparing CSV"
+                       data-loading-subtitle="Your approved resident export is being generated.">
                         <i class="fas fa-file-csv"></i> Download CSV
                     </a>
                 </div>
@@ -917,7 +943,14 @@
                                 {% endif %}
                                 {% if can_delete %}
                                     <form method="post" action="{% url 'admin_panel:resident_delete' resident.id %}"
-                                          onsubmit="return confirm('Archive this resident record?');">
+                                          data-confirm="true"
+                                          data-confirm-title="Archive resident record?"
+                                          data-confirm-subtitle="Audit-protected archive"
+                                          data-confirm-message="This resident will be hidden from active records but retained for audit history."
+                                          data-confirm-text="Archive Resident"
+                                          data-confirm-variant="warning"
+                                          data-loading-title="Archiving resident"
+                                          data-loading-subtitle="BIMS is preserving the audit trail and updating the registry.">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-icon"
                                                 title="Archive resident" aria-label="Archive resident">

@@ -708,6 +708,8 @@ def announcement_list(request):
     context = {
         'announcements': page_obj,
         'status_filter': status_filter,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
     }
     return render(request, 'staff_module/announcement_list.html', context)
 
@@ -723,12 +725,15 @@ def announcement_create(request):
             announcement.save()
             messages.success(request, 'Announcement posted successfully!')
             return redirect('staff_module:announcement_list')
+        messages.error(request, 'Please correct the highlighted announcement details.')
     else:
         form = AnnouncementForm()
     
     context = {
         'form': form,
         'is_edit': False,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
     }
     return render(request, 'staff_module/announcement_form.html', context)
 
@@ -744,6 +749,7 @@ def announcement_edit(request, pk):
             form.save()
             messages.success(request, 'Announcement updated successfully!')
             return redirect('staff_module:announcement_list')
+        messages.error(request, 'Please correct the highlighted announcement details.')
     else:
         form = AnnouncementForm(instance=announcement)
     
@@ -751,6 +757,8 @@ def announcement_edit(request, pk):
         'form': form,
         'announcement': announcement,
         'is_edit': True,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
     }
     return render(request, 'staff_module/announcement_form.html', context)
 

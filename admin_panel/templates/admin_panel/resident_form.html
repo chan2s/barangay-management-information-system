@@ -416,7 +416,9 @@
                 </span>
             </div>
 
-            <form method="post" enctype="multipart/form-data" id="residentForm">
+            <form method="post" enctype="multipart/form-data" id="residentForm"
+                  data-loading-title="{% if mode == 'Edit' %}Saving resident changes{% else %}Registering resident{% endif %}"
+                  data-loading-subtitle="BIMS is validating the resident record and protected information.">
                 {% csrf_token %}
 
                 <!-- Non-field errors -->

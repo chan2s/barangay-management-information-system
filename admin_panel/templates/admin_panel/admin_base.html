@@ -349,19 +349,20 @@
             position: fixed;
             top: 68px;
             right: 20px;
-            z-index: 9999;
+            z-index: 1200;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             pointer-events: none;
-            max-width: 360px;
+            max-width: 390px;
             width: calc(100vw - 40px);
         }
 
-        .toast {
+        .admin-toast {
             background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid rgba(15,17,23,0.08);
+            border-radius: 8px;
+            box-shadow: 0 18px 40px rgba(15,17,23,0.16), 0 2px 8px rgba(15,17,23,0.08);
             pointer-events: auto;
             overflow: hidden;
             animation: toastIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;
@@ -369,7 +370,7 @@
             align-items: stretch;
         }
 
-        .toast.out { animation: toastOut 0.25s ease forwards; }
+        .admin-toast.out { animation: toastOut 0.22s ease forwards; }
 
         .toast-accent {
             width: 4px;
@@ -420,21 +421,147 @@
             bottom: 0;
             left: 4px; right: 0;
             height: 2px;
-            animation: shrink 4s linear forwards;
+            animation: shrink 5s linear forwards;
         }
 
-        .toast.success .toast-accent, .toast.success .toast-icon, .toast.success .toast-bar { background: var(--green); }
-        .toast.error   .toast-accent, .toast.error   .toast-icon, .toast.error   .toast-bar { background: var(--red); }
-        .toast.warning .toast-accent, .toast.warning .toast-icon, .toast.warning .toast-bar { background: var(--amber); }
-        .toast.info    .toast-accent, .toast.info    .toast-icon, .toast.info    .toast-bar { background: var(--blue); }
-        .toast.success .toast-icon { color: #fff; }
-        .toast.error   .toast-icon { color: #fff; }
-        .toast.warning .toast-icon { color: #fff; }
-        .toast.info    .toast-icon { color: #fff; }
+        .admin-toast.success .toast-accent, .admin-toast.success .toast-icon, .admin-toast.success .toast-bar { background: var(--green); color: #fff; }
+        .admin-toast.error .toast-accent, .admin-toast.error .toast-icon, .admin-toast.error .toast-bar { background: var(--red); color: #fff; }
+        .admin-toast.warning .toast-accent, .admin-toast.warning .toast-icon, .admin-toast.warning .toast-bar { background: var(--amber); color: #fff; }
+        .admin-toast.info .toast-accent, .admin-toast.info .toast-icon, .admin-toast.info .toast-bar { background: var(--blue); color: #fff; }
 
         @keyframes toastIn  { from { opacity:0; transform: translateX(20px) scale(0.96); } to { opacity:1; transform: translateX(0) scale(1); } }
         @keyframes toastOut { from { opacity:1; transform: translateX(0);  } to { opacity:0; transform: translateX(20px); } }
         @keyframes shrink   { from { width: 100%; } to { width: 0; } }
+
+        .admin-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1100;
+            background: rgba(15,17,23,0.56);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .admin-modal-backdrop.open { display: flex; }
+        .admin-modal {
+            width: min(460px, 100%);
+            background: var(--surface);
+            border-radius: 10px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+            overflow: hidden;
+            transform: translateY(8px) scale(0.98);
+            opacity: 0;
+            animation: modalIn 0.18s ease forwards;
+        }
+        .admin-modal-head {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+        .admin-modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .admin-modal-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0;
+        }
+        .admin-modal-subtitle {
+            color: var(--sub);
+            font-size: 0.86rem;
+            margin-top: 2px;
+        }
+        .admin-modal-body {
+            padding: 18px 20px;
+            color: var(--sub);
+            line-height: 1.55;
+            font-size: 0.94rem;
+        }
+        .admin-modal-actions {
+            padding: 14px 20px 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .admin-modal-btn {
+            border: 1.5px solid transparent;
+            border-radius: 8px;
+            min-height: 38px;
+            padding: 9px 16px;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .admin-modal-btn.secondary {
+            background: #fff;
+            border-color: var(--border);
+            color: var(--text);
+        }
+        .admin-modal-btn.primary { background: var(--ink); color: #fff; }
+        .admin-modal-btn.danger { background: var(--red); color: #fff; }
+        .admin-modal-btn.warning { background: var(--amber); color: #fff; }
+        .admin-modal.danger .admin-modal-icon { background: var(--red-bg); color: var(--red); }
+        .admin-modal.warning .admin-modal-icon { background: var(--amber-bg); color: var(--amber); }
+        .admin-modal.info .admin-modal-icon { background: var(--blue-bg); color: var(--blue); }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1300;
+            background: rgba(242,244,248,0.76);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .loading-overlay.open { display: flex; }
+        .loading-card {
+            min-width: 260px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 18px 50px rgba(15,17,23,0.16);
+            padding: 22px;
+            text-align: center;
+        }
+        .loading-spinner {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 3px solid #e5e7eb;
+            border-top-color: var(--gold);
+            margin: 0 auto 14px;
+            animation: spin 0.75s linear infinite;
+        }
+        .loading-title {
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .loading-subtitle {
+            color: var(--sub);
+            font-size: 0.88rem;
+        }
+        @keyframes modalIn { to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* ══════════════════════════════════════
            RESPONSIVE
@@ -462,6 +589,8 @@
             .topbar { padding: 0 12px; }
             .user-name { display: none; }
             .user-pill { padding: 4px; border-radius: 50%; }
+            .admin-modal-actions { flex-direction: column-reverse; }
+            .admin-modal-btn { width: 100%; }
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -549,6 +678,33 @@
     <!-- Toast Container -->
     <div id="toastContainer" class="toast-container"></div>
 
+    <!-- Confirmation Modal -->
+    <div id="adminConfirmModal" class="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="adminConfirmTitle">
+        <div class="admin-modal info" id="adminConfirmCard">
+            <div class="admin-modal-head">
+                <div class="admin-modal-icon" id="adminConfirmIcon"><i class="fas fa-circle-info"></i></div>
+                <div>
+                    <h2 class="admin-modal-title" id="adminConfirmTitle">Confirm action</h2>
+                    <div class="admin-modal-subtitle" id="adminConfirmSubtitle">Please review before continuing.</div>
+                </div>
+            </div>
+            <div class="admin-modal-body" id="adminConfirmMessage"></div>
+            <div class="admin-modal-actions">
+                <button type="button" class="admin-modal-btn secondary" id="adminConfirmCancel">Cancel</button>
+                <button type="button" class="admin-modal-btn primary" id="adminConfirmProceed">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="adminLoadingOverlay" class="loading-overlay" aria-live="polite" aria-busy="true">
+        <div class="loading-card">
+            <div class="loading-spinner"></div>
+            <div class="loading-title" id="adminLoadingTitle">Processing request</div>
+            <div class="loading-subtitle" id="adminLoadingSubtitle">Please wait while BIMS completes this action.</div>
+        </div>
+    </div>
+
     <!-- Pass Django messages to JS -->
     <script>
         var djangoMessages = [];
@@ -577,13 +733,13 @@
         sidebar.querySelectorAll('.nav-link').forEach(l => l.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); }));
 
         // ── Toast system ────────────────────────
-        const icons = { success:'✓', error:'✗', warning:'!', info:'i' };
+        const icons = { success:'<i class="fas fa-check"></i>', error:'<i class="fas fa-xmark"></i>', warning:'<i class="fas fa-triangle-exclamation"></i>', info:'<i class="fas fa-circle-info"></i>' };
         const labels = { success:'Success', error:'Error', warning:'Warning', info:'Info' };
 
         function showToast(type, message) {
             const c = document.getElementById('toastContainer');
             const t = document.createElement('div');
-            t.className = `toast ${type}`;
+            t.className = `admin-toast ${type}`;
             t.style.position = 'relative';
             t.innerHTML = `
                 <div class="toast-accent"></div>
@@ -591,12 +747,13 @@
                     <div class="toast-icon">${icons[type]||'i'}</div>
                     <div class="toast-text">
                         <div class="toast-title">${labels[type]||'Note'}</div>
-                        <div class="toast-msg">${message}</div>
+                        <div class="toast-msg"></div>
                     </div>
                 </div>
-                <button class="toast-close" onclick="this.closest('.toast').remove()">×</button>
+                <button class="toast-close" onclick="this.closest('.admin-toast').remove()">&times;</button>
                 <div class="toast-bar"></div>
             `;
+            t.querySelector('.toast-msg').textContent = message;
             c.appendChild(t);
             setTimeout(() => {
                 t.classList.add('out');
@@ -618,6 +775,117 @@
         });
 
         // ── CSRF fetch patch ────────────────────
+        const loadingOverlay = document.getElementById('adminLoadingOverlay');
+        window.adminLoading = {
+            show(title, subtitle) {
+                document.getElementById('adminLoadingTitle').textContent = title || 'Processing request';
+                document.getElementById('adminLoadingSubtitle').textContent = subtitle || 'Please wait while BIMS completes this action.';
+                loadingOverlay.classList.add('open');
+            },
+            hide() {
+                loadingOverlay.classList.remove('open');
+            }
+        };
+
+        const modal = document.getElementById('adminConfirmModal');
+        const modalCard = document.getElementById('adminConfirmCard');
+        const modalTitle = document.getElementById('adminConfirmTitle');
+        const modalSubtitle = document.getElementById('adminConfirmSubtitle');
+        const modalMessage = document.getElementById('adminConfirmMessage');
+        const modalIcon = document.getElementById('adminConfirmIcon');
+        const modalCancel = document.getElementById('adminConfirmCancel');
+        const modalProceed = document.getElementById('adminConfirmProceed');
+        let confirmResolve = null;
+
+        function closeConfirm(result) {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+            if (confirmResolve) confirmResolve(result);
+            confirmResolve = null;
+        }
+
+        window.adminConfirm = function(options) {
+            const opts = options || {};
+            const variant = ['danger','warning','info'].includes(opts.variant) ? opts.variant : 'info';
+            const iconClass = variant === 'danger' ? 'fa-triangle-exclamation' : (variant === 'warning' ? 'fa-shield-halved' : 'fa-circle-info');
+            modalCard.className = `admin-modal ${variant}`;
+            modalTitle.textContent = opts.title || 'Confirm action';
+            modalSubtitle.textContent = opts.subtitle || 'Please review before continuing.';
+            modalMessage.textContent = opts.message || 'Are you sure you want to continue?';
+            modalIcon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            modalProceed.textContent = opts.confirmText || 'Continue';
+            modalProceed.className = `admin-modal-btn ${variant === 'danger' ? 'danger' : (variant === 'warning' ? 'warning' : 'primary')}`;
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+            modalProceed.focus();
+            return new Promise(resolve => { confirmResolve = resolve; });
+        };
+
+        modalCancel.addEventListener('click', () => closeConfirm(false));
+        modalProceed.addEventListener('click', () => closeConfirm(true));
+        modal.addEventListener('click', e => { if (e.target === modal) closeConfirm(false); });
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && modal.classList.contains('open')) closeConfirm(false);
+        });
+
+        document.addEventListener('submit', async function(e) {
+            const form = e.target;
+            if (!(form instanceof HTMLFormElement) || form.dataset.confirmed === 'true') return;
+            const submitter = e.submitter;
+            const source = submitter && (submitter.dataset.confirm || submitter.dataset.confirmTitle) ? submitter : form;
+            const needsConfirm = source.dataset.confirm === 'true' || source.dataset.confirmTitle || source.dataset.confirmMessage;
+
+            if (needsConfirm) {
+                e.preventDefault();
+                const ok = await window.adminConfirm({
+                    title: source.dataset.confirmTitle,
+                    subtitle: source.dataset.confirmSubtitle,
+                    message: source.dataset.confirmMessage,
+                    confirmText: source.dataset.confirmText,
+                    variant: source.dataset.confirmVariant || 'warning'
+                });
+                if (!ok) return;
+                form.dataset.confirmed = 'true';
+                if (submitter && submitter.name) {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = submitter.name;
+                    hidden.value = submitter.value;
+                    form.appendChild(hidden);
+                }
+                window.adminLoading.show(source.dataset.loadingTitle || 'Processing request', source.dataset.loadingSubtitle || 'Please wait while the action is completed.');
+                form.submit();
+                return;
+            }
+
+            if (form.method && form.method.toLowerCase() === 'post' && form.dataset.noLoading !== 'true') {
+                const button = submitter || form.querySelector('button[type="submit"]');
+                if (button) {
+                    button.disabled = true;
+                    button.dataset.originalHtml = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Working';
+                }
+                window.adminLoading.show(form.dataset.loadingTitle || 'Saving changes', form.dataset.loadingSubtitle || 'Please wait while your request is processed.');
+            }
+        }, true);
+
+        document.addEventListener('click', async function(e) {
+            const trigger = e.target.closest('[data-confirm-link="true"]');
+            if (!trigger) return;
+            e.preventDefault();
+            const ok = await window.adminConfirm({
+                title: trigger.dataset.confirmTitle,
+                subtitle: trigger.dataset.confirmSubtitle,
+                message: trigger.dataset.confirmMessage,
+                confirmText: trigger.dataset.confirmText,
+                variant: trigger.dataset.confirmVariant || 'warning'
+            });
+            if (ok) {
+                window.adminLoading.show(trigger.dataset.loadingTitle || 'Opening request', trigger.dataset.loadingSubtitle || 'Please wait while BIMS prepares the next step.');
+                window.location.href = trigger.href || trigger.dataset.href;
+            }
+        });
+
         function getCookie(name) {
             const val = `; ${document.cookie}`.split(`; ${name}=`);
             return val.length === 2 ? val.pop().split(';').shift() : '';

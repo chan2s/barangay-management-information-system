@@ -682,7 +682,12 @@
                                 {% if not user_obj.is_superuser %}
                                 <a href="{% url 'admin_panel:user_delete' user_obj.id %}"
                                    class="btn btn-icon btn-danger" title="Delete user" aria-label="Delete user"
-                                   onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+                                   data-confirm-link="true"
+                                   data-confirm-title="Review user deletion?"
+                                   data-confirm-subtitle="Destructive action"
+                                   data-confirm-message="You will be taken to the final deletion screen for this account. This helps prevent accidental access removal."
+                                   data-confirm-text="Review Deletion"
+                                   data-confirm-variant="danger">
                                     <i class="fas fa-trash"></i>
                                 </a>
                                 {% endif %}

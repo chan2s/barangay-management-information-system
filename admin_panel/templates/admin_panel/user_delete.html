@@ -254,7 +254,15 @@
             </div>
 
             <!-- Actions -->
-            <form method="post" class="confirm-actions">
+            <form method="post" class="confirm-actions"
+                  data-confirm="true"
+                  data-confirm-title="Permanently delete this user?"
+                  data-confirm-subtitle="Access will be revoked immediately"
+                  data-confirm-message="This account and its staff profile data will be removed from BIMS. This action cannot be undone."
+                  data-confirm-text="Delete User"
+                  data-confirm-variant="danger"
+                  data-loading-title="Deleting user"
+                  data-loading-subtitle="BIMS is removing account access and updating records.">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Yes, Delete User

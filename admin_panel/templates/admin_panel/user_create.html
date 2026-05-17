@@ -228,7 +228,9 @@
         </div>
     </div>
 
-    <form method="post">
+    <form method="post"
+          data-loading-title="Creating user account"
+          data-loading-subtitle="BIMS is validating details and assigning access.">
         {% csrf_token %}
 
         <!-- ── Account Info ── -->

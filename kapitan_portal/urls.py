@@ -14,6 +14,13 @@ urlpatterns = [
     path('appointments/reject/<int:appt_id>/', views.appointment_reject, name='appointment_reject'),
     path('for-approval/appointments/', views.for_approval_appointments, name='for_approval_appointments'),
 
+    # Announcements
+    path('announcements/', views.announcement_list, name='announcement_list'),
+    path('announcements/create/', views.announcement_create, name='announcement_create'),
+    path('announcements/edit/<int:pk>/', views.announcement_edit, name='announcement_edit'),
+    path('announcements/delete/<int:pk>/', views.announcement_delete, name='announcement_delete'),
+    path('announcements/<int:pk>/toggle/', views.announcement_toggle_status, name='announcement_toggle_status'),
+
     # Resident management
     path('residents/', views.resident_list, name='resident_list'),
     path('residents/create/', views.resident_create, name='resident_create'),

@@ -162,7 +162,9 @@
         <i class="fas fa-cog"></i> System Settings
     </h2>
     
-    <form method="post">
+    <form method="post"
+          data-loading-title="Saving system settings"
+          data-loading-subtitle="BIMS is applying configuration changes.">
         {% csrf_token %}
         
         <!-- General Settings -->
@@ -259,7 +261,16 @@
             <div class="card-body">
                 <div class="setting-group">
                     <label><i class="fas fa-database"></i> Backup System</label>
-                    <button type="button" class="btn-save" onclick="backupDatabase()" style="background: #10b981;">
+                    <button type="button" class="btn-save" style="background: #10b981;"
+                            data-confirm-link="true"
+                            data-href="{% url 'admin_panel:backup_database' %}"
+                            data-confirm-title="Download database backup?"
+                            data-confirm-subtitle="Maintenance operation"
+                            data-confirm-message="BIMS will generate and download a copy of the current database. Use this file carefully because it may contain sensitive records."
+                            data-confirm-text="Download Backup"
+                            data-confirm-variant="warning"
+                            data-loading-title="Preparing backup"
+                            data-loading-subtitle="BIMS is packaging the database for download.">
                         <i class="fas fa-download"></i> Download Database Backup
                     </button>
                     <div class="help-text">Download a backup of the system database</div>
@@ -280,16 +291,19 @@
             <button type="submit" class="btn-save">
                 <i class="fas fa-save"></i> Save Settings
             </button>
-            <button type="button" class="btn-save" onclick="location.reload()" style="background: #6c757d;">
+            <button type="button" class="btn-save" style="background: #6c757d;"
+                    data-confirm-link="true"
+                    data-href="{% url 'admin_panel:system_settings' %}"
+                    data-confirm-title="Reset unsaved changes?"
+                    data-confirm-subtitle="Current form values will reload"
+                    data-confirm-message="Any changes not saved yet will be discarded and the settings page will reload."
+                    data-confirm-text="Reset Form"
+                    data-confirm-variant="warning"
+                    data-loading-title="Reloading settings">
                 <i class="fas fa-undo"></i> Reset
             </button>
         </div>
     </form>
 </div>
 
-<script>
-    function backupDatabase() {
-        window.location.href = "{% url 'admin_panel:backup_database' %}";
-    }
-</script>
 {% endblock %}

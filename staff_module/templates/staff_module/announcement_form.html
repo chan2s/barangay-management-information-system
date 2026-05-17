@@ -118,6 +118,22 @@
         color: var(--muted);
         margin-top: 5px;
     }
+
+    .field-errors,
+    .form-errors {
+        margin-top: 8px;
+        color: #b91c1c;
+        font-size: 0.75rem;
+        line-height: 1.45;
+    }
+
+    .form-errors {
+        margin: 0 0 18px;
+        padding: 10px 12px;
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        border-radius: var(--radius-sm);
+    }
     
     /* Priority Preview - Badge style */
     .priority-preview {
@@ -366,11 +382,16 @@
             
             <form method="post" enctype="multipart/form-data" id="announcementForm">
                 {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="form-errors">{{ form.non_field_errors }}</div>
+                {% endif %}
                 
                 <!-- Title -->
                 <div class="form-group">
                     <label><i class="fas fa-heading"></i> Announcement Title <span class="required-star">*</span></label>
                     {{ form.title }}
+                    {% if form.title.errors %}<div class="field-errors">{{ form.title.errors }}</div>{% endif %}
                     <div class="help-text">A clear, descriptive title for your announcement (max 200 characters)</div>
                 </div>
                 
@@ -378,6 +399,7 @@
                 <div class="form-group">
                     <label><i class="fas fa-align-left"></i> Content <span class="required-star">*</span></label>
                     {{ form.content }}
+                    {% if form.content.errors %}<div class="field-errors">{{ form.content.errors }}</div>{% endif %}
                     <div class="help-text">Write the full announcement details here</div>
                 </div>
                 
@@ -385,6 +407,7 @@
                 <div class="form-group">
                     <label><i class="fas fa-flag"></i> Priority Level</label>
                     {{ form.priority }}
+                    {% if form.priority.errors %}<div class="field-errors">{{ form.priority.errors }}</div>{% endif %}
                     <div class="help-text">
                         <strong>Normal:</strong> Regular announcements<br>
                         <strong>Important:</strong> Highly important information<br>
@@ -400,12 +423,14 @@
                     <div class="form-group">
                         <label><i class="fas fa-calendar-alt"></i> Schedule Date (Optional)</label>
                         {{ form.scheduled_date }}
+                        {% if form.scheduled_date.errors %}<div class="field-errors">{{ form.scheduled_date.errors }}</div>{% endif %}
                         <div class="help-text">Set a future date to schedule this announcement</div>
                     </div>
                     
                     <div class="form-group">
                         <label><i class="fas fa-hourglass-end"></i> Expiration Date (Optional)</label>
                         {{ form.expires_at }}
+                        {% if form.expires_at.errors %}<div class="field-errors">{{ form.expires_at.errors }}</div>{% endif %}
                         <div class="help-text">Set when this announcement should expire</div>
                     </div>
                 </div>
@@ -414,6 +439,7 @@
                 <div class="form-group">
                     <label><i class="fas fa-image"></i> Image (Optional)</label>
                     {{ form.image }}
+                    {% if form.image.errors %}<div class="field-errors">{{ form.image.errors }}</div>{% endif %}
                     <div class="help-text">Upload an image to accompany your announcement (JPG, PNG, GIF - max 5MB)</div>
                     <div id="imagePreviewContainer" class="image-preview" style="display: none;">
                         <img id="imagePreview" src="#" alt="Preview">
@@ -464,6 +490,7 @@
     const previewContent = document.getElementById('previewContent');
     
     function updatePreview() {
+        if (!previewTitle || !previewContent) return;
         if (titleInput && titleInput.value.trim()) {
             previewTitle.textContent = titleInput.value;
         } else {

@@ -312,7 +312,9 @@
         </div>
     </div>
 
-    <form method="post">
+    <form method="post"
+          data-loading-title="Saving user changes"
+          data-loading-subtitle="BIMS is updating profile, role, and access settings.">
         {% csrf_token %}
 
         <!-- ── Account Details ── -->
@@ -400,7 +402,13 @@
                     </a>
                     {% if not edit_user.is_superuser and edit_user.id != user.id %}
                         <div class="actions-right">
-                            <a href="{% url 'admin_panel:user_delete' edit_user.id %}" class="btn btn-danger">
+                            <a href="{% url 'admin_panel:user_delete' edit_user.id %}" class="btn btn-danger"
+                               data-confirm-link="true"
+                               data-confirm-title="Review user deletion?"
+                               data-confirm-subtitle="Destructive action"
+                               data-confirm-message="You will be taken to the final deletion screen for this account before access is removed."
+                               data-confirm-text="Review Deletion"
+                               data-confirm-variant="danger">
                                 <i class="fas fa-trash"></i> Delete User
                             </a>
                         </div>

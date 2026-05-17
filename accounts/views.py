@@ -149,12 +149,14 @@ def dashboard(request):
 def get_public_announcements(request):
     """API or context processor for public announcements"""
     # Get active announcements that are not expired
+    now = timezone.now()
     announcements = Announcement.objects.filter(
-        is_active=True,
-        scheduled_date__lte=timezone.now()
+        is_active=True
+    ).filter(
+        Q(scheduled_date__isnull=True) | Q(scheduled_date__lte=now)
     ).filter(
         # ✅ FIX: was models.Q which caused NameError — now uses Q imported from django.db.models
-        Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+        Q(expires_at__isnull=True) | Q(expires_at__gt=now)
     ).order_by('-priority', '-created_at')[:10]
     
     return announcements

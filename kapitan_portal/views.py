@@ -8,7 +8,8 @@ from Blotter_Module.models import Blotter, Schedule
 from certificates.models import CertificateRequest
 from accounts.models import Resident, ResidentExportRequest
 from accounts.resident_exports import AGE_GROUP_CHOICES, SEX_FILTER_CHOICES, normalize_export_filters
-from staff_module.models import Staff, AuditLog, Appointment  # Add Appointment import
+from staff_module.models import Staff, AuditLog, Appointment, Announcement  # Add Appointment import
+from staff_module.forms import AnnouncementForm
 from staff_module.decorators import role_required
 from staff_module.audit import log_activity
 from certificates.notification_utils import send_claim_notification, send_rejection_notification
@@ -69,6 +70,7 @@ def kapitan_dashboard(request):
         approved_certificates = CertificateRequest.objects.filter(status='approved').count()
         released_certificates = CertificateRequest.objects.filter(status='released').count()
         pending_cert_requests = CertificateRequest.objects.filter(status='for_approval').order_by('-date_submitted')[:10]
+        latest_announcements = Announcement.objects.all().order_by('-created_at')[:5]
         residents = Resident.objects.filter(is_deleted=False)
         total_residents = residents.count()
         total_households = residents.exclude(household_number='').values('household_number').distinct().count()
@@ -104,12 +106,119 @@ def kapitan_dashboard(request):
             'senior_count': senior_count,
             'minor_count': minor_count,
             'voter_age_count': voter_age_count,
+            'latest_announcements': latest_announcements,
         }
         return render(request, 'kapitan_portal/dashboard.html', context)
         
     except Staff.DoesNotExist:
         messages.error(request, 'Access denied. Staff only area.')
         return redirect('dashboard')
+
+
+# ====================== ANNOUNCEMENTS ======================
+
+@login_required
+@role_required(['kapitan', 'admin'])
+def announcement_list(request):
+    """Kapitan view: manage barangay announcements."""
+    announcements = Announcement.objects.select_related('created_by').all().order_by('-created_at')
+
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'active':
+        announcements = announcements.filter(is_active=True).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=timezone.now())
+        )
+    elif status_filter == 'expired':
+        announcements = announcements.filter(expires_at__lt=timezone.now())
+
+    paginator = Paginator(announcements, 20)
+    page_obj = paginator.get_page(request.GET.get('page'))
+
+    return render(request, 'kapitan_portal/announcement_list.html', {
+        'announcements': page_obj,
+        'status_filter': status_filter,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
+    })
+
+
+@login_required
+@role_required(['kapitan', 'admin'])
+def announcement_create(request):
+    """Create a public barangay announcement from the Kapitan portal."""
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST, request.FILES)
+        if form.is_valid():
+            announcement = form.save(commit=False)
+            announcement.created_by = request.user
+            announcement.save()
+            log_activity(request, 'create', 'announcement', f'Posted announcement: {announcement.title}')
+            messages.success(request, 'Announcement posted successfully.')
+            return redirect('kapitan_portal:announcement_list')
+        messages.error(request, 'Please correct the highlighted announcement details.')
+    else:
+        form = AnnouncementForm()
+
+    return render(request, 'kapitan_portal/announcement_form.html', {
+        'form': form,
+        'is_edit': False,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
+    })
+
+
+@login_required
+@role_required(['kapitan', 'admin'])
+def announcement_edit(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+
+    if request.method == 'POST':
+        form = AnnouncementForm(request.POST, request.FILES, instance=announcement)
+        if form.is_valid():
+            announcement = form.save()
+            log_activity(request, 'update', 'announcement', f'Updated announcement: {announcement.title}')
+            messages.success(request, 'Announcement updated successfully.')
+            return redirect('kapitan_portal:announcement_list')
+        messages.error(request, 'Please correct the highlighted announcement details.')
+    else:
+        form = AnnouncementForm(instance=announcement)
+
+    return render(request, 'kapitan_portal/announcement_form.html', {
+        'form': form,
+        'announcement': announcement,
+        'is_edit': True,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
+    })
+
+
+@login_required
+@role_required(['kapitan', 'admin'])
+def announcement_delete(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    if request.method == 'POST':
+        title = announcement.title
+        announcement.delete()
+        log_activity(request, 'delete', 'announcement', f'Deleted announcement: {title}')
+        messages.success(request, 'Announcement deleted successfully.')
+        return redirect('kapitan_portal:announcement_list')
+    return render(request, 'kapitan_portal/announcement_confirm_delete.html', {
+        'announcement': announcement,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+        'user': request.user,
+    })
+
+
+@login_required
+@role_required(['kapitan', 'admin'])
+def announcement_toggle_status(request, pk):
+    announcement = get_object_or_404(Announcement, pk=pk)
+    announcement.is_active = not announcement.is_active
+    announcement.save(update_fields=['is_active', 'updated_at'])
+    status = 'activated' if announcement.is_active else 'deactivated'
+    log_activity(request, 'update', 'announcement', f'{status.title()} announcement: {announcement.title}')
+    messages.success(request, f'Announcement {status} successfully.')
+    return redirect('kapitan_portal:announcement_list')
 
 
 # ====================== RESIDENT MANAGEMENT ======================
