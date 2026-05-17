@@ -6,285 +6,376 @@
 
 {% block extra_css %}
 <style>
-    /* ===== FILTER CARD ===== */
+    :root {
+        --navy:    #0f2044;
+        --navy-md: #1a3260;
+        --navy-lt: #e8edf6;
+        --gold:    #c9a227;
+        --gold-lt: #fdf6e3;
+        --gold-dk: #9e7d1a;
+        --ink:     #1c1e24;
+        --slate:   #4a5468;
+        --mist:    #8a94a6;
+        --border:  #dde2ec;
+        --surface: #f5f7fb;
+        --white:   #ffffff;
+        --pending-bg:    #fef9ec; --pending-text:  #854d0e; --pending-ring:  #f0c040;
+        --process-bg:    #eff6ff; --process-text:  #1e40af; --process-ring:  #93b4f8;
+        --approval-bg:   #fff7ed; --approval-text: #9a3412; --approval-ring: #fdba74;
+        --approved-bg:   #f0fdf4; --approved-text: #166534; --approved-ring: #86efac;
+        --released-bg:   #e0e7ff; --released-text: #3730a3; --released-ring: #a5b4fc;
+        --completed-bg:  #ecfdf5; --completed-text: #065f46; --completed-ring: #6ee7b7;
+        --cancelled-bg:  #f3f4f6; --cancelled-text: #6b7280; --cancelled-ring: #d1d5db;
+    }
+
+    .page-heading {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--navy);
+        letter-spacing: -0.02em;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .page-heading::after {
+        content: '';
+        display: inline-block;
+        height: 3px;
+        width: 32px;
+        background: var(--gold);
+        border-radius: 2px;
+    }
+
+    /* ── FILTER CARD ── */
     .filter-card {
         background: var(--white);
         border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 16px 20px;
+        border-radius: 14px;
+        padding: 18px 22px;
         margin-bottom: 16px;
     }
-
     .filter-card-title {
-        font-size: 0.78rem;
-        font-weight: 600;
-        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--mist);
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        letter-spacing: 0.07em;
         margin-bottom: 14px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
     }
-
     .filter-row {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
         align-items: flex-end;
     }
-
     .filter-group {
         flex: 1;
         min-width: 160px;
     }
-
     .filter-group label {
         display: block;
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: var(--muted);
-        margin-bottom: 5px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--mist);
         text-transform: uppercase;
-        letter-spacing: 0.03em;
+        letter-spacing: 0.06em;
+        margin-bottom: 6px;
     }
-
     .filter-group input,
     .filter-group select {
         width: 100%;
-        padding: 8px 12px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
-        font-size: 0.8rem;
-        font-family: 'Inter', sans-serif;
-        color: var(--text);
-        background: var(--bg);
+        padding: 9px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        font-size: 0.82rem;
+        color: var(--ink);
+        background: var(--white);
         outline: none;
-        transition: border-color 0.15s;
+        transition: border-color 0.15s, box-shadow 0.15s;
+        box-sizing: border-box;
+        font-family: inherit;
     }
-
     .filter-group input:focus,
     .filter-group select:focus {
-        border-color: #6b7280;
+        border-color: var(--navy-md);
+        box-shadow: 0 0 0 3px rgba(26,50,96,0.08);
         background: var(--white);
     }
-
+    .filter-group input::placeholder { color: var(--mist); }
     .filter-actions {
         display: flex;
         gap: 8px;
-        align-items: center;
+        align-items: flex-end;
         padding-bottom: 1px;
     }
-
     .btn-filter {
-        background: var(--sidebar-bg);
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 18px;
+        background: var(--navy);
         color: #fff;
         border: none;
-        padding: 8px 16px;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
+        border-radius: 9px;
         font-size: 0.78rem;
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: opacity 0.15s;
+        font-weight: 700;
+        cursor: pointer;
+        font-family: inherit;
+        transition: background 0.18s;
+        white-space: nowrap;
     }
-
-    .btn-filter:hover { opacity: 0.85; }
-
+    .btn-filter:hover { background: var(--navy-md); }
     .btn-reset {
-        background: var(--bg);
-        color: var(--muted);
-        border: 1px solid var(--border);
-        padding: 8px 14px;
-        border-radius: var(--radius-sm);
-        cursor: pointer;
-        font-size: 0.78rem;
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        text-decoration: none;
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        gap: 6px;
-        transition: all 0.15s;
+        gap: 7px;
+        padding: 9px 14px;
+        background: var(--white);
+        color: var(--slate);
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-decoration: none;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.18s;
+        white-space: nowrap;
     }
+    .btn-reset:hover { background: var(--surface); color: var(--ink); }
 
-    .btn-reset:hover { color: var(--text); }
-
-    /* ===== RESULT BAR ===== */
+    /* ── RESULT BAR ── */
     .result-bar {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 10px;
     }
-
     .result-count {
         font-size: 0.78rem;
-        color: var(--muted);
+        color: var(--mist);
+        font-weight: 500;
     }
 
-    /* ===== TABLE CARD ===== */
+    /* ── TABLE CARD ── */
     .table-card {
         background: var(--white);
         border: 1px solid var(--border);
-        border-radius: var(--radius);
+        border-radius: 14px;
         overflow: hidden;
     }
-
     .table-card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 14px 18px;
+        padding: 15px 22px;
         border-bottom: 1px solid var(--border);
+        background: var(--white);
+        gap: 10px;
+        flex-wrap: wrap;
     }
-
     .table-card-title {
-        font-size: 0.88rem;
-        font-weight: 600;
-        color: var(--text);
-    }
-
-    .total-badge {
-        background: var(--blue-light);
-        color: var(--blue);
-        font-size: 0.68rem;
+        font-size: 0.92rem;
         font-weight: 700;
-        padding: 3px 10px;
-        border-radius: 20px;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 9px;
     }
-
-    /* ===== DATA TABLE ===== */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
+    .table-card-title .title-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        background: var(--navy-lt);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 0.8rem;
+        color: var(--navy-md);
+    }
+    .total-badge {
+        background: var(--navy-lt);
+        color: var(--navy-md);
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 11px;
+        border-radius: 20px;
+        letter-spacing: 0.02em;
     }
 
+    /* ── DATA TABLE ── */
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 580px; }
     .data-table thead th {
-        background: var(--bg);
-        padding: 10px 16px;
+        background: var(--surface);
+        padding: 11px 18px;
         text-align: left;
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: var(--muted);
-        letter-spacing: 0.02em;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--mist);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
         border-bottom: 1px solid var(--border);
         white-space: nowrap;
     }
-
     .data-table tbody tr {
         border-bottom: 1px solid var(--border);
-        transition: background 0.1s;
+        transition: background 0.12s;
     }
-
     .data-table tbody tr:last-child { border-bottom: none; }
-    .data-table tbody tr:hover { background: #f9fafb; }
-
+    .data-table tbody tr:hover { background: var(--surface); }
     .data-table td {
-        padding: 11px 16px;
+        padding: 13px 18px;
         vertical-align: middle;
+        font-size: 0.875rem;
+        color: var(--ink);
     }
 
     .ref-no {
-        font-weight: 700;
+        font-family: 'SF Mono', 'Fira Mono', 'Courier New', monospace;
         font-size: 0.78rem;
-        color: var(--muted);
-        font-variant-numeric: tabular-nums;
+        font-weight: 700;
+        color: var(--navy-md);
+        letter-spacing: 0.04em;
+        background: var(--navy-lt);
+        padding: 3px 8px;
+        border-radius: 5px;
+        display: inline-block;
     }
+    .applicant-name { font-weight: 600; color: var(--ink); }
+    .cert-type { color: var(--slate); font-size: 0.83rem; }
+    .date-val  { color: var(--slate); font-size: 0.82rem; }
 
-    .applicant-name {
-        font-weight: 500;
-        color: var(--text);
-    }
-
-    /* ===== STATUS BADGES ===== */
+    /* ── BADGES ── */
     .badge {
         display: inline-flex;
         align-items: center;
-        padding: 3px 9px;
+        gap: 5px;
+        padding: 4px 11px;
         border-radius: 20px;
-        font-size: 0.68rem;
-        font-weight: 600;
+        font-size: 0.71rem;
+        font-weight: 700;
         white-space: nowrap;
+        letter-spacing: 0.02em;
     }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; opacity: 0.7; flex-shrink: 0; }
+    .badge-pending    { background: var(--pending-bg);   color: var(--pending-text);   border: 1px solid var(--pending-ring); }
+    .badge-processing { background: var(--process-bg);   color: var(--process-text);   border: 1px solid var(--process-ring); }
+    .badge-forapproval{ background: var(--approval-bg);  color: var(--approval-text);  border: 1px solid var(--approval-ring); }
+    .badge-approved   { background: var(--approved-bg);  color: var(--approved-text);  border: 1px solid var(--approved-ring); }
+    .badge-released   { background: var(--released-bg);  color: var(--released-text);  border: 1px solid var(--released-ring); }
+    .badge-completed  { background: var(--completed-bg); color: var(--completed-text); border: 1px solid var(--completed-ring); }
+    .badge-cancelled  { background: var(--cancelled-bg); color: var(--cancelled-text); border: 1px solid var(--cancelled-ring); }
 
-    .badge-pending     { background: #fef3c7; color: #92400e; }
-    .badge-processing  { background: #dbeafe; color: #1e40af; }
-    .badge-forapproval { background: #fed7aa; color: #c2410c; }
-    .badge-approved    { background: #dcfce7; color: #166534; }
-    .badge-released    { background: #e0e7ff; color: #3730a3; }
-    .badge-completed   { background: #dcfce7; color: #166534; }
-    .badge-cancelled   { background: #f3f4f6; color: #6b7280; }
-
-    /* ===== ACTION BUTTONS ===== */
-    .action-group { display: flex; gap: 5px; }
-
-    .btn-action {
-        padding: 4px 10px;
-        border-radius: 5px;
-        font-size: 0.7rem;
-        font-weight: 600;
-        cursor: pointer;
-        border: none;
-        text-decoration: none;
+    /* ── ACTION BUTTON ── */
+    .btn-view {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        transition: opacity 0.15s;
+        gap: 5px;
+        padding: 5px 12px;
+        background: var(--navy);
+        color: #fff;
+        border-radius: 7px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background 0.18s, transform 0.15s;
+        border: none;
     }
+    .btn-view:hover { background: var(--navy-md); transform: translateY(-1px); }
 
-    .btn-action:hover { opacity: 0.8; }
-    .btn-dark  { background: #1a1d23; color: #fff; }
-    .btn-ghost { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
-    .btn-ghost:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-        text-align: center;
-        padding: 48px 20px;
-        color: var(--muted);
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 56px 24px; color: var(--mist); }
+    .empty-icon {
+        width: 52px; height: 52px;
+        background: var(--surface);
+        border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: var(--mist);
+        margin: 0 auto 12px;
     }
+    .empty-state p { font-size: 0.85rem; font-weight: 500; }
 
-    .empty-state i {
-        font-size: 2rem;
-        display: block;
-        margin-bottom: 10px;
-        opacity: 0.4;
-    }
-
-    .empty-state p {
-        font-size: 0.82rem;
-    }
-
-    /* ===== PAGINATION ===== */
+    /* ── PAGINATION ── */
     .pagination-bar {
         display: flex;
         justify-content: center;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         padding: 14px 18px;
         border-top: 1px solid var(--border);
+        flex-wrap: wrap;
     }
-
     .pagination-bar a,
     .pagination-bar span {
-        padding: 5px 11px;
-        border: 1px solid var(--border);
-        border-radius: 6px;
+        padding: 6px 12px;
+        border: 1.5px solid var(--border);
+        border-radius: 8px;
         font-size: 0.75rem;
-        font-weight: 500;
-        color: var(--muted);
+        font-weight: 600;
+        color: var(--slate);
         text-decoration: none;
         transition: all 0.15s;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .pagination-bar a:hover { background: var(--surface); color: var(--ink); border-color: var(--navy-md); }
+    .pagination-bar .current {
+        background: var(--navy);
+        color: #fff;
+        border-color: var(--navy);
     }
 
-    .pagination-bar a:hover { background: var(--bg); color: var(--text); }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+        .filter-group { min-width: 100%; }
+        .filter-actions { width: 100%; }
+        .btn-filter, .btn-reset { flex: 1; justify-content: center; }
 
-    .pagination-bar .current {
-        background: var(--sidebar-bg);
-        color: #fff;
-        border-color: var(--sidebar-bg);
+        /* Mobile table → stacked card rows */
+        .table-wrapper { overflow-x: unset; }
+        .data-table,
+        .data-table tbody { display: block; width: 100%; }
+        .data-table thead  { display: none; }
+        .data-table tbody tr {
+            display: block;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table tbody tr:last-child { border-bottom: none; }
+        .data-table tbody tr:hover { background: var(--surface); }
+        .data-table td {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: none;
+            font-size: 0.83rem;
+            gap: 8px;
+        }
+        .data-table td::before {
+            content: attr(data-label);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--mist);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            flex-shrink: 0;
+            min-width: 72px;
+        }
+        .data-table td:first-child {
+            padding-bottom: 10px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td:first-child::before { display: none; }
+        .data-table td:last-child { padding-top: 10px; margin-top: 2px; }
+        .data-table td:last-child::before { display: none; }
     }
 </style>
 {% endblock %}
@@ -294,17 +385,17 @@
 
 <!-- Filter Card -->
 <div class="filter-card">
-    <div class="filter-card-title"><i class="fas fa-filter"></i> Filter Requests</div>
+    <div class="filter-card-title"><i class="fas fa-sliders-h"></i> Filter Requests</div>
     <form method="get">
         <div class="filter-row">
             <div class="filter-group">
                 <label>Search</label>
-                <input type="text" name="search" placeholder="Reference #, Name..." value="{{ search_query }}">
+                <input type="text" name="search" placeholder="Reference #, name…" value="{{ search_query }}">
             </div>
             <div class="filter-group">
                 <label>Status</label>
                 <select name="status">
-                    <option value="">All Status</option>
+                    <option value="">All Statuses</option>
                     {% for code, label in status_choices %}
                     <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
@@ -339,87 +430,89 @@
 <!-- Table Card -->
 <div class="table-card">
     <div class="table-card-header">
-        <span class="table-card-title">Certificate Requests Table</span>
+        <span class="table-card-title">
+            <span class="title-icon"><i class="fas fa-list"></i></span>
+            All Certificate Requests
+        </span>
         <span class="total-badge">{{ total_count }} total</span>
     </div>
 
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Reference No.</th>
-                <th>Applicant</th>
-                <th>Certificate Type</th>
-                <th>Date Submitted</th>
-                <th>Status</th>
-                {% comment %} <th>Actions</th> {% endcomment %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for req in requests %}
-            <tr>
-                <td class="ref-no">{{ req.request_id }}</td>
-                <td class="applicant-name">{{ req.full_name|truncatechars:30 }}</td>
-                <td>{{ req.get_request_type_display }}</td>
-                <td>{{ req.date_submitted|date:"M d, Y" }}</td>
-                <td>
-                    {% if req.status == 'pending' %}
-                        <span class="badge badge-pending">Pending</span>
-                    {% elif req.status == 'processing' %}
-                        <span class="badge badge-processing">Processing</span>
-                    {% elif req.status == 'for_approval' %}
-                        <span class="badge badge-forapproval">For Approval</span>
-                    {% elif req.status == 'approved' %}
-                        <span class="badge badge-approved">Approved</span>
-                    {% elif req.status == 'released' %}
-                        <span class="badge badge-released">Released</span>
-                    {% elif req.status == 'completed' %}
-                        <span class="badge badge-completed">Completed</span>
-                    {% elif req.status == 'cancelled' %}
-                        <span class="badge badge-cancelled">Cancelled</span>
-                    {% else %}
-                        <span class="badge badge-pending">{{ req.get_status_display }}</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <div class="action-group">
-                        <a href="{% url 'certificates:view_request' req.id %}" class="btn-action btn-dark">
+    <div class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Reference</th>
+                    <th>Applicant</th>
+                    <th>Certificate Type</th>
+                    <th>Date Submitted</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td data-label="Reference"><span class="ref-no">{{ req.request_id }}</span></td>
+                    <td data-label="Applicant" class="applicant-name">{{ req.full_name|truncatechars:30 }}</td>
+                    <td data-label="Type" class="cert-type">{{ req.get_request_type_display }}</td>
+                    <td data-label="Date" class="date-val">{{ req.date_submitted|date:"M d, Y" }}</td>
+                    <td data-label="Status">
+                        {% if req.status == 'pending' %}
+                            <span class="badge badge-pending"><span class="badge-dot"></span> Pending</span>
+                        {% elif req.status == 'processing' %}
+                            <span class="badge badge-processing"><span class="badge-dot"></span> Processing</span>
+                        {% elif req.status == 'for_approval' %}
+                            <span class="badge badge-forapproval"><span class="badge-dot"></span> For Approval</span>
+                        {% elif req.status == 'approved' %}
+                            <span class="badge badge-approved"><span class="badge-dot"></span> Approved</span>
+                        {% elif req.status == 'released' %}
+                            <span class="badge badge-released"><span class="badge-dot"></span> Released</span>
+                        {% elif req.status == 'completed' %}
+                            <span class="badge badge-completed"><span class="badge-dot"></span> Completed</span>
+                        {% elif req.status == 'cancelled' %}
+                            <span class="badge badge-cancelled"><span class="badge-dot"></span> Cancelled</span>
+                        {% else %}
+                            <span class="badge badge-pending"><span class="badge-dot"></span> {{ req.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Action">
+                        <a href="{% url 'certificates:view_request' req.id %}" class="btn-view">
                             <i class="fas fa-eye"></i> View
                         </a>
-                        {% comment %} {% if req.status == 'pending' %}
-                        <a href="#" class="btn-action btn-ghost">
-                            <i class="fas fa-cog"></i> Process
-                        </a>
-                        {% elif req.status == 'processing' %}
-                        <a href="#" class="btn-action btn-ghost">
-                            <i class="fas fa-paper-plane"></i> Send for Approval
-                        </a>
-                        {% endif %} {% endcomment %}
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6">
-                    <div class="empty-state">
-                        <i class="fas fa-inbox"></i>
-                        <p>No certificate requests found</p>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <div class="empty-icon"><i class="fas fa-inbox"></i></div>
+                            <p>No certificate requests found</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     {% if requests.has_other_pages %}
     <div class="pagination-bar">
         {% if requests.has_previous %}
-            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">First</a>
-            <a href="?page={{ requests.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">‹ Prev</a>
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                <i class="fas fa-angle-double-left"></i> First
+            </a>
+            <a href="?page={{ requests.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                <i class="fas fa-angle-left"></i> Prev
+            </a>
         {% endif %}
         <span class="current">{{ requests.number }} / {{ requests.paginator.num_pages }}</span>
         {% if requests.has_next %}
-            <a href="?page={{ requests.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">Next ›</a>
-            <a href="?page={{ requests.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">Last</a>
+            <a href="?page={{ requests.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                Next <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ requests.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                Last <i class="fas fa-angle-double-right"></i>
+            </a>
         {% endif %}
     </div>
     {% endif %}

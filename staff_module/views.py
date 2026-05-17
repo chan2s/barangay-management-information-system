@@ -24,37 +24,44 @@ def staff_dashboard(request):
     """Staff dashboard with statistics"""
     try:
         staff_profile = request.user.staff_profile
-        
-        # Get statistics from blotter module
-        total_blotters = Blotter.objects.count()
-        pending = Blotter.objects.filter(status='pending').count()
-        scheduled = Schedule.objects.filter(is_completed=False).count()
-        resolved = Blotter.objects.filter(status='resolved').count()
-        unsettled = Blotter.objects.filter(status='in_progress').count()
-        
+
+        today = timezone.localdate()
+        certificate_requests = CertificateRequest.objects.all()
+
+        total_certificates = certificate_requests.count()
+        pending = certificate_requests.filter(status='pending').count()
+        for_approval = certificate_requests.filter(status='for_approval').count()
+        approved_today = certificate_requests.filter(
+            status='approved',
+            date_approved__date=today
+        ).count()
+        released_today = certificate_requests.filter(
+            status='released',
+            date_released__date=today
+        ).count()
+
         # NEW: Pending approvals count for staff review
         pending_approvals_count = Blotter.objects.filter(is_approved=False, status='pending').count()
-        
+
         # Today's hearings
         today_hearings = Schedule.objects.filter(
-            hearing_date__date=timezone.now().date(),
+            hearing_date__date=today,
             is_completed=False
         ).select_related('blotter')[:5]
-        
-        # Recent blotters
-        recent_blotters = Blotter.objects.all().order_by('-created_at')[:10]
-        
+
+        recent_certificates = certificate_requests.order_by('-date_submitted')[:10]
+
         context = {
             'staff': staff_profile,
             'user': request.user,
-            'total_blotters': total_blotters,
+            'total_certificates': total_certificates,
             'pending': pending,
-            'scheduled': scheduled,
-            'resolved': resolved,
-            'unsettled': unsettled,
+            'for_approval': for_approval,
+            'approved_today': approved_today,
+            'released_today': released_today,
             'pending_approvals_count': pending_approvals_count,
             'today_hearings': today_hearings,
-            'recent_blotters': recent_blotters,
+            'recent_certificates': recent_certificates,
         }
         return render(request, 'staff_module/dashboard.html', context)
     except Staff.DoesNotExist:

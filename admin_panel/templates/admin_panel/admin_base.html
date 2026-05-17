@@ -639,7 +639,15 @@
         </nav>
 
         <div class="sidebar-footer">
-            <form method="post" action="{% url 'logout' %}">
+            <form method="post" action="{% url 'logout' %}"
+                  data-confirm="true"
+                  data-confirm-title="Sign out of BIMS?"
+                  data-confirm-subtitle="Your current admin session will end."
+                  data-confirm-message="Please confirm that you want to log out of the admin panel."
+                  data-confirm-text="Sign Out"
+                  data-confirm-variant="warning"
+                  data-loading-title="Signing out"
+                  data-loading-subtitle="Please wait while BIMS ends your session.">
                 {% csrf_token %}
                 <button type="submit" class="nav-link nav-logout">
                     <i class="fas fa-sign-out-alt"></i> Sign Out
@@ -827,6 +835,46 @@
         document.addEventListener('keydown', e => {
             if (e.key === 'Escape' && modal.classList.contains('open')) closeConfirm(false);
         });
+
+        function looksDestructive(element) {
+            const text = [
+                element.className || '',
+                element.getAttribute('href') || '',
+                element.getAttribute('action') || '',
+                element.name || '',
+                element.value || '',
+                element.textContent || ''
+            ].join(' ').toLowerCase();
+            return /\b(delete|remove|archive|reject|danger|destroy)\b/.test(text);
+        }
+
+        function normalizeConfirmTriggers() {
+            document.querySelectorAll('[onclick*="confirm("]').forEach(element => {
+                const onclick = element.getAttribute('onclick') || '';
+                const match = onclick.match(/confirm\((['"])(.*?)\1\)/);
+                element.removeAttribute('onclick');
+                element.dataset.confirmMessage = element.dataset.confirmMessage || (match ? match[2] : 'Are you sure you want to continue?');
+                element.dataset.confirmTitle = element.dataset.confirmTitle || 'Confirm action';
+                element.dataset.confirmSubtitle = element.dataset.confirmSubtitle || 'This action needs your confirmation.';
+                element.dataset.confirmVariant = element.dataset.confirmVariant || (looksDestructive(element) ? 'danger' : 'warning');
+                element.dataset.confirmText = element.dataset.confirmText || 'Continue';
+                if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                else element.dataset.confirm = 'true';
+            });
+
+            document.querySelectorAll('a[href], button[type="submit"], input[type="submit"]').forEach(element => {
+                if (element.dataset.confirm || element.dataset.confirmLink || element.dataset.confirmTitle || !looksDestructive(element)) return;
+                element.dataset.confirmTitle = 'Confirm destructive action';
+                element.dataset.confirmSubtitle = 'Please review before continuing.';
+                element.dataset.confirmMessage = 'This action may change or remove records in BIMS. Do you want to continue?';
+                element.dataset.confirmText = 'Continue';
+                element.dataset.confirmVariant = 'danger';
+                if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                else element.dataset.confirm = 'true';
+            });
+        }
+
+        normalizeConfirmTriggers();
 
         document.addEventListener('submit', async function(e) {
             const form = e.target;

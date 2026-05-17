@@ -6,268 +6,326 @@
 
 {% block extra_css %}
 <style>
-    /* Override content padding for full width */
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+    /* ── Base ───────────────────────────────────────────── */
+    * { box-sizing: border-box; }
+
     .content {
         padding: 20px 24px !important;
         max-width: 100% !important;
         width: 100% !important;
+        font-family: 'DM Sans', sans-serif;
     }
-    
-    /* Back link */
+
+    /* ── Back link ──────────────────────────────────────── */
     .back-link {
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        color: var(--muted);
+        color: #6b7280;
         text-decoration: none;
         font-size: 0.78rem;
-        font-weight: 500;
-        margin-bottom: 20px;
-        transition: color 0.18s;
+        font-weight: 600;
+        margin-bottom: 18px;
+        transition: color 0.15s;
+        font-family: 'DM Sans', sans-serif;
     }
-    .back-link:hover { color: var(--text); }
+    .back-link:hover { color: #111827; }
+    .back-link i { font-size: 0.72rem; }
 
-    /* Page header */
+    /* ── Page header ────────────────────────────────────── */
     .page-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
+        align-items: flex-start;
+        margin-bottom: 22px;
         flex-wrap: wrap;
-        gap: 15px;
+        gap: 12px;
     }
-    
+    .page-title {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
     .page-title h1 {
-        font-size: 1.5rem;
+        font-size: 1.35rem;
         font-weight: 700;
         color: var(--text);
         margin: 0;
-    }
-    
-    .page-title h1 i {
-        color: var(--yellow);
-        margin-right: 10px;
-    }
-    
-    .blotter-number {
-        font-family: monospace;
-        background: var(--bg);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-    
-    .meta-badges {
+        letter-spacing: -0.02em;
         display: flex;
+        align-items: center;
         gap: 10px;
         flex-wrap: wrap;
     }
-    
-    /* Status badges */
+    .page-title h1 i { color: #f59e0b; font-size: 1.1rem; }
+    .blotter-number {
+        font-family: 'DM Mono', monospace;
+        background: #f3f4f6;
+        color: #4b5563;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        border: 1px solid #e5e7eb;
+    }
+    .meta-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        padding-top: 2px;
+    }
+
+    /* ── Badges ─────────────────────────────────────────── */
     .badge {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 5px 14px;
-        border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 600;
+        gap: 5px;
+        padding: 4px 11px;
+        border-radius: 6px;
+        font-size: 0.65rem;
+        font-weight: 700;
+        font-family: 'DM Sans', sans-serif;
+        white-space: nowrap;
+        letter-spacing: 0.02em;
     }
-    
-    .badge-pending { background: #fef3c7; color: #92400e; }
-    .badge-scheduled { background: #dbeafe; color: #1e40af; }
-    .badge-in_progress { background: #fed7aa; color: #c2410c; }
-    .badge-resolved { background: #dcfce7; color: #166534; }
-    .badge-approved { background: #d1fae5; color: #065f46; }
-    .badge-unapproved { background: #fef9c3; color: #854d0e; }
-    .badge-unsettled { background: #fee2e2; color: #991b1b; }
+    .badge-pending     { background: #fefce8; color: #854d0e; border: 1px solid #fde68a; }
+    .badge-scheduled   { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+    .badge-in_progress { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-resolved    { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-unsettled   { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
+    .badge-closed      { background: #f9fafb; color: #6b7280; border: 1px solid #e5e7eb; }
+    .badge-dismissed   { background: #f3f4f6; color: #4b5563; border: 1px solid #e5e7eb; }
+    .badge-approved    { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-unapproved  { background: #fefce8; color: #854d0e; border: 1px solid #fde68a; }
 
-    /* 2-Column Layout - Responsive */
+    /* ── Layout ─────────────────────────────────────────── */
     .detail-layout {
         display: grid;
-        grid-template-columns: 1fr 320px;
-        gap: 24px;
+        grid-template-columns: 1fr 300px;
+        gap: 20px;
         align-items: start;
     }
 
-    /* Cards */
+    /* ── Cards ──────────────────────────────────────────── */
     .card {
         background: var(--white);
         border: 1px solid var(--border);
-        border-radius: var(--radius);
+        border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 20px;
+        margin-bottom: 18px;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
-    
     .card:last-child { margin-bottom: 0; }
 
     .card-header {
-        padding: 14px 20px;
-        border-bottom: 2px solid var(--yellow);
+        padding: 13px 18px;
+        border-bottom: 1px solid var(--border);
         display: flex;
         align-items: center;
-        gap: 10px;
-        background: var(--white);
-        flex-wrap: wrap;
+        gap: 9px;
+        background: #fafafa;
     }
-    
     .card-header i {
-        color: var(--yellow);
-        font-size: 1rem;
+        color: #f59e0b;
+        font-size: 0.9rem;
+        width: 16px;
+        text-align: center;
     }
-    
     .card-header h3 {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 700;
         margin: 0;
         color: var(--text);
+        letter-spacing: -0.01em;
     }
-    
-    .card-body {
-        padding: 0;
-    }
+    .card-body { padding: 0; }
 
-    /* Detail rows */
+    /* ── Detail rows ────────────────────────────────────── */
     .detail-row {
         display: flex;
-        padding: 12px 20px;
-        border-bottom: 1px solid var(--border);
+        padding: 11px 18px;
+        border-bottom: 1px solid #f1f5f9;
+        gap: 12px;
     }
-    
     .detail-row:last-child { border-bottom: none; }
-    
     .detail-label {
-        width: 30%;
-        font-weight: 600;
-        color: var(--muted);
-        font-size: 0.75rem;
+        width: 32%;
+        flex-shrink: 0;
+        font-weight: 700;
+        color: #9ca3af;
+        font-size: 0.65rem;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.06em;
+        padding-top: 2px;
+        font-family: 'DM Sans', sans-serif;
     }
-    
     .detail-value {
-        width: 70%;
+        flex: 1;
         color: var(--text);
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 500;
         word-break: break-word;
+        line-height: 1.5;
+    }
+    .detail-value strong {
+        font-family: 'DM Mono', monospace;
+        font-size: 0.8rem;
     }
 
-    /* Action Buttons */
+    /* ── Action buttons ─────────────────────────────────── */
     .action-group {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        padding: 16px;
+        gap: 9px;
+        padding: 14px;
     }
-    
+
     .btn-action {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: var(--radius-sm);
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 8px;
         text-decoration: none;
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 600;
-        transition: all 0.2s;
+        font-family: 'DM Sans', sans-serif;
+        transition: all 0.18s;
         width: 100%;
         cursor: pointer;
         border: none;
+        white-space: nowrap;
+        letter-spacing: 0.01em;
     }
-    
-    .btn-primary { 
-        background: #2d3748 !important; 
-        color: #ffffff !important;
-        border: 1px solid #2d3748 !important;
+    .btn-action i { font-size: 0.75rem; }
+    .btn-action:hover { transform: translateY(-1px); }
+    .btn-action:active { transform: none; }
+
+    /* Update Status — neutral slate */
+    .btn-update-status {
+        background: #1e293b;
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(30,41,59,0.25);
     }
-    .btn-primary:hover { 
-        background: var(--yellow) !important; 
-        color: #2d3748 !important;
-        border-color: var(--yellow) !important;
-        transform: translateY(-1px);
-    }
-    
-    .btn-success { 
-        background: #10b981; 
-        color: white;
-        border: 1px solid #10b981;
-    }
-    .btn-success:hover { 
-        background: #059669;
-        transform: translateY(-1px);
-    }
-    
-    .btn-warning { 
-        background: #f59e0b; 
-        color: white;
-        border: 1px solid #f59e0b;
-    }
-    .btn-warning:hover { 
-        background: #d97706;
-        transform: translateY(-1px);
-    }
-    
-    .btn-approve { 
-        background: #22c55e; 
-        color: white;
-        border: 1px solid #22c55e;
-    }
-    .btn-approve:hover { 
-        background: #16a34a;
-        transform: translateY(-1px);
-    }
-    
-    .btn-reject { 
-        background: #ef4444; 
-        color: white;
-        border: 1px solid #ef4444;
-    }
-    .btn-reject:hover { 
-        background: #dc2626;
-        transform: translateY(-1px);
-    }
-    
-    .btn-ghost { 
-        background: var(--bg); 
-        color: var(--slate);
-        border: 1px solid var(--border);
-    }
-    .btn-ghost:hover { 
-        background: var(--cream);
-        border-color: var(--yellow);
-    }
-    
-    .btn-hearing {
-        background: #f59e0b;
-        color: white;
-        border: 1px solid #f59e0b;
-    }
-    .btn-hearing:hover {
-        background: #d97706;
-        transform: translateY(-1px);
+    .btn-update-status:hover {
+        background: #0f172a;
+        box-shadow: 0 4px 10px rgba(30,41,59,0.3);
+        color: #fff;
     }
 
-    /* Sidebar info items */
-    .info-item {
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--border);
+    /* Schedule Hearing — teal/green */
+    .btn-schedule {
+        background: #0d9488;
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(13,148,136,0.25);
     }
-    
-    .info-item:last-child { border-bottom: none; }
-    
-    .info-label {
+    .btn-schedule:hover {
+        background: #0f766e;
+        box-shadow: 0 4px 10px rgba(13,148,136,0.3);
+        color: #fff;
+    }
+
+    /* Generate Summon — amber */
+    .btn-summon {
+        background: #d97706;
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(217,119,6,0.25);
+    }
+    .btn-summon:hover {
+        background: #b45309;
+        box-shadow: 0 4px 10px rgba(217,119,6,0.3);
+        color: #fff;
+    }
+
+    /* Approve — green */
+    .btn-approve {
+        background: #16a34a;
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(22,163,74,0.25);
+    }
+    .btn-approve:hover {
+        background: #15803d;
+        box-shadow: 0 4px 10px rgba(22,163,74,0.3);
+        color: #fff;
+    }
+
+    /* Reject — red */
+    .btn-reject {
+        background: #fff;
+        color: #dc2626;
+        border: 1.5px solid #fca5a5 !important;
+        box-shadow: none;
+    }
+    .btn-reject:hover {
+        background: #fef2f2;
+        border-color: #ef4444 !important;
+        color: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: 0 3px 8px rgba(220,38,38,0.15);
+    }
+
+    /* Hearing outcome */
+    .btn-hearing {
+        background: #1d4ed8;
+        color: #fff;
+        box-shadow: 0 1px 3px rgba(29,78,216,0.22);
+    }
+    .btn-hearing:hover {
+        background: #1e40af;
+        box-shadow: 0 4px 10px rgba(29,78,216,0.3);
+        color: #fff;
+    }
+
+    /* Ghost / cancel */
+    .btn-ghost {
+        background: var(--white);
+        color: #374151;
+        border: 1.5px solid #d1d5db !important;
+    }
+    .btn-ghost:hover {
+        background: #f9fafb;
+        border-color: #9ca3af !important;
+        color: #111827;
+        transform: none;
+    }
+
+    /* Evidence link */
+    .evidence-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         font-size: 0.65rem;
         font-weight: 600;
-        color: var(--muted);
+        font-family: 'DM Sans', sans-serif;
+        padding: 4px 10px;
+        border-radius: 5px;
+        text-decoration: none;
+        background: #1e293b;
+        color: #fff;
+        transition: all 0.15s;
+    }
+    .evidence-link:hover { background: #f59e0b; color: #1e293b; }
+
+    /* ── Sidebar info items ─────────────────────────────── */
+    .info-item {
+        padding: 11px 16px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .info-item:last-child { border-bottom: none; }
+    .info-label {
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: #9ca3af;
         text-transform: uppercase;
+        letter-spacing: 0.07em;
         margin-bottom: 4px;
     }
-    
     .info-value {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 600;
         color: var(--text);
         display: flex;
@@ -276,441 +334,313 @@
         flex-wrap: wrap;
     }
 
-    /* Evidence gallery - Responsive */
+    /* ── Evidence gallery ───────────────────────────────── */
     .evidence-gallery {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 16px;
-        padding: 16px 20px;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 14px;
+        padding: 16px 18px;
     }
-    
     .evidence-item {
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
         overflow: hidden;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.18s;
         background: var(--white);
     }
-    
     .evidence-item:hover {
         transform: translateY(-3px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--yellow);
+        box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        border-color: #f59e0b;
     }
-    
     .evidence-preview {
         width: 100%;
-        height: 120px;
+        height: 110px;
         object-fit: cover;
-        background: var(--bg);
     }
-    
     .evidence-icon {
-        height: 120px;
+        height: 110px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--yellow-soft);
+        background: #fefce8;
         font-size: 2rem;
-        color: var(--yellow);
+        color: #f59e0b;
     }
-    
     .evidence-info {
-        padding: 10px;
-        text-align: center;
+        padding: 9px 10px;
         background: var(--white);
+        border-top: 1px solid #f1f5f9;
     }
-    
     .evidence-title {
-        font-size: 0.7rem;
+        font-size: 0.68rem;
         font-weight: 600;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        margin-bottom: 6px;
+        color: #374151;
     }
-    
-    .evidence-actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 8px;
-    }
-    
-    .evidence-link {
-        flex: 1;
-        font-size: 0.65rem;
-        padding: 4px 8px;
-        border-radius: 4px;
-        text-decoration: none;
-        background: var(--charcoal);
-        color: white;
-        text-align: center;
-    }
-    
-    .evidence-link:hover { background: var(--yellow); color: var(--charcoal); }
 
-    /* Valid ID */
-    .valid-id-container { padding: 16px 20px; }
+    /* ── Valid ID ───────────────────────────────────────── */
+    .valid-id-container { padding: 16px 18px; }
     .valid-id-item {
         display: flex;
         align-items: center;
         gap: 16px;
-        background: var(--cream);
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
+        background: #f9fafb;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
         padding: 16px;
         flex-wrap: wrap;
     }
-    
     .valid-id-preview {
         width: 80px;
         height: 80px;
         object-fit: cover;
-        border-radius: var(--radius-sm);
+        border-radius: 8px;
         cursor: pointer;
+        border: 1px solid var(--border);
     }
-    
     .valid-id-icon {
         width: 80px;
         height: 80px;
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--yellow-soft);
-        border-radius: var(--radius-sm);
+        background: #fefce8;
+        border-radius: 8px;
         font-size: 2rem;
-        color: var(--yellow);
+        color: #f59e0b;
+        flex-shrink: 0;
     }
-    
+    .valid-id-type {
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: #374151;
+        margin-bottom: 5px;
+    }
     .valid-id-status {
-        font-size: 0.65rem;
-        padding: 3px 10px;
-        border-radius: 20px;
-        display: inline-block;
-        margin-top: 5px;
+        font-size: 0.62rem;
+        font-weight: 700;
+        padding: 3px 9px;
+        border-radius: 5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 8px;
+        border: 1px solid transparent;
     }
-    
-    .status-verified { background: #d1fae5; color: #065f46; }
-    .status-pending { background: #fef3c7; color: #92400e; }
-    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-verified  { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+    .status-pending   { background: #fefce8; color: #854d0e; border-color: #fde68a; }
+    .status-rejected  { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
 
-    /* No evidence */
+    /* ── No evidence ────────────────────────────────────── */
     .no-evidence {
         text-align: center;
         padding: 40px 20px;
-        color: var(--muted);
+        color: #9ca3af;
     }
-    
     .no-evidence i {
-        font-size: 48px;
-        margin-bottom: 16px;
+        font-size: 2.5rem;
         display: block;
-        opacity: 0.5;
+        margin-bottom: 10px;
+        opacity: 0.3;
+    }
+    .no-evidence p { font-size: 0.8rem; }
+
+    /* ── Hearing alert ──────────────────────────────────── */
+    .hearing-alert {
+        margin: 0 18px 14px;
+        border-radius: 8px;
+        padding: 11px 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-family: 'DM Sans', sans-serif;
+    }
+    .hearing-alert.settled {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+    }
+    .hearing-alert.unsettled {
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+    }
+    .hearing-alert i {
+        font-size: 0.9rem;
+        margin-top: 1px;
+        flex-shrink: 0;
+    }
+    .hearing-alert.settled i { color: #15803d; }
+    .hearing-alert.unsettled i { color: #be123c; }
+    .hearing-alert-content strong {
+        font-size: 0.72rem;
+        display: block;
+        margin-bottom: 3px;
+    }
+    .hearing-alert.settled strong { color: #15803d; }
+    .hearing-alert.unsettled strong { color: #be123c; }
+    .hearing-alert-content p {
+        font-size: 0.68rem;
+        color: #4b5563;
+        margin: 0;
+        line-height: 1.5;
     }
 
-    /* Modal */
+    /* Update hearing outcome inline */
+    .hearing-update-wrap {
+        padding: 10px 18px 14px;
+    }
+
+    /* ── Divider inside card ────────────────────────────── */
+    .card-divider {
+        height: 1px;
+        background: #f1f5f9;
+        margin: 0;
+    }
+
+    /* ── Image modal ────────────────────────────────────── */
     .image-modal {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
+        inset: 0;
+        background: rgba(0,0,0,0.92);
         z-index: 9999;
         align-items: center;
         justify-content: center;
     }
-    
     .image-modal.open { display: flex; }
-    
     .image-modal img {
-        max-width: 90%;
-        max-height: 90%;
+        max-width: 90vw;
+        max-height: 90vh;
         object-fit: contain;
+        border-radius: 8px;
     }
-    
     .close-modal {
         position: absolute;
-        top: 20px;
-        right: 35px;
-        color: white;
-        font-size: 40px;
+        top: 16px;
+        right: 24px;
+        color: #fff;
+        font-size: 2rem;
         cursor: pointer;
+        line-height: 1;
+        opacity: 0.8;
+        transition: opacity 0.15s;
     }
-    
-    .close-modal:hover { color: var(--yellow); }
+    .close-modal:hover { opacity: 1; color: #f59e0b; }
 
-    /* Rejection Modal */
+    /* ── Rejection modal ────────────────────────────────── */
     .modal-overlay {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        inset: 0;
+        background: rgba(0,0,0,0.5);
         z-index: 9998;
         align-items: center;
         justify-content: center;
+        padding: 16px;
     }
-    
     .modal-overlay.open { display: flex; }
-    
     .rejection-modal {
         background: var(--white);
-        border-radius: var(--radius);
-        max-width: 500px;
-        width: 90%;
+        border-radius: 12px;
+        max-width: 480px;
+        width: 100%;
         overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
-    
     .rejection-modal .modal-header {
-        padding: 20px;
+        padding: 18px 20px;
         background: #ef4444;
-        color: white;
+        color: #fff;
+        font-size: 0.9rem;
+        font-weight: 700;
+        font-family: 'DM Sans', sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
-    
-    .rejection-modal .modal-body { padding: 20px; }
-    
+    .rejection-modal .modal-body {
+        padding: 18px 20px;
+    }
+    .rejection-modal .modal-body p {
+        font-size: 0.82rem;
+        color: #374151;
+        margin-bottom: 10px;
+    }
     .rejection-modal textarea {
         width: 100%;
-        padding: 10px;
-        border: 1px solid var(--border);
-        border-radius: var(--radius-sm);
+        padding: 10px 12px;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
         resize: vertical;
-        margin-top: 10px;
+        font-family: 'DM Sans', sans-serif;
+        font-size: 0.8rem;
+        color: #374151;
+        outline: none;
+        transition: border-color 0.15s;
+        min-height: 90px;
     }
-    
+    .rejection-modal textarea:focus {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+    }
     .rejection-modal .modal-footer {
-        padding: 16px 20px;
-        border-top: 1px solid var(--border);
+        padding: 14px 20px;
+        border-top: 1px solid #f1f5f9;
         display: flex;
-        gap: 10px;
+        gap: 8px;
         justify-content: flex-end;
     }
-    
-    /* Hearing Info Alert */
-    .hearing-alert {
-        background: #dbeafe;
-        border-left: 4px solid #3b82f6;
-        padding: 12px 16px;
-        margin: 16px;
-        border-radius: 8px;
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .hearing-alert i {
-        color: #3b82f6;
-        font-size: 1rem;
-        margin-top: 2px;
-    }
-    
-    .hearing-alert-content {
-        flex: 1;
-    }
-    
-    .hearing-alert-content strong {
-        font-size: 0.75rem;
-        color: #1e40af;
-        display: block;
-        margin-bottom: 4px;
-    }
-    
-    .hearing-alert-content p {
-        font-size: 0.7rem;
-        color: #1e3a8a;
-        margin: 0;
-    }
-    
-    .hearing-alert-content a {
-        color: #1e40af;
-        text-decoration: underline;
-        margin-top: 5px;
-        display: inline-block;
+    .rejection-modal .modal-footer .btn-action {
+        width: auto;
+        padding: 8px 18px;
     }
 
-    /* Responsive Breakpoints */
+    /* ── Responsive ─────────────────────────────────────── */
     @media (max-width: 1000px) {
-        .detail-layout {
-            grid-template-columns: 1fr;
-        }
+        .detail-layout { grid-template-columns: 1fr; }
     }
-    
+
     @media (max-width: 768px) {
-        .content {
-            padding: 16px !important;
-        }
-        
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .detail-row {
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .detail-label {
-            width: 100%;
-        }
-        
-        .detail-value {
-            width: 100%;
-        }
-        
-        .evidence-gallery {
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 12px;
-            padding: 12px 16px;
-        }
-        
-        .valid-id-item {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .action-group {
-            padding: 12px;
-        }
-        
-        .card-header {
-            padding: 10px 16px;
-        }
-        
-        .card-header h3 {
-            font-size: 0.8rem;
-        }
-        
-        .badge {
-            padding: 4px 10px;
-            font-size: 0.65rem;
-        }
-        
-        .info-item {
-            padding: 10px 14px;
-        }
-        
-        .info-value {
-            font-size: 0.8rem;
-        }
+        .content { padding: 14px !important; }
+        .page-header { flex-direction: column; align-items: flex-start; }
+        .page-title h1 { font-size: 1.15rem; }
+        .detail-row { flex-direction: column; gap: 3px; }
+        .detail-label { width: 100%; }
+        .evidence-gallery { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; padding: 12px 14px; }
+        .valid-id-item { flex-direction: column; align-items: flex-start; }
+        .action-group { padding: 12px; }
+        .card-header { padding: 11px 14px; }
+        .card { border-radius: 10px; }
+        .detail-row { padding: 10px 14px; }
+        .valid-id-container { padding: 12px 14px; }
+        .hearing-alert { margin: 0 14px 12px; }
+        .hearing-update-wrap { padding: 8px 14px 12px; }
     }
-    
+
     @media (max-width: 480px) {
-        .evidence-gallery {
-            grid-template-columns: 1fr;
-        }
-        
-        .meta-badges {
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .badge {
-            justify-content: center;
-        }
-        
-        .btn-action {
-            padding: 8px 12px;
-            font-size: 0.75rem;
-        }
-        
-        .page-title h1 {
-            font-size: 1.2rem;
-            word-break: break-word;
-        }
-        
-        .blotter-number {
-            font-size: 0.7rem;
-            display: inline-block;
-            margin-top: 5px;
-        }
-        
-        .detail-row {
-            padding: 10px 14px;
-        }
-        
-        .detail-label {
-            font-size: 0.7rem;
-        }
-        
-        .detail-value {
-            font-size: 0.8rem;
-        }
-        
-        .evidence-item {
-            max-width: 100%;
-        }
-        
-        .evidence-preview,
-        .evidence-icon {
-            height: 100px;
-        }
-        
-        .rejection-modal .modal-header {
-            padding: 15px;
-            font-size: 1rem;
-        }
-        
-        .rejection-modal .modal-body {
-            padding: 15px;
-        }
-        
-        .rejection-modal textarea {
-            padding: 8px;
-        }
-        
-        .rejection-modal .modal-footer {
-            padding: 12px 15px;
-        }
-        
-        .modal-footer .btn-action {
-            padding: 6px 12px;
-            font-size: 0.7rem;
-        }
-        
-        .hearing-alert {
-            margin: 12px;
-            padding: 10px 12px;
-        }
-        
-        .hearing-alert-content strong {
-            font-size: 0.7rem;
-        }
-        
-        .hearing-alert-content p {
-            font-size: 0.65rem;
-        }
+        .evidence-gallery { grid-template-columns: 1fr 1fr; }
+        .meta-badges { flex-direction: row; }
+        .btn-action { font-size: 0.75rem; padding: 9px 14px; }
+        .page-title h1 { font-size: 1rem; }
+        .rejection-modal .modal-footer { flex-direction: column-reverse; }
+        .rejection-modal .modal-footer .btn-action { width: 100%; }
     }
-    
+
     @media (max-width: 360px) {
-        .page-title h1 {
-            font-size: 1rem;
-        }
-        
-        .btn-action {
-            padding: 6px 10px;
-            font-size: 0.7rem;
-        }
-        
-        .badge {
-            padding: 3px 8px;
-            font-size: 0.6rem;
-        }
-        
-        .detail-row {
-            padding: 8px 12px;
-        }
+        .evidence-gallery { grid-template-columns: 1fr; }
+        .page-title h1 { font-size: 0.95rem; }
+        .btn-action { font-size: 0.72rem; padding: 8px 12px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
 <div>
-    <!-- Back button -->
+    <!-- Back link -->
     <a href="{% url 'staff_module:staff_blotter_list' %}" class="back-link">
         <i class="fas fa-arrow-left"></i> Back to Blotter Records
     </a>
@@ -733,11 +663,12 @@
         </div>
     </div>
 
-    <!-- Main 2-column layout -->
+    <!-- 2-column layout -->
     <div class="detail-layout">
-        
-        <!-- LEFT COLUMN -->
+
+        <!-- ── LEFT COLUMN ─────────────────────────────── -->
         <div>
+
             <!-- Incident Information -->
             <div class="card">
                 <div class="card-header">
@@ -746,7 +677,7 @@
                 </div>
                 <div class="card-body">
                     <div class="detail-row">
-                        <span class="detail-label">Blotter Number</span>
+                        <span class="detail-label">Blotter No.</span>
                         <span class="detail-value"><strong>{{ blotter.blotter_number }}</strong></span>
                     </div>
                     <div class="detail-row">
@@ -763,7 +694,7 @@
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Reported On</span>
-                        <span class="detail-value">{{ blotter.created_at|date:"F d, Y h:i A" }}</span>
+                        <span class="detail-value" style="color:#6b7280;">{{ blotter.created_at|date:"F d, Y h:i A" }}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Description</span>
@@ -834,17 +765,15 @@
                         {% else %}
                             <div class="valid-id-icon"><i class="fas fa-file-pdf"></i></div>
                         {% endif %}
-                        <div class="valid-id-info">
-                            <div class="valid-id-type"><strong>{{ blotter.valid_id_type|default:"Valid ID"|upper }}</strong></div>
+                        <div>
+                            <div class="valid-id-type">{{ blotter.valid_id_type|default:"Valid ID"|upper }}</div>
                             <div class="valid-id-status status-{% if blotter.id_verification_status == 'verified' %}verified{% elif blotter.id_verification_status == 'rejected' %}rejected{% else %}pending{% endif %}">
                                 <i class="fas fa-{% if blotter.id_verification_status == 'verified' %}check-circle{% elif blotter.id_verification_status == 'rejected' %}times-circle{% else %}clock{% endif %}"></i>
                                 {% if blotter.id_verification_status == 'verified' %}Verified{% elif blotter.id_verification_status == 'rejected' %}Rejected{% else %}Pending{% endif %}
                             </div>
-                            <div style="margin-top: 10px;">
-                                <a href="{{ blotter.valid_id_file.url }}" target="_blank" class="evidence-link" style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;">
-                                    <i class="fas fa-eye"></i> View Document
-                                </a>
-                            </div>
+                            <a href="{{ blotter.valid_id_file.url }}" target="_blank" class="evidence-link">
+                                <i class="fas fa-eye"></i> View Document
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -864,15 +793,13 @@
                         {% if evidence.file_type == 'image' %}
                             <img src="{{ evidence.file.url }}" alt="{{ evidence.title }}" class="evidence-preview">
                         {% else %}
-                            <div class="evidence-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
+                            <div class="evidence-icon"><i class="fas fa-file-alt"></i></div>
                         {% endif %}
                         <div class="evidence-info">
                             <div class="evidence-title">{{ evidence.title|truncatechars:20 }}</div>
-                            <div class="evidence-actions">
-                                <a href="{{ evidence.file.url }}" target="_blank" class="evidence-link" onclick="event.stopPropagation()">View</a>
-                            </div>
+                            <a href="{{ evidence.file.url }}" target="_blank" class="evidence-link" onclick="event.stopPropagation()">
+                                <i class="fas fa-external-link-alt"></i> View
+                            </a>
                         </div>
                     </div>
                     {% endfor %}
@@ -885,12 +812,12 @@
                 {% endif %}
             </div>
 
-            <!-- Hearing Schedule Information with UPDATE HEARING OUTCOME BUTTON -->
+            <!-- Hearing Schedule -->
             {% if schedules %}
             <div class="card">
                 <div class="card-header">
                     <i class="fas fa-calendar-alt"></i>
-                    <h3>Hearing/Mediation Schedule</h3>
+                    <h3>Hearing / Mediation Schedule</h3>
                 </div>
                 <div class="card-body">
                     {% for schedule in schedules %}
@@ -913,7 +840,7 @@
                                 <span class="badge badge-resolved"><i class="fas fa-check-circle"></i> Settled</span>
                             {% elif schedule.outcome == 'unsettled' %}
                                 <span class="badge badge-unsettled"><i class="fas fa-times-circle"></i> Unsettled</span>
-                            elif schedule.outcome == 'completed' %}
+                            {% elif schedule.outcome == 'completed' %}
                                 <span class="badge badge-scheduled"><i class="fas fa-check"></i> Completed</span>
                             {% else %}
                                 <span class="badge badge-pending"><i class="fas fa-clock"></i> {{ schedule.get_outcome_display }}</span>
@@ -932,43 +859,42 @@
                         <span class="detail-value">{{ schedule.notes }}</span>
                     </div>
                     {% endif %}
-                    
-                    <!-- UPDATE HEARING OUTCOME BUTTON -->
+
                     {% if not schedule.outcome == 'settled' and not schedule.outcome == 'unsettled' %}
-                    <div style="padding: 12px 20px;">
+                    <div class="hearing-update-wrap">
                         <a href="{% url 'staff_module:staff_update_hearing_status' schedule.id %}" class="btn-action btn-hearing">
                             <i class="fas fa-check-circle"></i> Update Hearing Outcome
                         </a>
                     </div>
                     {% endif %}
-                    
-                    <!-- Hearing completed alert -->
+
                     {% if schedule.outcome == 'settled' %}
-                    <div class="hearing-alert">
+                    <div class="hearing-alert settled">
                         <i class="fas fa-check-circle"></i>
                         <div class="hearing-alert-content">
-                            <strong>✓ Hearing Completed - Settled</strong>
-                            <p>The blotter status has been automatically updated to RESOLVED.</p>
+                            <strong>Hearing Completed — Settled</strong>
+                            <p>The blotter status has been automatically updated to Resolved.</p>
                         </div>
                     </div>
                     {% elif schedule.outcome == 'unsettled' %}
-                    <div class="hearing-alert">
+                    <div class="hearing-alert unsettled">
                         <i class="fas fa-times-circle"></i>
                         <div class="hearing-alert-content">
-                            <strong>✗ Hearing Completed - Unsettled</strong>
-                            <p>The blotter status has been automatically updated to UNSETTLED.</p>
+                            <strong>Hearing Completed — Unsettled</strong>
+                            <p>The blotter status has been automatically updated to Unsettled.</p>
                         </div>
                     </div>
                     {% endif %}
-                    
                     {% endfor %}
                 </div>
             </div>
             {% endif %}
+
         </div>
 
-        <!-- RIGHT COLUMN -->
+        <!-- ── RIGHT COLUMN ────────────────────────────── -->
         <div>
+
             <!-- Approval Decision -->
             {% if not blotter.is_approved %}
             <div class="card">
@@ -994,13 +920,13 @@
                     <h3>Case Management</h3>
                 </div>
                 <div class="action-group">
-                    <a href="{% url 'staff_module:staff_update_status' blotter.id %}" class="btn-action btn-primary">
+                    <a href="{% url 'staff_module:staff_update_status' blotter.id %}" class="btn-action btn-update-status">
                         <i class="fas fa-edit"></i> Update Status
                     </a>
-                    <a href="{% url 'staff_module:staff_schedule_hearing' blotter.id %}" class="btn-action btn-success">
+                    <a href="{% url 'staff_module:staff_schedule_hearing' blotter.id %}" class="btn-action btn-schedule">
                         <i class="fas fa-calendar-plus"></i> Schedule Hearing
                     </a>
-                    <a href="{% url 'staff_module:staff_generate_summon' blotter.id %}" class="btn-action btn-warning">
+                    <a href="{% url 'staff_module:staff_generate_summon' blotter.id %}" class="btn-action btn-summon">
                         <i class="fas fa-file-pdf"></i> Generate Summon
                     </a>
                 </div>
@@ -1009,21 +935,21 @@
             <!-- Case Summary -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="fas fa-clipboard-list"></i>
                     <h3>Case Summary</h3>
                 </div>
                 <div class="card-body">
                     <div class="info-item">
                         <div class="info-label">Blotter Number</div>
-                        <div class="info-value"><strong>{{ blotter.blotter_number }}</strong></div>
+                        <div class="info-value" style="font-family:'DM Mono',monospace; font-size:0.8rem;">{{ blotter.blotter_number }}</div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Verification Method</div>
                         <div class="info-value">
                             {% if blotter.verification_method == 'email' %}
-                                <i class="fas fa-envelope"></i> Email Verified
+                                <i class="fas fa-envelope" style="color:#3b82f6;"></i> Email Verified
                             {% elif blotter.verification_method == 'id_card' %}
-                                <i class="fas fa-id-card"></i> Valid ID
+                                <i class="fas fa-id-card" style="color:#f59e0b;"></i> Valid ID
                             {% else %}
                                 {{ blotter.verification_method|default:"N/A" }}
                             {% endif %}
@@ -1033,23 +959,26 @@
                         <div class="info-label">Approval Status</div>
                         <div class="info-value">
                             {% if blotter.is_approved %}
-                                <span style="color: #10b981;"><i class="fas fa-check-circle"></i> Approved</span>
+                                <span style="color:#15803d;"><i class="fas fa-check-circle"></i> Approved</span>
                             {% else %}
-                                <span style="color: #f59e0b;"><i class="fas fa-clock"></i> Pending</span>
+                                <span style="color:#d97706;"><i class="fas fa-clock"></i> Pending</span>
                             {% endif %}
                         </div>
                     </div>
                     <div class="info-item">
                         <div class="info-label">Date Filed</div>
-                        <div class="info-value">{{ blotter.created_at|date:"M d, Y" }}</div>
+                        <div class="info-value" style="font-family:'DM Mono',monospace; font-size:0.77rem; color:#6b7280;">
+                            {{ blotter.created_at|date:"M d, Y" }}
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
 
-<!-- Rejection Modal -->
+<!-- Rejection modal -->
 <div id="rejectionModal" class="modal-overlay">
     <div class="rejection-modal">
         <div class="modal-header">
@@ -1057,99 +986,101 @@
         </div>
         <div class="modal-body">
             <p>Please provide a reason for rejecting this blotter:</p>
-            <textarea id="rejectionReason" rows="3" placeholder="Enter rejection reason..."></textarea>
+            <textarea id="rejectionReason" rows="3" placeholder="Enter rejection reason…"></textarea>
         </div>
         <div class="modal-footer">
             <button class="btn-action btn-ghost" id="cancelRejectBtn">Cancel</button>
-            <button class="btn-action btn-reject" id="confirmRejectBtn">
-                <i class="fas fa-check"></i> Confirm Rejection
+            <button class="btn-action btn-reject" id="confirmRejectBtn" style="width:auto;">
+                <i class="fas fa-times-circle"></i> Confirm Rejection
             </button>
         </div>
     </div>
 </div>
 
-<!-- Image Lightbox -->
+<!-- Image lightbox -->
 <div id="imageModal" class="image-modal" onclick="closeModal()">
     <span class="close-modal">&times;</span>
-    <img id="modalImage" src="">
+    <img id="modalImage" src="" alt="Preview">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    /* ── Approve ────────────────────────────────────────── */
     const approveBtn = document.getElementById('approveBlotterBtn');
     if (approveBtn) {
-        approveBtn.addEventListener('click', function(e) {
-            e.preventDefault();
+        approveBtn.addEventListener('click', function () {
             Swal.fire({
                 title: 'Approve Blotter?',
                 html: `Are you sure you want to approve <strong>Blotter #{{ blotter.blotter_number }}</strong>?`,
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonColor: '#22c55e',
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#6b7280',
                 confirmButtonText: 'Yes, Approve',
-                cancelButtonText: 'Cancel',
                 showLoaderOnConfirm: true,
-                preConfirm: () => {
-                    return fetch(`/staff/blotters/{{ blotter.id }}/approve-action/`, {
-                        method: 'POST',
-                        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'approve' })
-                    }).then(async r => { if (!r.ok) throw new Error('Network error'); return r.json(); });
-                }
+                preConfirm: () => fetch(`/staff/blotters/{{ blotter.id }}/approve-action/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'approve' })
+                }).then(r => { if (!r.ok) throw new Error('Network error'); return r.json(); })
             }).then(result => {
-                if (result.isConfirmed) {
-                    Swal.fire({ title: 'Approved!', text: `Blotter #{{ blotter.blotter_number }} approved.`, icon: 'success' })
+                if (result.isConfirmed)
+                    Swal.fire({ title: 'Approved!', text: `Blotter #{{ blotter.blotter_number }} has been approved.`, icon: 'success' })
                         .then(() => window.location.reload());
-                }
             });
         });
     }
 
-    const rejectBtn = document.getElementById('rejectBlotterBtn');
-    const rejectModal = document.getElementById('rejectionModal');
+    /* ── Reject ─────────────────────────────────────────── */
+    const rejectBtn    = document.getElementById('rejectBlotterBtn');
+    const rejectModal  = document.getElementById('rejectionModal');
     const confirmReject = document.getElementById('confirmRejectBtn');
-    const cancelReject = document.getElementById('cancelRejectBtn');
-    const rejectReason = document.getElementById('rejectionReason');
+    const cancelReject  = document.getElementById('cancelRejectBtn');
+    const rejectReason  = document.getElementById('rejectionReason');
 
-    if (rejectBtn) rejectBtn.addEventListener('click', () => rejectModal.classList.add('open'));
+    if (rejectBtn)    rejectBtn.addEventListener('click', () => rejectModal.classList.add('open'));
     if (cancelReject) cancelReject.addEventListener('click', () => { rejectModal.classList.remove('open'); rejectReason.value = ''; });
-
-    if (confirmReject) {
-        confirmReject.addEventListener('click', function() {
-            const reason = rejectReason.value.trim();
-            if (!reason) { alert('Please provide a rejection reason.'); return; }
-            Swal.fire({
-                title: 'Reject Blotter?',
-                text: `Are you sure you want to reject Blotter #{{ blotter.blotter_number }}?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                confirmButtonText: 'Yes, Reject',
-                preConfirm: () => {
-                    return fetch(`/staff/blotters/{{ blotter.id }}/approve-action/`, {
-                        method: 'POST',
-                        headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'reject', rejection_reason: reason })
-                    }).then(async r => { if (!r.ok) throw new Error('Network error'); return r.json(); });
-                }
-            }).then(result => {
-                if (result.isConfirmed) {
-                    Swal.fire({ title: 'Rejected!', text: `Blotter #{{ blotter.blotter_number }} rejected.`, icon: 'success' })
-                        .then(() => window.location.href = "{% url 'staff_module:staff_pending_approvals' %}");
-                }
-            });
-        });
-    }
-
     window.addEventListener('click', e => { if (e.target === rejectModal) { rejectModal.classList.remove('open'); rejectReason.value = ''; } });
 
-    function previewFile(fileUrl, fileType) {
-        if (fileType === 'image') { showFullImage(fileUrl); }
-        else { window.open(fileUrl, '_blank'); }
+    if (confirmReject) {
+        confirmReject.addEventListener('click', function () {
+            const reason = rejectReason.value.trim();
+            if (!reason) { alert('Please provide a rejection reason.'); return; }
+            rejectModal.classList.remove('open');
+            Swal.fire({
+                title: 'Reject Blotter?',
+                text: `This will reject Blotter #{{ blotter.blotter_number }}.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Reject',
+                showLoaderOnConfirm: true,
+                preConfirm: () => fetch(`/staff/blotters/{{ blotter.id }}/approve-action/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'reject', rejection_reason: reason })
+                }).then(r => { if (!r.ok) throw new Error('Network error'); return r.json(); })
+            }).then(result => {
+                if (result.isConfirmed)
+                    Swal.fire({ title: 'Rejected', text: `Blotter #{{ blotter.blotter_number }} has been rejected.`, icon: 'success' })
+                        .then(() => window.location.href = "{% url 'staff_module:staff_pending_approvals' %}");
+            });
+        });
     }
 
-    function showFullImage(src) { document.getElementById('modalImage').src = src; document.getElementById('imageModal').classList.add('open'); }
+    /* ── File preview ───────────────────────────────────── */
+    function previewFile(url, type) {
+        if (type === 'image') showFullImage(url);
+        else window.open(url, '_blank');
+    }
+    function showFullImage(src) {
+        document.getElementById('modalImage').src = src;
+        document.getElementById('imageModal').classList.add('open');
+    }
     function closeModal() { document.getElementById('imageModal').classList.remove('open'); }
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); if (rejectModal) rejectModal.classList.remove('open'); } });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeModal(); if (rejectModal) rejectModal.classList.remove('open'); }
+    });
 </script>
 {% endblock %}

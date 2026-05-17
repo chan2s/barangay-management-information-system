@@ -31,6 +31,12 @@
             --toast-error: #ef4444;
             --toast-warning: #f59e0b;
             --toast-info: #3b82f6;
+            --modal-red: #dc2626;
+            --modal-red-bg: #fee2e2;
+            --modal-blue: #2563eb;
+            --modal-blue-bg: #dbeafe;
+            --modal-amber: #d97706;
+            --modal-amber-bg: #fef3c7;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -292,6 +298,194 @@
         @media (max-width: 576px) { .footer-grid { grid-template-columns: 1fr; } }
 
         main { min-height: calc(100vh - 200px); }
+
+        /* Shared confirmation/loading system */
+        .global-modal-backdrop,
+        .global-loading-overlay,
+        .global-skeleton-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .global-modal-backdrop {
+            z-index: 1100;
+            background: rgba(26,26,46,0.56);
+            backdrop-filter: blur(6px);
+        }
+
+        .global-modal-backdrop.open,
+        .global-loading-overlay.open,
+        .global-skeleton-overlay.open {
+            display: flex;
+        }
+
+        .global-modal {
+            width: min(460px, 100%);
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+            overflow: hidden;
+            transform: translateY(8px) scale(0.98);
+            opacity: 0;
+            animation: globalModalIn 0.18s ease forwards;
+        }
+
+        .global-modal-head {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .global-modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        .global-modal-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--charcoal);
+            margin: 0;
+        }
+
+        .global-modal-subtitle {
+            color: var(--muted);
+            font-size: 0.86rem;
+            margin-top: 2px;
+        }
+
+        .global-modal-body {
+            padding: 18px 20px;
+            color: var(--slate);
+            line-height: 1.55;
+            font-size: 0.94rem;
+        }
+
+        .global-modal-actions {
+            padding: 14px 20px 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .global-modal-btn {
+            border: 1.5px solid transparent;
+            border-radius: 8px;
+            min-height: 38px;
+            padding: 9px 16px;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .global-modal-btn.secondary {
+            background: #fff;
+            border-color: var(--border);
+            color: var(--charcoal);
+        }
+
+        .global-modal-btn.primary { background: var(--charcoal); color: #fff; }
+        .global-modal-btn.danger { background: var(--modal-red); color: #fff; }
+        .global-modal-btn.warning { background: var(--yellow-mid); color: var(--charcoal); }
+        .global-modal.danger .global-modal-icon { background: var(--modal-red-bg); color: var(--modal-red); }
+        .global-modal.warning .global-modal-icon { background: var(--modal-amber-bg); color: var(--modal-amber); }
+        .global-modal.info .global-modal-icon { background: var(--modal-blue-bg); color: var(--modal-blue); }
+
+        .global-loading-overlay,
+        .global-skeleton-overlay {
+            z-index: 1300;
+            background: rgba(255,255,255,0.78);
+            backdrop-filter: blur(5px);
+        }
+
+        .global-loading-card,
+        .global-skeleton-card {
+            width: min(300px, 100%);
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: var(--shadow-lg);
+            padding: 22px;
+            text-align: center;
+        }
+
+        .global-skeleton-card {
+            width: min(460px, calc(100vw - 32px));
+            text-align: left;
+        }
+
+        .global-spinner {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 3px solid #e8e4d0;
+            border-top-color: var(--yellow-mid);
+            margin: 0 auto 14px;
+            animation: globalSpin 0.75s linear infinite;
+        }
+
+        .global-loading-title {
+            font-weight: 800;
+            color: var(--charcoal);
+            margin-bottom: 4px;
+        }
+
+        .global-loading-subtitle {
+            color: var(--muted);
+            font-size: 0.88rem;
+        }
+
+        .skeleton,
+        .skeleton-line,
+        .skeleton-block {
+            position: relative;
+            overflow: hidden;
+            background: #eee9d8;
+            border-radius: 8px;
+        }
+
+        .skeleton::after,
+        .skeleton-line::after,
+        .skeleton-block::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.78), transparent);
+            animation: globalSkeleton 1.25s infinite;
+        }
+
+        .skeleton-line { height: 12px; margin-bottom: 10px; }
+        .skeleton-line.short { width: 42%; }
+        .skeleton-line.medium { width: 68%; }
+        .skeleton-block { height: 82px; margin-top: 14px; }
+
+        @keyframes globalModalIn { to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes globalSpin { to { transform: rotate(360deg); } }
+        @keyframes globalSkeleton { 100% { transform: translateX(100%); } }
+
+        @media (max-width: 480px) {
+            .global-modal-actions { flex-direction: column-reverse; }
+            .global-modal-btn { width: 100%; }
+        }
     </style>
 
     {% block extra_css %}{% endblock %}
@@ -343,7 +537,15 @@
                     {% if user.is_authenticated %}
                     <li class="nav-item">
                         <!-- ✅ FIX: POST form instead of GET link -->
-                        <form method="POST" action="{% url 'logout' %}" class="nav-logout-form">
+                        <form method="POST" action="{% url 'logout' %}" class="nav-logout-form"
+                              data-confirm="true"
+                              data-confirm-title="Sign out of BIMS?"
+                              data-confirm-subtitle="Your current session will end."
+                              data-confirm-message="Please confirm that you want to log out."
+                              data-confirm-text="Logout"
+                              data-confirm-variant="warning"
+                              data-loading-title="Signing out"
+                              data-loading-subtitle="Please wait while BIMS ends your session.">
                             {% csrf_token %}
                             <button type="submit" class="nav-logout-btn">
                                 <i class="bi bi-box-arrow-right me-1"></i> Logout
@@ -367,6 +569,43 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Shared confirmation modal -->
+    <div id="globalConfirmModal" class="global-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="globalConfirmTitle">
+        <div class="global-modal info" id="globalConfirmCard">
+            <div class="global-modal-head">
+                <div class="global-modal-icon" id="globalConfirmIcon"><i class="bi bi-info-circle-fill"></i></div>
+                <div>
+                    <h2 class="global-modal-title" id="globalConfirmTitle">Confirm action</h2>
+                    <div class="global-modal-subtitle" id="globalConfirmSubtitle">Please review before continuing.</div>
+                </div>
+            </div>
+            <div class="global-modal-body" id="globalConfirmMessage"></div>
+            <div class="global-modal-actions">
+                <button type="button" class="global-modal-btn secondary" id="globalConfirmCancel">Cancel</button>
+                <button type="button" class="global-modal-btn primary" id="globalConfirmProceed">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared loading overlay -->
+    <div id="globalLoadingOverlay" class="global-loading-overlay" aria-live="polite" aria-busy="true">
+        <div class="global-loading-card">
+            <div class="global-spinner"></div>
+            <div class="global-loading-title" id="globalLoadingTitle">Processing request</div>
+            <div class="global-loading-subtitle" id="globalLoadingSubtitle">Please wait while BIMS completes this action.</div>
+        </div>
+    </div>
+
+    <!-- Shared skeleton loader -->
+    <div id="globalSkeletonOverlay" class="global-skeleton-overlay open" aria-hidden="true">
+        <div class="global-skeleton-card">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-block"></div>
+        </div>
+    </div>
 
     <!-- Footer -->
     <footer class="footer">
@@ -550,6 +789,200 @@
             } else {
                 processDjangoMessages();
             }
+        })();
+    </script>
+
+    <!-- Shared confirmation/loading system -->
+    <script>
+        (function() {
+            const loadingOverlay = document.getElementById('globalLoadingOverlay');
+            window.globalLoading = {
+                show: function(title, subtitle) {
+                    document.getElementById('globalLoadingTitle').textContent = title || 'Processing request';
+                    document.getElementById('globalLoadingSubtitle').textContent = subtitle || 'Please wait while BIMS completes this action.';
+                    loadingOverlay.classList.add('open');
+                },
+                hide: function() {
+                    loadingOverlay.classList.remove('open');
+                }
+            };
+            window.adminLoading = window.globalLoading;
+
+            const skeletonOverlay = document.getElementById('globalSkeletonOverlay');
+            const skeletonStartedAt = Date.now();
+            window.globalSkeleton = {
+                show: function() {
+                    skeletonOverlay.classList.add('open');
+                },
+                hide: function() {
+                    skeletonOverlay.classList.remove('open');
+                }
+            };
+
+            const modal = document.getElementById('globalConfirmModal');
+            const modalCard = document.getElementById('globalConfirmCard');
+            const modalTitle = document.getElementById('globalConfirmTitle');
+            const modalSubtitle = document.getElementById('globalConfirmSubtitle');
+            const modalMessage = document.getElementById('globalConfirmMessage');
+            const modalIcon = document.getElementById('globalConfirmIcon');
+            const modalCancel = document.getElementById('globalConfirmCancel');
+            const modalProceed = document.getElementById('globalConfirmProceed');
+            let confirmResolve = null;
+
+            function closeConfirm(result) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                if (confirmResolve) confirmResolve(result);
+                confirmResolve = null;
+            }
+
+            window.globalConfirm = function(options) {
+                const opts = options || {};
+                const variant = ['danger', 'warning', 'info'].includes(opts.variant) ? opts.variant : 'info';
+                const iconClass = variant === 'danger' ? 'bi-exclamation-triangle-fill' : (variant === 'warning' ? 'bi-shield-exclamation' : 'bi-info-circle-fill');
+                modalCard.className = 'global-modal ' + variant;
+                modalTitle.textContent = opts.title || 'Confirm action';
+                modalSubtitle.textContent = opts.subtitle || 'Please review before continuing.';
+                modalMessage.textContent = opts.message || 'Are you sure you want to continue?';
+                modalIcon.innerHTML = '<i class="bi ' + iconClass + '"></i>';
+                modalProceed.textContent = opts.confirmText || 'Continue';
+                modalProceed.className = 'global-modal-btn ' + (variant === 'danger' ? 'danger' : (variant === 'warning' ? 'warning' : 'primary'));
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                modalProceed.focus();
+                return new Promise(function(resolve) { confirmResolve = resolve; });
+            };
+            window.adminConfirm = window.globalConfirm;
+
+            modalCancel.addEventListener('click', function() { closeConfirm(false); });
+            modalProceed.addEventListener('click', function() { closeConfirm(true); });
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) closeConfirm(false);
+            });
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal.classList.contains('open')) closeConfirm(false);
+            });
+
+            function looksDestructive(element) {
+                const text = [
+                    element.className || '',
+                    element.getAttribute('href') || '',
+                    element.getAttribute('action') || '',
+                    element.name || '',
+                    element.value || '',
+                    element.textContent || ''
+                ].join(' ').toLowerCase();
+                return /\b(delete|remove|archive|reject|danger|destroy|clear)\b/.test(text);
+            }
+
+            function normalizeConfirmTriggers() {
+                document.querySelectorAll('[onclick*="confirm("]').forEach(function(element) {
+                    const onclick = element.getAttribute('onclick') || '';
+                    const match = onclick.match(/confirm\((['"])(.*?)\1\)/);
+                    element.removeAttribute('onclick');
+                    element.dataset.confirmMessage = element.dataset.confirmMessage || (match ? match[2] : 'Are you sure you want to continue?');
+                    element.dataset.confirmTitle = element.dataset.confirmTitle || 'Confirm action';
+                    element.dataset.confirmSubtitle = element.dataset.confirmSubtitle || 'This action needs your confirmation.';
+                    element.dataset.confirmVariant = element.dataset.confirmVariant || (looksDestructive(element) ? 'danger' : 'warning');
+                    element.dataset.confirmText = element.dataset.confirmText || 'Continue';
+                    if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                    else element.dataset.confirm = 'true';
+                });
+
+                document.querySelectorAll('a[href], button[type="submit"], input[type="submit"]').forEach(function(element) {
+                    if (element.dataset.confirm || element.dataset.confirmLink || element.dataset.confirmTitle || !looksDestructive(element)) return;
+                    element.dataset.confirmTitle = 'Confirm action';
+                    element.dataset.confirmSubtitle = 'Please review before continuing.';
+                    element.dataset.confirmMessage = 'This action may change or remove information in BIMS. Do you want to continue?';
+                    element.dataset.confirmText = 'Continue';
+                    element.dataset.confirmVariant = 'danger';
+                    if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                    else element.dataset.confirm = 'true';
+                });
+            }
+
+            document.addEventListener('submit', async function(event) {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement) || form.dataset.confirmed === 'true') return;
+                const submitter = event.submitter;
+                const source = submitter && (submitter.dataset.confirm || submitter.dataset.confirmTitle || submitter.dataset.confirmMessage) ? submitter : form;
+                const needsConfirm = source.dataset.confirm === 'true' || source.dataset.confirmTitle || source.dataset.confirmMessage;
+
+                if (needsConfirm) {
+                    event.preventDefault();
+                    const ok = await window.globalConfirm({
+                        title: source.dataset.confirmTitle,
+                        subtitle: source.dataset.confirmSubtitle,
+                        message: source.dataset.confirmMessage,
+                        confirmText: source.dataset.confirmText,
+                        variant: source.dataset.confirmVariant || 'warning'
+                    });
+                    if (!ok) return;
+                    form.dataset.confirmed = 'true';
+                    if (submitter && submitter.name) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = submitter.name;
+                        hidden.value = submitter.value;
+                        form.appendChild(hidden);
+                    }
+                    window.globalLoading.show(source.dataset.loadingTitle || 'Processing request', source.dataset.loadingSubtitle || 'Please wait while the action is completed.');
+                    form.submit();
+                    return;
+                }
+
+                if (form.method && form.method.toLowerCase() === 'post' && form.dataset.noLoading !== 'true') {
+                    const button = submitter || form.querySelector('button[type="submit"]');
+                    if (button) {
+                        button.disabled = true;
+                        button.dataset.originalHtml = button.innerHTML;
+                        button.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Working';
+                    }
+                    window.globalLoading.show(form.dataset.loadingTitle || 'Saving changes', form.dataset.loadingSubtitle || 'Please wait while your request is processed.');
+                }
+            }, true);
+
+            document.addEventListener('click', async function(event) {
+                const trigger = event.target.closest('[data-confirm-link="true"]');
+                if (!trigger) return;
+                event.preventDefault();
+                const ok = await window.globalConfirm({
+                    title: trigger.dataset.confirmTitle,
+                    subtitle: trigger.dataset.confirmSubtitle,
+                    message: trigger.dataset.confirmMessage,
+                    confirmText: trigger.dataset.confirmText,
+                    variant: trigger.dataset.confirmVariant || 'warning'
+                });
+                if (ok) {
+                    window.globalLoading.show(trigger.dataset.loadingTitle || 'Opening request', trigger.dataset.loadingSubtitle || 'Please wait while BIMS prepares the next step.');
+                    window.location.href = trigger.href || trigger.dataset.href;
+                }
+            });
+
+            document.addEventListener('click', function(event) {
+                const link = event.target.closest('a[href]');
+                if (!link || link.dataset.confirmLink === 'true') return;
+                if (link.target || link.hasAttribute('download')) return;
+                const href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+                const url = new URL(link.href, window.location.href);
+                if (url.origin !== window.location.origin) return;
+                window.globalSkeleton.show();
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', normalizeConfirmTriggers);
+            } else {
+                normalizeConfirmTriggers();
+            }
+
+            window.addEventListener('load', function() {
+                const elapsed = Date.now() - skeletonStartedAt;
+                const remaining = Math.max(0, 350 - elapsed);
+                setTimeout(function() {
+                    window.globalSkeleton.hide();
+                }, remaining);
+            });
         })();
     </script>
 

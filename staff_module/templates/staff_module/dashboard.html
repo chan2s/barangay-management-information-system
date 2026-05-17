@@ -6,541 +6,406 @@
 
 {% block extra_css %}
 <style>
-    /* Stats Row - Responsive Grid */
+    :root {
+        --navy:    #0f2044;
+        --navy-md: #1a3260;
+        --navy-lt: #e8edf6;
+        --gold:    #c9a227;
+        --gold-lt: #fdf6e3;
+        --gold-dk: #9e7d1a;
+        --ink:     #1c1e24;
+        --slate:   #4a5468;
+        --mist:    #8a94a6;
+        --border:  #dde2ec;
+        --surface: #f5f7fb;
+        --white:   #ffffff;
+        --pending-bg:    #fef9ec; --pending-text:  #854d0e; --pending-ring:  #f0c040;
+        --process-bg:    #eff6ff; --process-text:  #1e40af; --process-ring:  #93b4f8;
+        --approval-bg:   #fff7ed; --approval-text: #9a3412; --approval-ring: #fdba74;
+        --approved-bg:   #f0fdf4; --approved-text: #166534; --approved-ring: #86efac;
+        --released-bg:   #ecfdf5; --released-text: #065f46; --released-ring: #6ee7b7;
+    }
+
+    .page-heading {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--navy);
+        letter-spacing: -0.01em;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .page-heading::after {
+        content: '';
+        display: inline-block;
+        height: 3px;
+        width: 32px;
+        background: var(--gold);
+        border-radius: 2px;
+    }
+
+    /* ── STAT CARDS ── */
     .stats-row {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 20px;
+        gap: 18px;
         margin-bottom: 28px;
     }
-    
     .stat-card {
         background: var(--white);
         border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 20px;
+        border-radius: 14px;
+        padding: 22px 20px;
         display: flex;
         align-items: center;
-        gap: 16px;
-        transition: transform 0.2s, box-shadow 0.2s;
+        gap: 18px;
+        transition: box-shadow 0.2s, transform 0.2s;
     }
-    
     .stat-card:hover {
+        box-shadow: 0 6px 24px rgba(15,32,68,0.09);
         transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
     }
-    
     .stat-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 12px;
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.5rem;
+        font-size: 1.35rem;
         flex-shrink: 0;
     }
-    
-    .stat-icon.blue {
-        background: #dbeafe;
-        color: #3b82f6;
-    }
-    
-    .stat-icon.yellow {
-        background: #fef3c7;
-        color: #f59e0b;
-    }
-    
-    .stat-icon.orange {
-        background: #fed7aa;
-        color: #ea580c;
-    }
-    
-    .stat-icon.green {
-        background: #dcfce7;
-        color: #22c55e;
-    }
-    
-    .stat-info {
-        flex: 1;
-    }
-    
+    .stat-card.blue   .stat-icon { background: #dbeafe; color: #1d4ed8; }
+    .stat-card.amber  .stat-icon { background: #fef3c7; color: #b45309; }
+    .stat-card.orange .stat-icon { background: #ffedd5; color: #c2410c; }
+    .stat-card.green  .stat-icon { background: #dcfce7; color: #15803d; }
+    .stat-info { flex: 1; min-width: 0; }
     .stat-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
-    }
-    
-    .stat-value {
-        font-size: 1.8rem;
+        font-size: 0.72rem;
         font-weight: 700;
-        color: var(--text);
-        line-height: 1.2;
+        color: var(--mist);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 5px;
     }
-    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--ink);
+        letter-spacing: -0.03em;
+        line-height: 1;
+        margin-bottom: 6px;
+    }
     .stat-sub {
-        font-size: 0.7rem;
-        color: var(--muted);
-        margin-top: 4px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
-    
-    /* Main Grid */
-    .main-grid {
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 24px;
-    }
-    
-    /* Card Styles */
+    .stat-sub.up    { color: #15803d; }
+    .stat-sub.muted { color: var(--mist); }
+
+    /* ── LAYOUT ── */
+    .main-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+
+    /* ── CARD ── */
     .card {
         background: var(--white);
         border: 1px solid var(--border);
-        border-radius: var(--radius);
+        border-radius: 14px;
         overflow: hidden;
     }
-    
     .card-header {
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
-        padding: 16px 20px;
-        border-bottom: 2px solid var(--yellow);
-        background: var(--white);
+        padding: 16px 22px;
+        border-bottom: 1px solid var(--border);
         flex-wrap: wrap;
-        gap: 12px;
-    }
-    
-    .card-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: var(--text);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-    
-    .card-title i {
-        color: var(--yellow);
-    }
-    
-    .card-actions {
-        display: flex;
         gap: 10px;
     }
-    
-    .btn-outline {
+    .card-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+    .card-title .title-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        background: var(--navy-lt);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        color: var(--navy-md);
+    }
+    .btn-link {
         background: transparent;
-        color: var(--slate);
+        color: var(--navy-md);
         border: 1.5px solid var(--border);
         padding: 6px 14px;
-        border-radius: var(--radius-sm);
+        border-radius: 8px;
         text-decoration: none;
         font-size: 0.75rem;
-        font-weight: 600;
-        transition: all 0.2s;
-    }
-    
-    .btn-outline:hover {
-        background: var(--yellow-soft);
-        border-color: var(--yellow);
-        color: var(--charcoal);
-    }
-    
-    /* Data Table */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .data-table thead th {
-        background: var(--bg);
-        padding: 12px 16px;
-        text-align: left;
-        font-size: 0.7rem;
         font-weight: 700;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid var(--border);
+        transition: all 0.18s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
     }
-    
-    .data-table tbody td {
-        padding: 12px 16px;
+    .btn-link:hover { background: var(--navy-lt); border-color: var(--navy-md); color: var(--navy); }
+
+    /* ── TABLE (desktop) ── */
+    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .data-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .data-table thead th {
+        background: var(--surface);
+        padding: 11px 18px;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--mist);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
         border-bottom: 1px solid var(--border);
-        font-size: 0.85rem;
-        color: var(--text);
+        white-space: nowrap;
+    }
+    .data-table tbody td {
+        padding: 13px 18px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.875rem;
+        color: var(--ink);
         vertical-align: middle;
     }
-    
-    .data-table tbody tr:hover {
-        background: var(--cream);
-    }
-    
-    .data-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-    
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody tr { transition: background 0.15s; }
+    .data-table tbody tr:hover { background: var(--surface); }
+
     .ref-no {
+        font-family: 'SF Mono', 'Fira Mono', 'Courier New', monospace;
+        font-size: 0.78rem;
         font-weight: 700;
-        color: var(--charcoal);
-        font-family: monospace;
-        font-size: 0.85rem;
+        color: var(--navy-md);
+        letter-spacing: 0.04em;
+        background: var(--navy-lt);
+        padding: 3px 8px;
+        border-radius: 5px;
+        display: inline-block;
     }
-    
-    .resident-name {
-        font-weight: 500;
-    }
-    
-    /* Badges */
+    .resident-name { font-weight: 600; }
+    .cert-type { color: var(--slate); font-size: 0.83rem; }
+    .date-val  { color: var(--slate); font-size: 0.82rem; }
+
+    /* ── BADGES ── */
     .badge {
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        padding: 4px 12px;
+        padding: 4px 11px;
         border-radius: 20px;
-        font-size: 0.7rem;
-        font-weight: 600;
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+        letter-spacing: 0.02em;
     }
-    
-    .badge-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .badge-processing {
-        background: #dbeafe;
-        color: #1e40af;
-    }
-    
-    .badge-forapproval {
-        background: #fed7aa;
-        color: #c2410c;
-    }
-    
-    .badge-approved {
-        background: #dcfce7;
-        color: #166534;
-    }
-    
-    .badge-released {
-        background: #d1fae5;
-        color: #065f46;
-    }
-    
-    /* Action Buttons */
-    .action-group {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-    
+    .badge i { font-size: 0.65rem; }
+    .badge-pending    { background: var(--pending-bg);  color: var(--pending-text);  border: 1px solid var(--pending-ring); }
+    .badge-processing { background: var(--process-bg);  color: var(--process-text);  border: 1px solid var(--process-ring); }
+    .badge-forapproval{ background: var(--approval-bg); color: var(--approval-text); border: 1px solid var(--approval-ring);}
+    .badge-approved   { background: var(--approved-bg); color: var(--approved-text); border: 1px solid var(--approved-ring);}
+    .badge-released   { background: var(--released-bg); color: var(--released-text); border: 1px solid var(--released-ring);}
+
+    /* ── BUTTONS ── */
+    .action-group { display: flex; gap: 6px; flex-wrap: wrap; }
     .btn-action {
-        padding: 5px 12px;
-        border-radius: 5px;
-        font-size: 0.7rem;
-        font-weight: 600;
+        padding: 5px 11px;
+        border-radius: 7px;
+        font-size: 0.72rem;
+        font-weight: 700;
         cursor: pointer;
         border: none;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        transition: opacity 0.15s;
+        transition: all 0.18s;
     }
-    
-    .btn-action:hover {
-        opacity: 0.85;
-    }
-    
-    .btn-dark {
-        background: #1a1d23;
-        color: #fff;
-    }
-    
-    .btn-ghost {
-        background: var(--bg);
-        color: var(--muted);
-        border: 1px solid var(--border);
-    }
-    
-    .btn-ghost:hover {
-        color: var(--text);
-    }
-    
-    .btn-ghost:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    
-    /* Log List */
-    .log-list {
-        padding: 8px 0;
-    }
-    
-    .log-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 14px 20px;
-        border-bottom: 1px solid var(--border);
-        transition: background 0.2s;
-    }
-    
-    .log-item:hover {
-        background: var(--cream);
-    }
-    
-    .log-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--yellow);
+    .btn-action:hover { transform: translateY(-1px); }
+    .btn-primary   { background: var(--navy); color: #fff; }
+    .btn-primary:hover { background: var(--navy-md); }
+    .btn-secondary { background: var(--gold-lt); color: var(--gold-dk); border: 1px solid #f0d78a; }
+    .btn-secondary:hover { background: #faefc5; }
+    .btn-ghost     { background: var(--surface); color: var(--slate); border: 1px solid var(--border); }
+    .btn-ghost:hover { background: #eeeff4; color: var(--ink); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 56px 24px; color: var(--mist); }
+    .empty-icon {
+        width: 52px; height: 52px;
+        background: var(--surface);
         border-radius: 50%;
-        margin-top: 6px;
-        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: var(--mist);
+        margin: 0 auto 12px;
     }
-    
-    .log-text {
-        font-size: 0.85rem;
-        color: var(--text);
-        line-height: 1.4;
-        margin-bottom: 4px;
-    }
-    
-    .log-time {
-        font-size: 0.7rem;
-        color: var(--muted);
-    }
-    
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 48px 20px;
-        color: var(--muted);
-    }
-    
-    .empty-state i {
-        font-size: 2rem;
-        display: block;
-        margin-bottom: 10px;
-        opacity: 0.4;
-    }
-    
-    /* Responsive Breakpoints */
-    @media (max-width: 1200px) {
-        .stats-row {
-            gap: 16px;
-        }
-        
-        .stat-value {
-            font-size: 1.5rem;
-        }
-        
-        .stat-icon {
-            width: 44px;
-            height: 44px;
-            font-size: 1.2rem;
-        }
-    }
-    
+    .empty-state p { font-size: 0.85rem; font-weight: 500; }
+
+    /* ── RESPONSIVE ── */
     @media (max-width: 1024px) {
-        .main-grid {
-            grid-template-columns: 1fr;
-            gap: 24px;
-        }
-        
-        .stats-row {
-            grid-template-columns: repeat(2, 1fr);
-        }
+        .stats-row { grid-template-columns: repeat(2, 1fr); }
     }
-    
-    @media (max-width: 768px) {
-        .stats-row {
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        
-        .stat-card {
-            padding: 16px;
-        }
-        
-        .stat-value {
-            font-size: 1.8rem;
-        }
-        
-        .card-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .card-actions {
-            width: 100%;
-        }
-        
-        .btn-outline {
-            flex: 1;
-            text-align: center;
-        }
-        
-        /* Make table scrollable on mobile */
-        .data-table {
-            display: block;
-            overflow-x: auto;
-            white-space: nowrap;
-        }
-        
-        .data-table thead,
-        .data-table tbody,
-        .data-table tr,
-        .data-table td,
-        .data-table th {
-            display: table;
-            width: 100%;
-        }
-        
+
+    @media (max-width: 640px) {
+        .stats-row  { grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-card  { padding: 16px; gap: 14px; }
+        .stat-icon  { width: 46px; height: 46px; font-size: 1.1rem; border-radius: 11px; }
+        .stat-value { font-size: 1.65rem; }
+        .card-header { padding: 14px 16px; }
+
+        /* ── Mobile table: rows become stacked cards ── */
+        .table-wrapper { overflow-x: unset; }
+        .data-table,
+        .data-table tbody { display: block; width: 100%; }
+        .data-table thead  { display: none; }
+
         .data-table tbody tr {
-            width: 100%;
-        }
-        
-        .action-group {
-            flex-direction: column;
-        }
-        
-        .btn-action {
-            justify-content: center;
-        }
-        
-        .log-item {
-            padding: 12px 16px;
-        }
-        
-        .log-text {
-            font-size: 0.8rem;
-        }
-    }
-    
-    @media (max-width: 480px) {
-        .stat-card {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            font-size: 1.3rem;
-        }
-        
-        .stat-info {
-            text-align: center;
-        }
-        
-        .card-header {
+            display: block;
             padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
         }
-        
-        .card-title {
-            font-size: 0.9rem;
+        .data-table tbody tr:last-child { border-bottom: none; }
+        .data-table tbody tr:hover { background: var(--surface); }
+
+        .data-table tbody td {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: none;
+            font-size: 0.83rem;
+            gap: 8px;
         }
-        
-        .data-table td,
-        .data-table th {
-            padding: 10px 12px;
-            font-size: 0.75rem;
+
+        /* data-label becomes the inline column heading */
+        .data-table tbody td::before {
+            content: attr(data-label);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--mist);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            flex-shrink: 0;
+            min-width: 72px;
         }
-        
-        .badge {
-            padding: 3px 8px;
-            font-size: 0.65rem;
+
+        /* Reference pill acts as the card's heading row */
+        .data-table tbody td:first-child {
+            padding-bottom: 10px;
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--border);
         }
-        
-        .btn-action {
-            padding: 4px 10px;
-            font-size: 0.65rem;
+        .data-table tbody td:first-child::before { display: none; }
+
+        /* Actions row — no label, buttons right-aligned */
+        .data-table tbody td:last-child {
+            padding-top: 10px;
+            margin-top: 2px;
         }
-        
-        .log-text {
-            font-size: 0.75rem;
-        }
-        
-        .log-time {
-            font-size: 0.65rem;
-        }
+        .data-table tbody td:last-child::before { display: none; }
+        .action-group { justify-content: flex-end; width: 100%; }
+    }
+
+    @media (max-width: 400px) {
+        .stats-row { grid-template-columns: 1fr; }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+        .btn-action:active,
+        .btn-link:active { transform: scale(0.97); opacity: 0.85; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<h2 class="page-heading">Dashboard</h2>
+<h2 class="page-heading">Dashboard Overview</h2>
 
-<!-- Stats Row -->
 <div class="stats-row">
-    <div class="stat-card">
-        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+    <div class="stat-card blue">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
         <div class="stat-info">
-            <div class="stat-label">Total Residents</div>
-            <div class="stat-value">{{ total_residents|default:"4,892" }}</div>
-            <div class="stat-sub">+1.2% this week</div>
+            <div class="stat-label">Total Requests</div>
+            <div class="stat-value">{{ total_certificates|default:0 }}</div>
+            <div class="stat-sub muted">All certificate records</div>
         </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+    <div class="stat-card amber">
+        <div class="stat-icon"><i class="fas fa-clock"></i></div>
         <div class="stat-info">
             <div class="stat-label">Pending Requests</div>
             <div class="stat-value">{{ pending|default:0 }}</div>
+            <div class="stat-sub muted">Awaiting processing</div>
         </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon orange"><i class="fas fa-exclamation-triangle"></i></div>
+    <div class="stat-card orange">
+        <div class="stat-icon"><i class="fas fa-file-signature"></i></div>
         <div class="stat-info">
-            <div class="stat-label">"For Approval" Requests</div>
+            <div class="stat-label">For Approval</div>
             <div class="stat-value">{{ for_approval|default:0 }}</div>
+            <div class="stat-sub muted">Ready for Kapitan</div>
         </div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-card green">
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
         <div class="stat-info">
             <div class="stat-label">Approved Today</div>
             <div class="stat-value">{{ approved_today|default:0 }}</div>
+            <div class="stat-sub up"><i class="fas fa-check"></i> {{ released_today|default:0 }} released today</div>
         </div>
     </div>
 </div>
 
-<!-- Main Grid -->
 <div class="main-grid">
-    <!-- Table Card -->
     <div class="card">
         <div class="card-header">
-            <span class="card-title"><i class="fas fa-file-certificate"></i> Certificate Requests</span>
-            <div class="card-actions">
-                <a href="{% url 'certificates:request_list' %}" class="btn-outline">View All</a>
-            </div>
+            <span class="card-title">
+                <span class="title-icon"><i class="fas fa-file-certificate"></i></span>
+                Recent Certificate Requests
+            </span>
+            <a href="{% url 'certificates:request_list' %}" class="btn-link">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
-        <div style="overflow-x: auto;">
+
+        <div class="table-wrapper">
             <table class="data-table">
                 <thead>
-                    </table>
-                        <th>Reference No.</th>
-                        <th>Resident Name</th>
-                        <th>Certificate Type</th>
-                        <th>Date Requested</th>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Resident</th>
+                        <th>Type</th>
+                        <th>Date</th>
                         <th>Status</th>
                         <th>Actions</th>
-                    </thead>
+                    </tr>
+                </thead>
                 <tbody>
                     {% for req in recent_certificates %}
                     <tr>
-                        <td class="ref-no">{{ req.reference_number }}</td>
-                        <td class="resident-name">{{ req.resident_name }}</td>
-                        <td>{{ req.certificate_type }}</td>
-                        <td>{{ req.date_requested|date:"M d, Y" }}</td>
-                        <td>
+                        <td data-label="Reference"><span class="ref-no">{{ req.request_id }}</span></td>
+                        <td data-label="Resident" class="resident-name">{{ req.full_name }}</td>
+                        <td data-label="Type" class="cert-type">{{ req.get_request_type_display }}</td>
+                        <td data-label="Date" class="date-val">{{ req.date_submitted|date:"M d, Y" }}</td>
+                        <td data-label="Status">
                             {% if req.status == 'pending' %}
                                 <span class="badge badge-pending"><i class="fas fa-clock"></i> Pending</span>
                             {% elif req.status == 'processing' %}
-                                <span class="badge badge-processing"><i class="fas fa-spinner"></i> Processing</span>
+                                <span class="badge badge-processing"><i class="fas fa-spinner fa-spin"></i> Processing</span>
                             {% elif req.status == 'for_approval' %}
                                 <span class="badge badge-forapproval"><i class="fas fa-check-double"></i> For Approval</span>
                             {% elif req.status == 'approved' %}
@@ -551,13 +416,19 @@
                                 <span class="badge badge-pending">{{ req.get_status_display }}</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td data-label="Actions">
                             <div class="action-group">
-                                <a href="{% url 'certificates:process' req.id %}" class="btn-action btn-dark"><i class="fas fa-play"></i> Process</a>
+                                <a href="{% url 'certificates:process_request' req.id %}" class="btn-action btn-primary">
+                                    <i class="fas fa-play"></i> Process
+                                </a>
                                 {% if req.status == 'processing' %}
-                                    <a href="{% url 'certificates:send_approval' req.id %}" class="btn-action btn-dark"><i class="fas fa-paper-plane"></i> Send Approval</a>
+                                <a href="{% url 'certificates:send_approval' req.id %}" class="btn-action btn-secondary">
+                                    <i class="fas fa-paper-plane"></i> Send
+                                </a>
                                 {% endif %}
-                                <a href="{% url 'certificates:view' req.id %}" class="btn-action btn-ghost"><i class="fas fa-eye"></i> View</a>
+                                <a href="{% url 'certificates:view_request' req.id %}" class="btn-action btn-ghost">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
                             </div>
                         </td>
                     </tr>
@@ -565,7 +436,7 @@
                     <tr>
                         <td colspan="6">
                             <div class="empty-state">
-                                <i class="fas fa-inbox"></i>
+                                <div class="empty-icon"><i class="fas fa-inbox"></i></div>
                                 <p>No certificate requests found</p>
                             </div>
                         </td>
@@ -573,62 +444,6 @@
                     {% endfor %}
                 </tbody>
             </table>
-        </div>
-    </div>
-
-    <!-- Recent Actions Log -->
-    <div class="card">
-        <div class="card-header">
-            <span class="card-title"><i class="fas fa-history"></i> Recent Actions</span>
-        </div>
-        <div class="log-list">
-            {% for log in recent_logs %}
-            <div class="log-item">
-                <div class="log-dot"></div>
-                <div>
-                    <div class="log-text">{{ log.description }}</div>
-                    <div class="log-time">
-                        <i class="far fa-clock" style="font-size: 0.65rem;"></i> {{ log.timestamp|timesince }} ago
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="log-item">
-                <div class="log-dot"></div>
-                <div>
-                    <div class="log-text">Processed Certificate for Juan D. Cruz (Barangay Clearance)</div>
-                    <div class="log-time"><i class="far fa-clock"></i> 15 minutes ago</div>
-                </div>
-            </div>
-            <div class="log-item">
-                <div class="log-dot"></div>
-                <div>
-                    <div class="log-text">Sent Certificate of Indigency for Kapitan Approval (Jose L. Pangan)</div>
-                    <div class="log-time"><i class="far fa-clock"></i> 1 hour ago</div>
-                </div>
-            </div>
-            <div class="log-item">
-                <div class="log-dot"></div>
-                <div>
-                    <div class="log-text">Updated Resident Information for Maria S. Makiling</div>
-                    <div class="log-time"><i class="far fa-clock"></i> 2 hours ago</div>
-                </div>
-            </div>
-            <div class="log-item">
-                <div class="log-dot"></div>
-                <div>
-                    <div class="log-text">Released Certificate of Residency to Pedro R. Santos</div>
-                    <div class="log-time"><i class="far fa-clock"></i> 3 hours ago</div>
-                </div>
-            </div>
-            <div class="log-item">
-                <div class="log-dot"></div>
-                <div>
-                    <div class="log-text">Processed new Blotter Case #BL-2026-0025</div>
-                    <div class="log-time"><i class="far fa-clock"></i> 5 hours ago</div>
-                </div>
-            </div>
-            {% endfor %}
         </div>
     </div>
 </div>

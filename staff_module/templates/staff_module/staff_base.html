@@ -3,51 +3,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>{% block title %}BIMS Staff Portal{% endblock %}</title>
     <link rel="icon" type="image/jpeg" href="{% static 'images/barangay_seal.jpg' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --sidebar-bg: #1a1d23;
-            --sidebar-hover: #2a2d35;
-            --sidebar-active: #2a2d35;
+            --sidebar-bg: #0f1117;
+            --sidebar-hover: rgba(255,255,255,0.05);
+            --sidebar-active: rgba(240,192,64,0.08);
             --sidebar-text: #9ca3af;
-            --sidebar-text-active: #ffffff;
-            --sidebar-accent: #f5d300;
-            --sidebar-width: 220px;
-            --bg: #f4f6f9;
+            --sidebar-text-active: #f0c040;
+            --sidebar-accent: #f0c040;
+            --sidebar-width: 248px;
+            --bg: #f2f4f8;
             --white: #ffffff;
-            --border: #e5e7eb;
+            --surface: #ffffff;
+            --border: #e4e7ed;
             --text: #111827;
+            --sub: #6b7280;
             --muted: #6b7280;
             --radius: 10px;
             --radius-sm: 6px;
-            --yellow: #f5d300;
-            --yellow-light: #fef9c3;
-            --orange: #f97316;
-            --orange-light: #fff7ed;
-            --green: #22c55e;
-            --green-light: #f0fdf4;
-            --blue: #3b82f6;
-            --blue-light: #eff6ff;
-            --shadow: 0 1px 4px rgba(0,0,0,0.07);
-            --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
-            --toast-success: #22c55e;
-            --toast-error: #ef4444;
-            --toast-warning: #f59e0b;
-            --toast-info: #3b82f6;
+            --radius-xs: 4px;
+            --yellow: #f0c040;
+            --yellow-light: #fdf6dc;
+            --gold: #f0c040;
+            --gold-dim: #c49a28;
+            --gold-bg: #fdf6dc;
+            --ink: #0f1117;
+            --ink-2: #1c1f28;
+            --charcoal: #0f1117;
+            --slate: #6b7280;
+            --cream: #f8fafc;
+            --orange: #d97706;
+            --orange-light: #fef3c7;
+            --green: #16a34a;
+            --green-light: #dcfce7;
+            --blue: #2563eb;
+            --blue-light: #dbeafe;
+            --red: #dc2626;
+            --red-light: #fee2e2;
+            --amber: #d97706;
+            --amber-bg: #fef3c7;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --toast-success: #16a34a;
+            --toast-error: #dc2626;
+            --toast-warning: #d97706;
+            --toast-info: #2563eb;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             display: flex;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Toast Container */
@@ -711,6 +727,541 @@
         }
     </style>
     {% block extra_css %}{% endblock %}
+    <style>
+        /* Shared staff/admin visual system */
+        .sidebar {
+            overflow: hidden;
+            transition: transform 0.28s cubic-bezier(0.4,0,0.2,1), left 0.28s cubic-bezier(0.4,0,0.2,1);
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 80% 10%, rgba(240,192,64,0.07) 0%, transparent 50%),
+                radial-gradient(circle at 20% 90%, rgba(240,192,64,0.04) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .sidebar-brand,
+        .sidebar-nav,
+        .sidebar-footer { position: relative; }
+
+        .brand-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            background: var(--gold);
+        }
+
+        .brand-text {
+            letter-spacing: -0.01em;
+        }
+
+        .brand-text span {
+            font-size: 0.75rem;
+            margin-top: 2px;
+        }
+
+        .nav-link {
+            border-left: 2px solid transparent;
+            border-radius: 0;
+        }
+
+        .nav-link.active {
+            color: var(--gold);
+            border-left-color: var(--gold);
+        }
+
+        .nav-link.active::before { display: none; }
+        .nav-link.active i { color: var(--gold); }
+
+        .sidebar-footer .nav-link {
+            color: rgba(239,68,68,0.72);
+        }
+
+        .sidebar-footer .nav-link:hover {
+            color: #ef4444;
+            background: rgba(239,68,68,0.08);
+        }
+
+        .main { min-width: 0; }
+
+        .topbar {
+            height: 56px;
+            padding: 0 24px;
+        }
+
+        .hamburger-btn {
+            border: none;
+            background: var(--bg);
+        }
+
+        .hamburger-btn:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .topbar-search,
+        .user-pill,
+        .notif-btn {
+            background: var(--bg);
+            border-color: var(--border);
+        }
+
+        .user-avatar-initials {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        .page-heading,
+        .page-title {
+            letter-spacing: -0.02em;
+        }
+
+        .content {
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .card,
+        .table-card,
+        .filter-card,
+        .form-card,
+        .process-card,
+        .release-card,
+        .review-card,
+        .schedule-card,
+        .section-card,
+        .info-card,
+        .pending-card,
+        .empty-card,
+        .detail-card,
+        .calendar-card,
+        .report-card,
+        .summary-card,
+        .chart-card {
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius) !important;
+            box-shadow: none;
+        }
+
+        .card-header,
+        .card-head,
+        .table-card-header,
+        .form-header,
+        .form-card-head,
+        .info-card-head,
+        .pending-card-head,
+        .section-title,
+        .detail-header,
+        .report-header {
+            border-bottom: 1px solid var(--border) !important;
+            background: var(--surface) !important;
+        }
+
+        .data-table,
+        table {
+            max-width: 100%;
+        }
+
+        .data-table thead th {
+            background: var(--bg) !important;
+            color: var(--muted) !important;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--bg) !important;
+        }
+
+        .scroll-x,
+        .table-responsive,
+        .table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        input,
+        select,
+        textarea {
+            font-family: 'DM Sans', sans-serif !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--ink) !important;
+            box-shadow: 0 0 0 3px rgba(15,17,23,0.08) !important;
+            outline: none;
+        }
+
+        .btn-action,
+        .btn-filter,
+        .btn-submit,
+        .btn-primary,
+        .btn-create,
+        .btn-review,
+        .btn-view-report,
+        .btn-approve,
+        .btn-dark,
+        .btn-action-lg.btn-primary-dark {
+            background: var(--ink) !important;
+            color: #fff !important;
+            border-color: var(--ink) !important;
+        }
+
+        .btn-action:hover,
+        .btn-filter:hover,
+        .btn-submit:hover,
+        .btn-primary:hover,
+        .btn-create:hover,
+        .btn-review:hover,
+        .btn-view-report:hover,
+        .btn-approve:hover,
+        .btn-dark:hover {
+            opacity: 1 !important;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn-cancel,
+        .btn-reset,
+        .btn-outline,
+        .btn-secondary,
+        .btn-ghost,
+        .btn-back {
+            background: var(--bg) !important;
+            color: var(--sub) !important;
+            border: 1px solid var(--border) !important;
+        }
+
+        .btn-cancel:hover,
+        .btn-reset:hover,
+        .btn-outline:hover,
+        .btn-secondary:hover,
+        .btn-ghost:hover,
+        .btn-back:hover {
+            background: #fff !important;
+            color: var(--text) !important;
+            border-color: var(--text) !important;
+        }
+
+        .btn-delete,
+        .btn-reject,
+        .btn-danger {
+            background: var(--red) !important;
+            color: #fff !important;
+            border-color: var(--red) !important;
+        }
+
+        .btn-warning,
+        .btn-hearing,
+        .btn-export,
+        .btn-action-lg.btn-teal {
+            background: var(--gold) !important;
+            color: var(--ink) !important;
+            border-color: var(--gold) !important;
+        }
+
+        .badge-pending,
+        .badge-forapproval,
+        .badge-warning {
+            background: var(--amber-bg) !important;
+            color: #92400e !important;
+        }
+
+        .badge-processing,
+        .badge-info {
+            background: var(--blue-light) !important;
+            color: #1e40af !important;
+        }
+
+        .badge-approved,
+        .badge-resolved,
+        .badge-released,
+        .badge-success {
+            background: var(--green-light) !important;
+            color: #166534 !important;
+        }
+
+        .toast-container {
+            top: 68px;
+            right: 20px;
+            z-index: 1200;
+            max-width: 390px;
+            width: calc(100vw - 40px);
+        }
+
+        .toast-item {
+            min-width: 0;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(15,17,23,0.08);
+            box-shadow: 0 18px 40px rgba(15,17,23,0.16), 0 2px 8px rgba(15,17,23,0.08);
+        }
+
+        .toast-inner { padding: 12px 14px; }
+        .toast-icon { width: 24px; height: 24px; font-size: 0.82rem; }
+        .toast-icon span { font-size: 0; }
+        .toast-icon span::before {
+            font-family: "Font Awesome 6 Free";
+            font-size: 0.78rem;
+            font-weight: 900;
+        }
+        .toast-success .toast-icon span::before { content: "\f00c"; }
+        .toast-error .toast-icon span::before { content: "\f00d"; }
+        .toast-warning .toast-icon span::before { content: "\f071"; }
+        .toast-info .toast-icon span::before { content: "\f05a"; }
+        .toast-close { font-size: 0; }
+        .toast-close::before {
+            content: "x";
+            font-size: 1rem;
+        }
+        .toast-title { font-size: 0.9rem; }
+        .toast-message { font-size: 0.86rem; }
+
+        .staff-modal-backdrop,
+        .staff-loading-overlay,
+        .staff-skeleton-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .staff-modal-backdrop {
+            z-index: 1100;
+            background: rgba(15,17,23,0.56);
+            backdrop-filter: blur(6px);
+        }
+
+        .staff-modal-backdrop.open,
+        .staff-loading-overlay.open,
+        .staff-skeleton-overlay.open { display: flex; }
+
+        .staff-modal {
+            width: min(460px, 100%);
+            background: var(--surface);
+            border-radius: 10px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+            overflow: hidden;
+            transform: translateY(8px) scale(0.98);
+            opacity: 0;
+            animation: staffModalIn 0.18s ease forwards;
+        }
+
+        .staff-modal-head {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .staff-modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .staff-modal-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .staff-modal-subtitle {
+            color: var(--sub);
+            font-size: 0.86rem;
+            margin-top: 2px;
+        }
+
+        .staff-modal-body {
+            padding: 18px 20px;
+            color: var(--sub);
+            line-height: 1.55;
+            font-size: 0.94rem;
+        }
+
+        .staff-modal-actions {
+            padding: 14px 20px 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .staff-modal-btn {
+            border: 1.5px solid transparent;
+            border-radius: 8px;
+            min-height: 38px;
+            padding: 9px 16px;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .staff-modal-btn.secondary {
+            background: #fff;
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .staff-modal-btn.primary { background: var(--ink); color: #fff; }
+        .staff-modal-btn.danger { background: var(--red); color: #fff; }
+        .staff-modal-btn.warning { background: var(--gold); color: var(--ink); }
+        .staff-modal.danger .staff-modal-icon { background: var(--red-light); color: var(--red); }
+        .staff-modal.warning .staff-modal-icon { background: var(--amber-bg); color: var(--amber); }
+        .staff-modal.info .staff-modal-icon { background: var(--blue-light); color: var(--blue); }
+
+        .staff-loading-overlay,
+        .staff-skeleton-overlay {
+            z-index: 1300;
+            background: rgba(242,244,248,0.78);
+            backdrop-filter: blur(5px);
+        }
+
+        .staff-loading-card,
+        .staff-skeleton-card {
+            width: min(420px, 100%);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 18px 50px rgba(15,17,23,0.16);
+            padding: 22px;
+        }
+
+        .staff-loading-card { text-align: center; width: min(300px, 100%); }
+
+        .staff-spinner {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 3px solid #e5e7eb;
+            border-top-color: var(--gold);
+            margin: 0 auto 14px;
+            animation: staffSpin 0.75s linear infinite;
+        }
+
+        .staff-loading-title {
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .staff-loading-subtitle {
+            color: var(--sub);
+            font-size: 0.88rem;
+        }
+
+        .skeleton,
+        .skeleton-line,
+        .skeleton-block {
+            position: relative;
+            overflow: hidden;
+            background: #e9edf3;
+            border-radius: 7px;
+        }
+
+        .skeleton::after,
+        .skeleton-line::after,
+        .skeleton-block::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent);
+            animation: staffSkeleton 1.25s infinite;
+        }
+
+        .skeleton-line { height: 12px; margin-bottom: 10px; }
+        .skeleton-line.short { width: 45%; }
+        .skeleton-line.medium { width: 70%; }
+        .skeleton-block { height: 76px; margin-top: 14px; }
+
+        @keyframes staffModalIn { to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes staffSpin { to { transform: rotate(360deg); } }
+        @keyframes staffSkeleton { 100% { transform: translateX(100%); } }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                left: 0;
+                transform: translateX(-100%);
+                width: 260px;
+            }
+
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; backdrop-filter: blur(2px); }
+            .topbar-title span { display: none; }
+            .topbar { padding: 0 16px; }
+            .data-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-row,
+            .stats-grid,
+            .dashboard-grid,
+            .main-grid,
+            .reports-grid,
+            .summary-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .filter-actions,
+            .form-actions,
+            .action-buttons,
+            .btn-group {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+
+            .btn-action,
+            .btn-filter,
+            .btn-submit,
+            .btn-cancel,
+            .btn-reset,
+            .btn-primary,
+            .btn-secondary,
+            .btn-create,
+            .btn-review,
+            .btn-view-report,
+            .btn-delete {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .content { padding: 12px; }
+            .topbar { padding: 0 12px; }
+            .topbar-right { gap: 8px; }
+            .notif-btn { display: none; }
+            .staff-modal-actions { flex-direction: column-reverse; }
+            .staff-modal-btn { width: 100%; }
+        }
+    </style>
 </head>
 <body>
 
@@ -785,7 +1336,15 @@
         </nav>
 
         <div class="sidebar-footer">
-            <form method="post" action="{% url 'logout' %}">
+            <form method="post" action="{% url 'logout' %}"
+                  data-confirm="true"
+                  data-confirm-title="Sign out of BIMS?"
+                  data-confirm-subtitle="Your staff portal session will end."
+                  data-confirm-message="Please confirm that you want to log out of the staff portal."
+                  data-confirm-text="Logout"
+                  data-confirm-variant="warning"
+                  data-loading-title="Signing out"
+                  data-loading-subtitle="Please wait while BIMS ends your session.">
                 {% csrf_token %}
                 <button type="submit" class="nav-link" style="width: 100%; border: 0; background: transparent; cursor: pointer; font: inherit;">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -829,6 +1388,43 @@
         <!-- Page Content -->
         <div class="content">
             {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Shared confirmation modal -->
+    <div id="staffConfirmModal" class="staff-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="staffConfirmTitle">
+        <div class="staff-modal info" id="staffConfirmCard">
+            <div class="staff-modal-head">
+                <div class="staff-modal-icon" id="staffConfirmIcon"><i class="fas fa-circle-info"></i></div>
+                <div>
+                    <h2 class="staff-modal-title" id="staffConfirmTitle">Confirm action</h2>
+                    <div class="staff-modal-subtitle" id="staffConfirmSubtitle">Please review before continuing.</div>
+                </div>
+            </div>
+            <div class="staff-modal-body" id="staffConfirmMessage"></div>
+            <div class="staff-modal-actions">
+                <button type="button" class="staff-modal-btn secondary" id="staffConfirmCancel">Cancel</button>
+                <button type="button" class="staff-modal-btn primary" id="staffConfirmProceed">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared loading overlay -->
+    <div id="staffLoadingOverlay" class="staff-loading-overlay" aria-live="polite" aria-busy="true">
+        <div class="staff-loading-card">
+            <div class="staff-spinner"></div>
+            <div class="staff-loading-title" id="staffLoadingTitle">Processing request</div>
+            <div class="staff-loading-subtitle" id="staffLoadingSubtitle">Please wait while BIMS completes this action.</div>
+        </div>
+    </div>
+
+    <!-- Shared skeleton loader -->
+    <div id="staffSkeletonOverlay" class="staff-skeleton-overlay" aria-hidden="true">
+        <div class="staff-skeleton-card">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-block"></div>
         </div>
     </div>
 
@@ -954,32 +1550,265 @@
         })();
     </script>
 
-    <!-- Responsive sidebar toggle -->
+    <!-- Shared staff UI systems -->
     <script>
         (function () {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
             const hamburger = document.getElementById('hamburgerBtn');
-            const sidebar   = document.getElementById('sidebar');
-            const overlay   = document.getElementById('sidebarOverlay');
 
             function openSidebar() {
                 sidebar.classList.add('open');
                 overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
 
             function closeSidebar() {
                 sidebar.classList.remove('open');
                 overlay.classList.remove('active');
+                document.body.style.overflow = '';
             }
 
-            hamburger.addEventListener('click', openSidebar);
-            overlay.addEventListener('click', closeSidebar);
-
-            // Close sidebar when a nav link is tapped on mobile
-            sidebar.querySelectorAll('.nav-link').forEach(function (link) {
-                link.addEventListener('click', function () {
-                    if (window.innerWidth <= 768) closeSidebar();
-                });
+            hamburger && hamburger.addEventListener('click', function () {
+                sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
             });
+            overlay && overlay.addEventListener('click', closeSidebar);
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') closeSidebar();
+            });
+            window.addEventListener('resize', function () {
+                if (window.innerWidth > 768) closeSidebar();
+            });
+
+            const toastTitles = { success: 'Success', error: 'Error', warning: 'Warning', info: 'Information' };
+            const toastIcons = {
+                success: '<i class="fas fa-check"></i>',
+                error: '<i class="fas fa-xmark"></i>',
+                warning: '<i class="fas fa-triangle-exclamation"></i>',
+                info: '<i class="fas fa-circle-info"></i>'
+            };
+
+            function showToast(type, message, title) {
+                const container = document.getElementById('toast-container');
+                if (!container) return;
+                const cleanType = ['success', 'error', 'warning', 'info'].includes(type) ? type : 'info';
+                const toast = document.createElement('div');
+                toast.className = 'toast-item toast-' + cleanType;
+                toast.innerHTML = [
+                    '<div class="toast-inner">',
+                    '<div class="toast-icon">' + toastIcons[cleanType] + '</div>',
+                    '<div class="toast-content"><div class="toast-title"></div><div class="toast-message"></div></div>',
+                    '<button type="button" class="toast-close" aria-label="Dismiss notification">&times;</button>',
+                    '</div><div class="toast-progress"></div>'
+                ].join('');
+                toast.querySelector('.toast-title').textContent = title || toastTitles[cleanType] || 'Notification';
+                toast.querySelector('.toast-message').textContent = message || '';
+                toast.querySelector('.toast-close').addEventListener('click', function () { toast.remove(); });
+                container.appendChild(toast);
+                setTimeout(function () {
+                    toast.classList.add('slide-out');
+                    setTimeout(function () { toast.remove(); }, 320);
+                }, 4200);
+            }
+
+            window.toast = {
+                success: function (message, title) { showToast('success', message, title); },
+                error: function (message, title) { showToast('error', message, title); },
+                warning: function (message, title) { showToast('warning', message, title); },
+                info: function (message, title) { showToast('info', message, title); }
+            };
+
+            const loadingOverlay = document.getElementById('staffLoadingOverlay');
+            window.staffLoading = {
+                show: function (title, subtitle) {
+                    document.getElementById('staffLoadingTitle').textContent = title || 'Processing request';
+                    document.getElementById('staffLoadingSubtitle').textContent = subtitle || 'Please wait while BIMS completes this action.';
+                    loadingOverlay.classList.add('open');
+                },
+                hide: function () { loadingOverlay.classList.remove('open'); }
+            };
+            window.adminLoading = window.staffLoading;
+
+            const skeletonOverlay = document.getElementById('staffSkeletonOverlay');
+            window.staffSkeleton = {
+                show: function () { skeletonOverlay.classList.add('open'); },
+                hide: function () { skeletonOverlay.classList.remove('open'); }
+            };
+
+            const modal = document.getElementById('staffConfirmModal');
+            const modalCard = document.getElementById('staffConfirmCard');
+            const modalTitle = document.getElementById('staffConfirmTitle');
+            const modalSubtitle = document.getElementById('staffConfirmSubtitle');
+            const modalMessage = document.getElementById('staffConfirmMessage');
+            const modalIcon = document.getElementById('staffConfirmIcon');
+            const modalCancel = document.getElementById('staffConfirmCancel');
+            const modalProceed = document.getElementById('staffConfirmProceed');
+            let confirmResolve = null;
+
+            function closeConfirm(result) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                if (confirmResolve) confirmResolve(result);
+                confirmResolve = null;
+            }
+
+            window.staffConfirm = function (options) {
+                const opts = options || {};
+                const variant = ['danger', 'warning', 'info'].includes(opts.variant) ? opts.variant : 'info';
+                const iconClass = variant === 'danger' ? 'fa-triangle-exclamation' : (variant === 'warning' ? 'fa-shield-halved' : 'fa-circle-info');
+                modalCard.className = 'staff-modal ' + variant;
+                modalTitle.textContent = opts.title || 'Confirm action';
+                modalSubtitle.textContent = opts.subtitle || 'Please review before continuing.';
+                modalMessage.textContent = opts.message || 'Are you sure you want to continue?';
+                modalIcon.innerHTML = '<i class="fas ' + iconClass + '"></i>';
+                modalProceed.textContent = opts.confirmText || 'Continue';
+                modalProceed.className = 'staff-modal-btn ' + (variant === 'danger' ? 'danger' : (variant === 'warning' ? 'warning' : 'primary'));
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                modalProceed.focus();
+                return new Promise(function (resolve) { confirmResolve = resolve; });
+            };
+            window.adminConfirm = window.staffConfirm;
+
+            modalCancel.addEventListener('click', function () { closeConfirm(false); });
+            modalProceed.addEventListener('click', function () { closeConfirm(true); });
+            modal.addEventListener('click', function (event) {
+                if (event.target === modal) closeConfirm(false);
+            });
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && modal.classList.contains('open')) closeConfirm(false);
+            });
+
+            function looksDestructive(element) {
+                const text = [
+                    element.className || '',
+                    element.getAttribute('href') || '',
+                    element.getAttribute('action') || '',
+                    element.name || '',
+                    element.value || '',
+                    element.textContent || ''
+                ].join(' ').toLowerCase();
+                return /\b(delete|remove|archive|reject|danger|destroy)\b/.test(text);
+            }
+
+            function normalizeConfirmTriggers() {
+                document.querySelectorAll('[onclick*="confirm("]').forEach(function (element) {
+                    const onclick = element.getAttribute('onclick') || '';
+                    const match = onclick.match(/confirm\((['"])(.*?)\1\)/);
+                    element.removeAttribute('onclick');
+                    element.dataset.confirmMessage = match ? match[2] : 'Are you sure you want to continue?';
+                    element.dataset.confirmTitle = element.dataset.confirmTitle || 'Confirm action';
+                    element.dataset.confirmSubtitle = element.dataset.confirmSubtitle || 'This action needs your confirmation.';
+                    element.dataset.confirmVariant = element.dataset.confirmVariant || (looksDestructive(element) ? 'danger' : 'warning');
+                    element.dataset.confirmText = element.dataset.confirmText || 'Continue';
+                    if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                    else element.dataset.confirm = 'true';
+                });
+
+                document.querySelectorAll('a[href], button[type="submit"], input[type="submit"]').forEach(function (element) {
+                    if (element.dataset.confirm || element.dataset.confirmLink || element.dataset.confirmTitle || !looksDestructive(element)) return;
+                    element.dataset.confirmTitle = 'Confirm destructive action';
+                    element.dataset.confirmSubtitle = 'Please review before continuing.';
+                    element.dataset.confirmMessage = 'This action may change or remove records in BIMS. Do you want to continue?';
+                    element.dataset.confirmText = 'Continue';
+                    element.dataset.confirmVariant = 'danger';
+                    if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                    else element.dataset.confirm = 'true';
+                });
+            }
+
+            document.addEventListener('submit', async function (event) {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement) || form.dataset.confirmed === 'true') return;
+                const submitter = event.submitter;
+                const source = submitter && (submitter.dataset.confirm || submitter.dataset.confirmTitle || submitter.dataset.confirmMessage) ? submitter : form;
+                const needsConfirm = source.dataset.confirm === 'true' || source.dataset.confirmTitle || source.dataset.confirmMessage;
+
+                if (needsConfirm) {
+                    event.preventDefault();
+                    const ok = await window.staffConfirm({
+                        title: source.dataset.confirmTitle,
+                        subtitle: source.dataset.confirmSubtitle,
+                        message: source.dataset.confirmMessage,
+                        confirmText: source.dataset.confirmText,
+                        variant: source.dataset.confirmVariant || 'warning'
+                    });
+                    if (!ok) return;
+                    form.dataset.confirmed = 'true';
+                    if (submitter && submitter.name) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = submitter.name;
+                        hidden.value = submitter.value;
+                        form.appendChild(hidden);
+                    }
+                    window.staffLoading.show(source.dataset.loadingTitle || 'Processing request', source.dataset.loadingSubtitle || 'Please wait while the action is completed.');
+                    form.submit();
+                    return;
+                }
+
+                if (form.method && form.method.toLowerCase() === 'post' && form.dataset.noLoading !== 'true') {
+                    const button = submitter || form.querySelector('button[type="submit"]');
+                    if (button) {
+                        button.disabled = true;
+                        button.dataset.originalHtml = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Working';
+                    }
+                    window.staffLoading.show(form.dataset.loadingTitle || 'Saving changes', form.dataset.loadingSubtitle || 'Please wait while your request is processed.');
+                }
+            }, true);
+
+            document.addEventListener('click', async function (event) {
+                const trigger = event.target.closest('[data-confirm-link="true"]');
+                if (!trigger) return;
+                event.preventDefault();
+                const ok = await window.staffConfirm({
+                    title: trigger.dataset.confirmTitle,
+                    subtitle: trigger.dataset.confirmSubtitle,
+                    message: trigger.dataset.confirmMessage,
+                    confirmText: trigger.dataset.confirmText,
+                    variant: trigger.dataset.confirmVariant || 'warning'
+                });
+                if (ok) {
+                    window.staffLoading.show(trigger.dataset.loadingTitle || 'Opening request', trigger.dataset.loadingSubtitle || 'Please wait while BIMS prepares the next step.');
+                    window.location.href = trigger.href || trigger.dataset.href;
+                }
+            });
+
+            document.addEventListener('click', function (event) {
+                const link = event.target.closest('a[href]');
+                if (!link || link.dataset.confirmLink === 'true') return;
+                if (link.target || link.hasAttribute('download')) return;
+                const href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+                window.staffSkeleton.show();
+            });
+
+            function getCookie(name) {
+                const value = '; ' + document.cookie;
+                const parts = value.split('; ' + name + '=');
+                return parts.length === 2 ? parts.pop().split(';').shift() : '';
+            }
+
+            const originalFetch = window.fetch;
+            window.getCsrfToken = function () { return getCookie('csrftoken'); };
+            window.fetch = function (input, init) {
+                const opts = init || {};
+                const method = (opts.method || 'GET').toUpperCase();
+                opts.headers = new Headers(opts.headers || {});
+                if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method) && !opts.headers.has('X-CSRFToken')) {
+                    opts.headers.set('X-CSRFToken', getCookie('csrftoken'));
+                    opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+                }
+                return originalFetch(input, opts);
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', normalizeConfirmTriggers);
+            } else {
+                normalizeConfirmTriggers();
+            }
+            window.addEventListener('load', function () { window.staffSkeleton.hide(); });
         })();
     </script>
 

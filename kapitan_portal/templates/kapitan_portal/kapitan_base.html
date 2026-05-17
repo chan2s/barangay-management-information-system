@@ -6,34 +6,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>{% block title %}BIMS Kapitan Portal{% endblock %}</title>
     <link rel="icon" type="image/jpeg" href="{% static 'images/barangay_seal.jpg' %}">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --sidebar-bg: #1a1d23;
-            --sidebar-hover: #2a2d35;
-            --sidebar-active: #2a2d35;
+            --sidebar-bg: #0f1117;
+            --sidebar-hover: rgba(255,255,255,0.05);
+            --sidebar-active: rgba(240,192,64,0.08);
             --sidebar-text: #9ca3af;
-            --sidebar-text-active: #ffffff;
-            --sidebar-accent: #f5d300;
+            --sidebar-text-active: #f0c040;
+            --sidebar-accent: #f0c040;
             --sidebar-width: 260px;
             --sidebar-width-mobile: 260px;
-            --bg: #f4f6f9;
+            --bg: #f2f4f8;
             --white: #ffffff;
-            --border: #e5e7eb;
+            --surface: #ffffff;
+            --border: #e4e7ed;
             --text: #111827;
+            --sub: #6b7280;
             --muted: #6b7280;
-            --yellow: #f5d300;
-            --toast-success: #22c55e;
-            --toast-error: #ef4444;
-            --toast-warning: #f59e0b;
-            --toast-info: #3b82f6;
+            --yellow: #f0c040;
+            --gold: #f0c040;
+            --gold-bg: #fdf6dc;
+            --gold-dim: #c49a28;
+            --ink: #0f1117;
+            --green: #16a34a;
+            --green-bg: #dcfce7;
+            --red: #dc2626;
+            --red-bg: #fee2e2;
+            --blue: #2563eb;
+            --blue-bg: #dbeafe;
+            --amber: #d97706;
+            --amber-bg: #fef3c7;
+            --radius: 10px;
+            --radius-sm: 6px;
+            --radius-xs: 4px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --toast-success: #16a34a;
+            --toast-error: #dc2626;
+            --toast-warning: #d97706;
+            --toast-info: #2563eb;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'DM Sans', sans-serif;
             background: var(--bg);
             color: var(--text);
             display: flex;
@@ -485,6 +504,358 @@
         }
     </style>
     {% block extra_css %}{% endblock %}
+    <style>
+        .kapitan-sidebar {
+            overflow: hidden;
+        }
+
+        .kapitan-sidebar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 80% 10%, rgba(240,192,64,0.07) 0%, transparent 50%),
+                radial-gradient(circle at 20% 90%, rgba(240,192,64,0.04) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .sidebar-brand,
+        .sidebar-nav { position: relative; }
+
+        .nav-link {
+            border-left: 2px solid transparent;
+        }
+
+        .nav-link.active {
+            color: var(--gold);
+            background: rgba(240,192,64,0.08);
+            border-left-color: var(--gold);
+        }
+
+        .nav-link.active::before { display: none; }
+        .nav-link.active i { color: var(--gold); }
+
+        .kapitan-main { min-width: 0; }
+
+        .topbar {
+            height: 56px;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        .topbar-title span,
+        .user-pill-role { color: var(--sub); }
+
+        .user-pill {
+            border: 1px solid var(--border);
+            background: var(--bg);
+        }
+
+        .user-avatar {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        .card,
+        .table-card,
+        .filter-card,
+        .form-card,
+        .detail-card,
+        .approval-card,
+        .reject-card,
+        .announcement-card,
+        .appointment-card,
+        .certificate-card,
+        .hearing-card,
+        .resident-card {
+            background: var(--surface) !important;
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius) !important;
+            box-shadow: none !important;
+        }
+
+        .card-header,
+        .table-card-header,
+        .form-header,
+        .detail-header,
+        .page-header {
+            background: var(--surface) !important;
+            border-bottom: 1px solid var(--border) !important;
+        }
+
+        input,
+        select,
+        textarea {
+            font-family: 'DM Sans', sans-serif !important;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--ink) !important;
+            box-shadow: 0 0 0 3px rgba(15,17,23,0.08) !important;
+            outline: none;
+        }
+
+        .btn-primary,
+        .btn-approve,
+        .btn-submit,
+        .btn-filter,
+        .btn-save,
+        .btn-action:not(.danger):not(.btn-reject),
+        .btn-icon:not(.danger),
+        .action-btn:not(.danger):not(.reject) {
+            background: var(--ink) !important;
+            border-color: var(--ink) !important;
+            color: #fff !important;
+        }
+
+        .btn-secondary,
+        .btn-cancel,
+        .btn-back,
+        .btn-reset,
+        .btn-outline {
+            background: var(--bg) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--sub) !important;
+        }
+
+        .btn-secondary:hover,
+        .btn-cancel:hover,
+        .btn-back:hover,
+        .btn-reset:hover,
+        .btn-outline:hover {
+            background: #fff !important;
+            color: var(--text) !important;
+            border-color: var(--text) !important;
+        }
+
+        .btn-danger,
+        .btn-delete,
+        .btn-reject,
+        .btn-icon.danger,
+        .action-btn.danger,
+        .action-btn.reject {
+            background: var(--red) !important;
+            border-color: var(--red) !important;
+            color: #fff !important;
+        }
+
+        .data-table {
+            max-width: 100%;
+        }
+
+        .data-table thead th {
+            background: var(--bg) !important;
+            color: var(--muted) !important;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .toast-container {
+            top: 68px;
+            max-width: 390px;
+            width: calc(100vw - 40px);
+        }
+
+        .toast-item {
+            min-width: 0;
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid rgba(15,17,23,0.08);
+            box-shadow: 0 18px 40px rgba(15,17,23,0.16), 0 2px 8px rgba(15,17,23,0.08);
+        }
+
+        .toast-icon span { font-size: 0; }
+        .toast-icon span::before {
+            font-family: "Font Awesome 6 Free";
+            font-size: 0.78rem;
+            font-weight: 900;
+        }
+        .toast-success .toast-icon span::before { content: "\f00c"; }
+        .toast-error .toast-icon span::before { content: "\f00d"; }
+        .toast-warning .toast-icon span::before { content: "\f071"; }
+        .toast-info .toast-icon span::before { content: "\f05a"; }
+        .toast-close { font-size: 0; }
+        .toast-close::before { content: "x"; font-size: 1rem; }
+
+        .kapitan-modal-backdrop,
+        .kapitan-loading-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .kapitan-modal-backdrop {
+            z-index: 1100;
+            background: rgba(15,17,23,0.56);
+            backdrop-filter: blur(6px);
+        }
+
+        .kapitan-modal-backdrop.open,
+        .kapitan-loading-overlay.open { display: flex; }
+
+        .kapitan-modal {
+            width: min(460px, 100%);
+            background: var(--surface);
+            border-radius: 10px;
+            box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+            overflow: hidden;
+            transform: translateY(8px) scale(0.98);
+            opacity: 0;
+            animation: kapitanModalIn 0.18s ease forwards;
+        }
+
+        .kapitan-modal-head {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .kapitan-modal-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .kapitan-modal-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text);
+            margin: 0;
+        }
+
+        .kapitan-modal-subtitle {
+            color: var(--sub);
+            font-size: 0.86rem;
+            margin-top: 2px;
+        }
+
+        .kapitan-modal-body {
+            padding: 18px 20px;
+            color: var(--sub);
+            line-height: 1.55;
+            font-size: 0.94rem;
+        }
+
+        .kapitan-modal-actions {
+            padding: 14px 20px 18px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .kapitan-modal-btn {
+            border: 1.5px solid transparent;
+            border-radius: 8px;
+            min-height: 38px;
+            padding: 9px 16px;
+            font: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .kapitan-modal-btn.secondary {
+            background: #fff;
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .kapitan-modal-btn.primary { background: var(--ink); color: #fff; }
+        .kapitan-modal-btn.danger { background: var(--red); color: #fff; }
+        .kapitan-modal-btn.warning { background: var(--gold); color: var(--ink); }
+        .kapitan-modal.danger .kapitan-modal-icon { background: var(--red-bg); color: var(--red); }
+        .kapitan-modal.warning .kapitan-modal-icon { background: var(--amber-bg); color: var(--amber); }
+        .kapitan-modal.info .kapitan-modal-icon { background: var(--blue-bg); color: var(--blue); }
+
+        .kapitan-loading-overlay {
+            z-index: 1300;
+            background: rgba(242,244,248,0.78);
+            backdrop-filter: blur(5px);
+        }
+
+        .kapitan-loading-card {
+            width: min(300px, 100%);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 18px 50px rgba(15,17,23,0.16);
+            padding: 22px;
+            text-align: center;
+        }
+
+        .kapitan-spinner {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 3px solid #e5e7eb;
+            border-top-color: var(--gold);
+            margin: 0 auto 14px;
+            animation: kapitanSpin 0.75s linear infinite;
+        }
+
+        .kapitan-loading-title {
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .kapitan-loading-subtitle {
+            color: var(--sub);
+            font-size: 0.88rem;
+        }
+
+        @keyframes kapitanModalIn { to { transform: translateY(0) scale(1); opacity: 1; } }
+        @keyframes kapitanSpin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) {
+            .data-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-row,
+            .stats-grid,
+            .dashboard-grid,
+            .main-grid,
+            .cards-grid,
+            .filter-row {
+                grid-template-columns: 1fr !important;
+            }
+
+            .filter-actions,
+            .form-actions,
+            .action-buttons,
+            .button-group {
+                flex-direction: column;
+                align-items: stretch !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kapitan-modal-actions { flex-direction: column-reverse; }
+            .kapitan-modal-btn { width: 100%; }
+        }
+    </style>
 </head>
 <body>
 
@@ -546,7 +917,15 @@
                 <i class="fas fa-shield-alt"></i> Resident Exports
             </a>
             <div class="nav-divider"></div>
-            <form method="post" action="{% url 'logout' %}">
+            <form method="post" action="{% url 'logout' %}"
+                  data-confirm="true"
+                  data-confirm-title="Sign out of BIMS?"
+                  data-confirm-subtitle="Your Kapitan portal session will end."
+                  data-confirm-message="Please confirm that you want to log out of the Kapitan portal."
+                  data-confirm-text="Logout"
+                  data-confirm-variant="warning"
+                  data-loading-title="Signing out"
+                  data-loading-subtitle="Please wait while BIMS ends your session.">
                 {% csrf_token %}
                 <button type="submit" class="nav-link" style="width: 100%; border: 0; background: transparent; cursor: pointer; font: inherit;">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -570,6 +949,33 @@
         </header>
         <div class="content">
             {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <!-- Shared confirmation modal -->
+    <div id="kapitanConfirmModal" class="kapitan-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="kapitanConfirmTitle">
+        <div class="kapitan-modal info" id="kapitanConfirmCard">
+            <div class="kapitan-modal-head">
+                <div class="kapitan-modal-icon" id="kapitanConfirmIcon"><i class="fas fa-circle-info"></i></div>
+                <div>
+                    <h2 class="kapitan-modal-title" id="kapitanConfirmTitle">Confirm action</h2>
+                    <div class="kapitan-modal-subtitle" id="kapitanConfirmSubtitle">Please review before continuing.</div>
+                </div>
+            </div>
+            <div class="kapitan-modal-body" id="kapitanConfirmMessage"></div>
+            <div class="kapitan-modal-actions">
+                <button type="button" class="kapitan-modal-btn secondary" id="kapitanConfirmCancel">Cancel</button>
+                <button type="button" class="kapitan-modal-btn primary" id="kapitanConfirmProceed">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared loading overlay -->
+    <div id="kapitanLoadingOverlay" class="kapitan-loading-overlay" aria-live="polite" aria-busy="true">
+        <div class="kapitan-loading-card">
+            <div class="kapitan-spinner"></div>
+            <div class="kapitan-loading-title" id="kapitanLoadingTitle">Processing request</div>
+            <div class="kapitan-loading-subtitle" id="kapitanLoadingSubtitle">Please wait while BIMS completes this action.</div>
         </div>
     </div>
 
@@ -754,6 +1160,189 @@
                 document.addEventListener('DOMContentLoaded', processDjangoMessages);
             } else {
                 processDjangoMessages();
+            }
+        })();
+    </script>
+
+    <!-- Shared Kapitan confirmation/loading system -->
+    <script>
+        (function() {
+            const loadingOverlay = document.getElementById('kapitanLoadingOverlay');
+            window.kapitanLoading = {
+                show: function(title, subtitle) {
+                    document.getElementById('kapitanLoadingTitle').textContent = title || 'Processing request';
+                    document.getElementById('kapitanLoadingSubtitle').textContent = subtitle || 'Please wait while BIMS completes this action.';
+                    loadingOverlay.classList.add('open');
+                },
+                hide: function() {
+                    loadingOverlay.classList.remove('open');
+                }
+            };
+            window.adminLoading = window.kapitanLoading;
+
+            const modal = document.getElementById('kapitanConfirmModal');
+            const modalCard = document.getElementById('kapitanConfirmCard');
+            const modalTitle = document.getElementById('kapitanConfirmTitle');
+            const modalSubtitle = document.getElementById('kapitanConfirmSubtitle');
+            const modalMessage = document.getElementById('kapitanConfirmMessage');
+            const modalIcon = document.getElementById('kapitanConfirmIcon');
+            const modalCancel = document.getElementById('kapitanConfirmCancel');
+            const modalProceed = document.getElementById('kapitanConfirmProceed');
+            let confirmResolve = null;
+
+            function closeConfirm(result) {
+                modal.classList.remove('open');
+                document.body.style.overflow = '';
+                if (confirmResolve) confirmResolve(result);
+                confirmResolve = null;
+            }
+
+            window.kapitanConfirm = function(options) {
+                const opts = options || {};
+                const variant = ['danger', 'warning', 'info'].includes(opts.variant) ? opts.variant : 'info';
+                const iconClass = variant === 'danger' ? 'fa-triangle-exclamation' : (variant === 'warning' ? 'fa-shield-halved' : 'fa-circle-info');
+                modalCard.className = 'kapitan-modal ' + variant;
+                modalTitle.textContent = opts.title || 'Confirm action';
+                modalSubtitle.textContent = opts.subtitle || 'Please review before continuing.';
+                modalMessage.textContent = opts.message || 'Are you sure you want to continue?';
+                modalIcon.innerHTML = '<i class="fas ' + iconClass + '"></i>';
+                modalProceed.textContent = opts.confirmText || 'Continue';
+                modalProceed.className = 'kapitan-modal-btn ' + (variant === 'danger' ? 'danger' : (variant === 'warning' ? 'warning' : 'primary'));
+                modal.classList.add('open');
+                document.body.style.overflow = 'hidden';
+                modalProceed.focus();
+                return new Promise(function(resolve) { confirmResolve = resolve; });
+            };
+            window.adminConfirm = window.kapitanConfirm;
+
+            modalCancel.addEventListener('click', function() { closeConfirm(false); });
+            modalProceed.addEventListener('click', function() { closeConfirm(true); });
+            modal.addEventListener('click', function(event) {
+                if (event.target === modal) closeConfirm(false);
+            });
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal.classList.contains('open')) closeConfirm(false);
+            });
+
+            function looksDestructive(element) {
+                const text = [
+                    element.className || '',
+                    element.getAttribute('href') || '',
+                    element.getAttribute('action') || '',
+                    element.name || '',
+                    element.value || '',
+                    element.textContent || ''
+                ].join(' ').toLowerCase();
+                return /\b(delete|remove|archive|reject|danger|destroy)\b/.test(text);
+            }
+
+            function normalizeConfirmTriggers() {
+                document.querySelectorAll('[onclick*="confirm("]').forEach(function(element) {
+                    const onclick = element.getAttribute('onclick') || '';
+                    const match = onclick.match(/confirm\((['"])(.*?)\1\)/);
+                    element.removeAttribute('onclick');
+                    element.dataset.confirmMessage = element.dataset.confirmMessage || (match ? match[2] : 'Are you sure you want to continue?');
+                    element.dataset.confirmTitle = element.dataset.confirmTitle || 'Confirm action';
+                    element.dataset.confirmSubtitle = element.dataset.confirmSubtitle || 'This action needs your confirmation.';
+                    element.dataset.confirmVariant = element.dataset.confirmVariant || (looksDestructive(element) ? 'danger' : 'warning');
+                    element.dataset.confirmText = element.dataset.confirmText || 'Continue';
+                    if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                    else element.dataset.confirm = 'true';
+                });
+
+                document.querySelectorAll('a[href], button[type="submit"], input[type="submit"]').forEach(function(element) {
+                    if (element.dataset.confirm || element.dataset.confirmLink || element.dataset.confirmTitle || !looksDestructive(element)) return;
+                    element.dataset.confirmTitle = 'Confirm destructive action';
+                    element.dataset.confirmSubtitle = 'Please review before continuing.';
+                    element.dataset.confirmMessage = 'This action may change or remove records in BIMS. Do you want to continue?';
+                    element.dataset.confirmText = 'Continue';
+                    element.dataset.confirmVariant = 'danger';
+                    if (element.tagName === 'A') element.dataset.confirmLink = 'true';
+                    else element.dataset.confirm = 'true';
+                });
+            }
+
+            document.addEventListener('submit', async function(event) {
+                const form = event.target;
+                if (!(form instanceof HTMLFormElement) || form.dataset.confirmed === 'true') return;
+                const submitter = event.submitter;
+                const source = submitter && (submitter.dataset.confirm || submitter.dataset.confirmTitle || submitter.dataset.confirmMessage) ? submitter : form;
+                const needsConfirm = source.dataset.confirm === 'true' || source.dataset.confirmTitle || source.dataset.confirmMessage;
+
+                if (needsConfirm) {
+                    event.preventDefault();
+                    const ok = await window.kapitanConfirm({
+                        title: source.dataset.confirmTitle,
+                        subtitle: source.dataset.confirmSubtitle,
+                        message: source.dataset.confirmMessage,
+                        confirmText: source.dataset.confirmText,
+                        variant: source.dataset.confirmVariant || 'warning'
+                    });
+                    if (!ok) return;
+                    form.dataset.confirmed = 'true';
+                    if (submitter && submitter.name) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = submitter.name;
+                        hidden.value = submitter.value;
+                        form.appendChild(hidden);
+                    }
+                    window.kapitanLoading.show(source.dataset.loadingTitle || 'Processing request', source.dataset.loadingSubtitle || 'Please wait while the action is completed.');
+                    form.submit();
+                    return;
+                }
+
+                if (form.method && form.method.toLowerCase() === 'post' && form.dataset.noLoading !== 'true') {
+                    const button = submitter || form.querySelector('button[type="submit"]');
+                    if (button) {
+                        button.disabled = true;
+                        button.dataset.originalHtml = button.innerHTML;
+                        button.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Working';
+                    }
+                    window.kapitanLoading.show(form.dataset.loadingTitle || 'Saving changes', form.dataset.loadingSubtitle || 'Please wait while your request is processed.');
+                }
+            }, true);
+
+            document.addEventListener('click', async function(event) {
+                const trigger = event.target.closest('[data-confirm-link="true"]');
+                if (!trigger) return;
+                event.preventDefault();
+                const ok = await window.kapitanConfirm({
+                    title: trigger.dataset.confirmTitle,
+                    subtitle: trigger.dataset.confirmSubtitle,
+                    message: trigger.dataset.confirmMessage,
+                    confirmText: trigger.dataset.confirmText,
+                    variant: trigger.dataset.confirmVariant || 'warning'
+                });
+                if (ok) {
+                    window.kapitanLoading.show(trigger.dataset.loadingTitle || 'Opening request', trigger.dataset.loadingSubtitle || 'Please wait while BIMS prepares the next step.');
+                    window.location.href = trigger.href || trigger.dataset.href;
+                }
+            });
+
+            function getCookie(name) {
+                const value = '; ' + document.cookie;
+                const parts = value.split('; ' + name + '=');
+                return parts.length === 2 ? parts.pop().split(';').shift() : '';
+            }
+
+            const originalFetch = window.fetch;
+            window.getCsrfToken = function() { return getCookie('csrftoken'); };
+            window.fetch = function(input, init) {
+                const opts = init || {};
+                const method = (opts.method || 'GET').toUpperCase();
+                opts.headers = new Headers(opts.headers || {});
+                if (!['GET', 'HEAD', 'OPTIONS', 'TRACE'].includes(method) && !opts.headers.has('X-CSRFToken')) {
+                    opts.headers.set('X-CSRFToken', getCookie('csrftoken'));
+                    opts.headers.set('X-Requested-With', 'XMLHttpRequest');
+                }
+                return originalFetch(input, opts);
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', normalizeConfirmTriggers);
+            } else {
+                normalizeConfirmTriggers();
             }
         })();
     </script>
