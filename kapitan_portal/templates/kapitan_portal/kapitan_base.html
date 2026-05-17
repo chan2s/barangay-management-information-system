@@ -680,7 +680,8 @@
         .toast-close::before { content: "x"; font-size: 1rem; }
 
         .kapitan-modal-backdrop,
-        .kapitan-loading-overlay {
+        .kapitan-loading-overlay,
+        .kapitan-skeleton-overlay {
             position: fixed;
             inset: 0;
             display: none;
@@ -696,7 +697,8 @@
         }
 
         .kapitan-modal-backdrop.open,
-        .kapitan-loading-overlay.open { display: flex; }
+        .kapitan-loading-overlay.open,
+        .kapitan-skeleton-overlay.open { display: flex; }
 
         .kapitan-modal {
             width: min(460px, 100%);
@@ -783,13 +785,15 @@
         .kapitan-modal.warning .kapitan-modal-icon { background: var(--amber-bg); color: var(--amber); }
         .kapitan-modal.info .kapitan-modal-icon { background: var(--blue-bg); color: var(--blue); }
 
-        .kapitan-loading-overlay {
+        .kapitan-loading-overlay,
+        .kapitan-skeleton-overlay {
             z-index: 1300;
             background: rgba(242,244,248,0.78);
             backdrop-filter: blur(5px);
         }
 
-        .kapitan-loading-card {
+        .kapitan-loading-card,
+        .kapitan-skeleton-card {
             width: min(300px, 100%);
             background: var(--surface);
             border: 1px solid var(--border);
@@ -797,6 +801,11 @@
             box-shadow: 0 18px 50px rgba(15,17,23,0.16);
             padding: 22px;
             text-align: center;
+        }
+
+        .kapitan-skeleton-card {
+            width: min(460px, calc(100vw - 32px));
+            text-align: left;
         }
 
         .kapitan-spinner {
@@ -820,8 +829,34 @@
             font-size: 0.88rem;
         }
 
+        .skeleton,
+        .skeleton-line,
+        .skeleton-block {
+            position: relative;
+            overflow: hidden;
+            background: #e9edf3;
+            border-radius: 7px;
+        }
+
+        .skeleton::after,
+        .skeleton-line::after,
+        .skeleton-block::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            transform: translateX(-100%);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.72), transparent);
+            animation: kapitanSkeleton 1.25s infinite;
+        }
+
+        .skeleton-line { height: 12px; margin-bottom: 10px; }
+        .skeleton-line.short { width: 45%; }
+        .skeleton-line.medium { width: 70%; }
+        .skeleton-block { height: 76px; margin-top: 14px; }
+
         @keyframes kapitanModalIn { to { transform: translateY(0) scale(1); opacity: 1; } }
         @keyframes kapitanSpin { to { transform: rotate(360deg); } }
+        @keyframes kapitanSkeleton { 100% { transform: translateX(100%); } }
 
         @media (max-width: 768px) {
             .data-table {
@@ -976,6 +1011,16 @@
             <div class="kapitan-spinner"></div>
             <div class="kapitan-loading-title" id="kapitanLoadingTitle">Processing request</div>
             <div class="kapitan-loading-subtitle" id="kapitanLoadingSubtitle">Please wait while BIMS completes this action.</div>
+        </div>
+    </div>
+
+    <!-- Shared skeleton loader -->
+    <div id="kapitanSkeletonOverlay" class="kapitan-skeleton-overlay open" aria-hidden="true">
+        <div class="kapitan-skeleton-card">
+            <div class="skeleton-line short"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-block"></div>
         </div>
     </div>
 
@@ -1180,6 +1225,17 @@
             };
             window.adminLoading = window.kapitanLoading;
 
+            const skeletonOverlay = document.getElementById('kapitanSkeletonOverlay');
+            const skeletonStartedAt = Date.now();
+            window.kapitanSkeleton = {
+                show: function() {
+                    skeletonOverlay.classList.add('open');
+                },
+                hide: function() {
+                    skeletonOverlay.classList.remove('open');
+                }
+            };
+
             const modal = document.getElementById('kapitanConfirmModal');
             const modalCard = document.getElementById('kapitanConfirmCard');
             const modalTitle = document.getElementById('kapitanConfirmTitle');
@@ -1320,6 +1376,17 @@
                 }
             });
 
+            document.addEventListener('click', function(event) {
+                const link = event.target.closest('a[href]');
+                if (!link || link.dataset.confirmLink === 'true') return;
+                if (link.target || link.hasAttribute('download')) return;
+                const href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+                const url = new URL(link.href, window.location.href);
+                if (url.origin !== window.location.origin) return;
+                window.kapitanSkeleton.show();
+            });
+
             function getCookie(name) {
                 const value = '; ' + document.cookie;
                 const parts = value.split('; ' + name + '=');
@@ -1344,6 +1411,14 @@
             } else {
                 normalizeConfirmTriggers();
             }
+
+            window.addEventListener('load', function() {
+                const elapsed = Date.now() - skeletonStartedAt;
+                const remaining = Math.max(0, 350 - elapsed);
+                setTimeout(function() {
+                    window.kapitanSkeleton.hide();
+                }, remaining);
+            });
         })();
     </script>
     
