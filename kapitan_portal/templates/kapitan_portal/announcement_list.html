@@ -6,181 +6,258 @@
 
 {% block extra_css %}
 <style>
+    html { font-size: 15px; }
+
+    /* ── Page Header ── */
     .page-header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 14px;
-        margin-bottom: 18px;
+        margin-bottom: 22px;
         flex-wrap: wrap;
     }
 
     .page-title {
-        margin: 0;
-        font-size: 1.35rem;
+        margin: 0 0 3px;
+        font-size: 1.45rem;
         font-weight: 800;
         color: var(--text);
+        letter-spacing: -0.02em;
         display: flex;
         align-items: center;
         gap: 10px;
     }
 
-    .page-title i {
-        color: var(--yellow);
+    .page-title i { color: var(--yellow); }
+
+    .page-subtitle {
+        font-size: 0.93rem;
+        color: var(--muted);
+        margin: 0;
     }
 
     .header-actions {
         display: flex;
-        gap: 10px;
+        gap: 8px;
         flex-wrap: wrap;
+        align-items: center;
+        flex-shrink: 0;
     }
 
-    .btn-primary,
-    .btn-secondary,
-    .btn-icon {
-        border-radius: 6px;
-        padding: 9px 13px;
-        font-weight: 800;
-        font-size: 0.82rem;
+    /* ── Buttons ── */
+    .btn {
+        border-radius: var(--radius-sm);
+        padding: 9px 16px;
+        font-weight: 700;
+        font-size: 0.88rem;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         gap: 7px;
         border: 1px solid transparent;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+        min-height: 38px;
     }
 
     .btn-primary {
-        background: var(--sidebar-bg);
+        background: var(--sidebar-bg, #1a1d23);
         color: #fff;
+        border-color: transparent;
     }
 
-    .btn-primary:hover {
-        background: var(--yellow);
-        color: var(--sidebar-bg);
-    }
+    .btn-primary:hover { opacity: 0.88; }
 
-    .btn-secondary,
-    .btn-icon {
-        background: #fff;
+    .btn-secondary {
+        background: var(--white);
         color: var(--muted);
         border-color: var(--border);
     }
 
-    .btn-secondary:hover,
-    .btn-icon:hover {
-        color: var(--text);
-        background: var(--bg);
+    .btn-secondary:hover { color: var(--text); background: var(--bg); }
+
+    .btn-secondary.active-filter {
+        background: var(--yellow-soft, #fdf6d3);
+        border-color: var(--yellow);
+        color: var(--charcoal, #1a1a2e);
+        font-weight: 700;
     }
 
+    .btn-icon {
+        padding: 7px 12px;
+        font-size: 0.82rem;
+        background: var(--bg);
+        color: var(--sub, var(--muted));
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-weight: 600;
+        transition: all 0.15s;
+        white-space: nowrap;
+    }
+
+    .btn-icon:hover { background: var(--border); color: var(--text); }
+
+    .btn-icon.danger { color: #dc2626; }
+    .btn-icon.danger:hover { background: #fee2e2; border-color: #fecaca; }
+
+    /* ── Card ── */
     .card {
         background: var(--white);
         border: 1px solid var(--border);
-        border-radius: 10px;
+        border-radius: var(--radius);
         overflow: hidden;
     }
 
+    /* ── Announcement Row ── */
     .announcement-row {
         display: grid;
         grid-template-columns: 1fr auto;
-        gap: 16px;
-        padding: 16px 18px;
+        gap: 18px;
+        padding: 18px 20px;
         border-bottom: 1px solid var(--border);
+        transition: background 0.1s;
+        align-items: start;
     }
 
-    .announcement-row:last-child {
-        border-bottom: 0;
-    }
+    .announcement-row:last-child { border-bottom: none; }
+    .announcement-row:hover { background: var(--bg); }
 
-    .announcement-title {
-        font-weight: 800;
-        color: var(--text);
+    .ann-title-line {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
         margin-bottom: 6px;
     }
 
+    .announcement-title {
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: var(--text);
+        letter-spacing: -0.01em;
+    }
+
     .announcement-content {
-        color: var(--muted);
-        font-size: 0.86rem;
-        line-height: 1.55;
+        color: var(--sub, var(--muted));
+        font-size: 0.88rem;
+        line-height: 1.6;
         margin-bottom: 10px;
     }
 
     .announcement-meta {
         display: flex;
-        gap: 12px;
+        gap: 14px;
         flex-wrap: wrap;
         color: var(--muted);
-        font-size: 0.76rem;
+        font-size: 0.78rem;
+        align-items: center;
     }
 
+    .announcement-meta i { font-size: 0.7rem; margin-right: 3px; }
+
+    /* ── Badges ── */
     .badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
         border-radius: 999px;
-        padding: 3px 9px;
+        padding: 3px 10px;
         font-size: 0.72rem;
-        font-weight: 800;
+        font-weight: 700;
+        white-space: nowrap;
+        letter-spacing: 0.02em;
     }
 
-    .badge-normal { background: #f3f4f6; color: #4b5563; }
+    .badge-normal    { background: #f3f4f6; color: #4b5563; }
     .badge-important { background: #fef3c7; color: #92400e; }
-    .badge-urgent { background: #fee2e2; color: #991b1b; }
-    .badge-muted { background: #f3f4f6; color: #6b7280; }
+    .badge-urgent    { background: #fee2e2; color: #991b1b; }
+    .badge-muted     { background: #f3f4f6; color: #9ca3af; }
 
+    /* ── Row Actions ── */
     .row-actions {
         display: flex;
         align-items: flex-start;
-        gap: 8px;
+        gap: 6px;
         flex-wrap: wrap;
         justify-content: flex-end;
     }
 
+    /* ── Empty State ── */
     .empty-state {
-        padding: 42px 20px;
+        padding: 52px 20px;
         text-align: center;
         color: var(--muted);
     }
 
-    .empty-state i {
-        display: block;
-        font-size: 2rem;
-        opacity: 0.25;
-        margin-bottom: 10px;
-    }
+    .empty-state i { display: block; font-size: 2rem; opacity: 0.2; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.92rem; }
 
+    /* ── Pagination ── */
     .pagination {
         margin-top: 16px;
         display: flex;
         gap: 8px;
         align-items: center;
         justify-content: center;
+        flex-wrap: wrap;
     }
 
+    .pg-current {
+        background: var(--sidebar-bg, #1a1d23);
+        color: #fff;
+        border-color: transparent;
+        padding: 7px 14px;
+        border-radius: var(--radius-sm);
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    /* ── Responsive ── */
     @media (max-width: 760px) {
         .announcement-row {
             grid-template-columns: 1fr;
+            gap: 12px;
         }
 
         .row-actions {
             justify-content: flex-start;
         }
 
-        .btn-icon {
-            flex: 1;
-        }
+        .btn-icon { flex: 1; justify-content: center; }
+
+        .header-actions { width: 100%; }
+        .btn-primary { flex: 1; justify-content: center; }
+    }
+
+    @media (max-width: 480px) {
+        .page-title { font-size: 1.2rem; }
+        .announcement-row { padding: 14px 16px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
+
 <div class="page-header">
-    <h2 class="page-title"><i class="fas fa-bullhorn"></i> Announcements</h2>
+    <div>
+        <h2 class="page-title"><i class="fas fa-bullhorn"></i> Announcements</h2>
+        <p class="page-subtitle">Manage public announcements for Barangay Poblacion.</p>
+    </div>
     <div class="header-actions">
-        <a href="{% url 'kapitan_portal:announcement_list' %}" class="btn-secondary">All</a>
-        <a href="{% url 'kapitan_portal:announcement_list' %}?status=active" class="btn-secondary">Active</a>
-        <a href="{% url 'kapitan_portal:announcement_list' %}?status=expired" class="btn-secondary">Expired</a>
-        <a href="{% url 'kapitan_portal:announcement_create' %}" class="btn-primary">
+        <a href="{% url 'kapitan_portal:announcement_list' %}"
+           class="btn btn-secondary {% if not status_filter %}active-filter{% endif %}">All</a>
+        <a href="{% url 'kapitan_portal:announcement_list' %}?status=active"
+           class="btn btn-secondary {% if status_filter == 'active' %}active-filter{% endif %}">Active</a>
+        <a href="{% url 'kapitan_portal:announcement_list' %}?status=expired"
+           class="btn btn-secondary {% if status_filter == 'expired' %}active-filter{% endif %}">Expired</a>
+        <a href="{% url 'kapitan_portal:announcement_create' %}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Post Announcement
         </a>
     </div>
@@ -190,14 +267,14 @@
     {% for announcement in announcements %}
     <div class="announcement-row">
         <div>
-            <div class="announcement-title">
-                {{ announcement.title }}
+            <div class="ann-title-line">
+                <span class="announcement-title">{{ announcement.title }}</span>
                 <span class="badge badge-{{ announcement.priority }}">
                     <i class="fas {{ announcement.get_priority_icon }}"></i>
                     {{ announcement.get_priority_display }}
                 </span>
                 {% if not announcement.is_active %}
-                <span class="badge badge-muted">Inactive</span>
+                    <span class="badge badge-muted">Inactive</span>
                 {% endif %}
             </div>
             <div class="announcement-content">{{ announcement.content|truncatechars:220|linebreaksbr }}</div>
@@ -205,19 +282,19 @@
                 <span><i class="fas fa-user"></i> {{ announcement.created_by.get_full_name|default:announcement.created_by.username }}</span>
                 <span><i class="fas fa-calendar"></i> {{ announcement.created_at|date:"M d, Y h:i A" }}</span>
                 {% if announcement.expires_at %}
-                <span><i class="fas fa-hourglass-end"></i> Expires {{ announcement.expires_at|date:"M d, Y" }}</span>
+                    <span><i class="fas fa-hourglass-end"></i> Expires {{ announcement.expires_at|date:"M d, Y" }}</span>
                 {% endif %}
             </div>
         </div>
         <div class="row-actions">
             <a href="{% url 'kapitan_portal:announcement_edit' announcement.id %}" class="btn-icon">
-                <i class="fas fa-edit"></i> Edit
+                <i class="fas fa-pen"></i> Edit
             </a>
             <a href="{% url 'kapitan_portal:announcement_toggle_status' announcement.id %}" class="btn-icon">
                 <i class="fas fa-{% if announcement.is_active %}ban{% else %}check{% endif %}"></i>
                 {% if announcement.is_active %}Deactivate{% else %}Activate{% endif %}
             </a>
-            <a href="{% url 'kapitan_portal:announcement_delete' announcement.id %}" class="btn-icon">
+            <a href="{% url 'kapitan_portal:announcement_delete' announcement.id %}" class="btn-icon danger">
                 <i class="fas fa-trash"></i> Delete
             </a>
         </div>
@@ -225,7 +302,7 @@
     {% empty %}
     <div class="empty-state">
         <i class="fas fa-bullhorn"></i>
-        <p>No announcements yet.</p>
+        <p>No announcements yet. Post one to get started.</p>
     </div>
     {% endfor %}
 </div>
@@ -233,12 +310,15 @@
 {% if announcements.has_other_pages %}
 <div class="pagination">
     {% if announcements.has_previous %}
-    <a href="?page={{ announcements.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="btn-secondary">Previous</a>
+        <a href="?page={{ announcements.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+           class="btn btn-secondary">← Previous</a>
     {% endif %}
-    <span class="btn-secondary">{{ announcements.number }} / {{ announcements.paginator.num_pages }}</span>
+    <span class="pg-current">{{ announcements.number }} / {{ announcements.paginator.num_pages }}</span>
     {% if announcements.has_next %}
-    <a href="?page={{ announcements.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}" class="btn-secondary">Next</a>
+        <a href="?page={{ announcements.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+           class="btn btn-secondary">Next →</a>
     {% endif %}
 </div>
 {% endif %}
+
 {% endblock %}

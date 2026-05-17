@@ -6,59 +6,148 @@
 
 {% block extra_css %}
 <style>
-    .confirm-card {
-        max-width: 620px;
-        background: var(--white);
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        padding: 24px;
-    }
+    html { font-size: 15px; }
 
-    .confirm-title {
-        margin: 0 0 10px;
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: var(--text);
+    .confirm-shell { max-width: 620px; }
+
+    /* ── Breadcrumb ── */
+    .breadcrumb {
         display: flex;
         align-items: center;
-        gap: 10px;
-    }
-
-    .confirm-title i {
-        color: #dc2626;
-    }
-
-    .confirm-copy {
+        gap: 8px;
+        font-size: 0.82rem;
         color: var(--muted);
-        line-height: 1.55;
-        margin-bottom: 18px;
-    }
-
-    .announcement-box {
-        border: 1px solid var(--border);
-        border-radius: 6px;
-        padding: 14px;
         margin-bottom: 20px;
-        background: var(--bg);
-    }
-
-    .announcement-box strong {
-        display: block;
-        margin-bottom: 6px;
-    }
-
-    .actions {
-        display: flex;
-        gap: 12px;
         flex-wrap: wrap;
     }
 
-    .btn-danger,
-    .btn-secondary {
-        border-radius: 6px;
-        padding: 11px 16px;
-        font-weight: 800;
-        font-size: 0.86rem;
+    .breadcrumb a {
+        color: var(--sub, var(--muted));
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.15s;
+    }
+
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb i { font-size: 0.62rem; }
+    .breadcrumb span { color: var(--text); font-weight: 700; }
+
+    /* ── Card ── */
+    .confirm-card {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        overflow: hidden;
+    }
+
+    .card-danger-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 22px;
+        border-bottom: 1px solid #fecaca;
+        background: #fff5f5;
+    }
+
+    .danger-icon {
+        width: 38px;
+        height: 38px;
+        background: #fee2e2;
+        color: #dc2626;
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .card-danger-head h2 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #991b1b;
+    }
+
+    .card-danger-head p {
+        margin: 2px 0 0;
+        font-size: 0.82rem;
+        color: #b91c1c;
+    }
+
+    .card-body { padding: 24px; }
+
+    /* ── Warning Banner ── */
+    .warning-banner {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        background: #fffbeb;
+        border: 1px solid #f59e0b;
+        border-left: 4px solid #f59e0b;
+        border-radius: var(--radius-sm);
+        padding: 13px 16px;
+        margin-bottom: 20px;
+        font-size: 0.88rem;
+        color: #78350f;
+        line-height: 1.5;
+    }
+
+    .warning-banner i { flex-shrink: 0; margin-top: 2px; }
+
+    /* ── Announcement Preview ── */
+    .ann-preview {
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        padding: 16px;
+        margin-bottom: 24px;
+        background: var(--bg);
+    }
+
+    .ann-preview-title {
+        font-size: 0.98rem;
+        font-weight: 700;
+        color: var(--text);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .ann-preview-content {
+        font-size: 0.88rem;
+        color: var(--sub, var(--muted));
+        line-height: 1.6;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        border-radius: 999px;
+        padding: 3px 10px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .badge-normal    { background: #f3f4f6; color: #4b5563; }
+    .badge-important { background: #fef3c7; color: #92400e; }
+    .badge-urgent    { background: #fee2e2; color: #991b1b; }
+
+    /* ── Actions ── */
+    .form-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        border-radius: var(--radius-sm);
+        padding: 11px 20px;
+        font-weight: 700;
+        font-size: 0.92rem;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
@@ -66,6 +155,9 @@
         gap: 8px;
         border: 1px solid transparent;
         cursor: pointer;
+        transition: all 0.15s;
+        min-height: 44px;
+        font-family: inherit;
     }
 
     .btn-danger {
@@ -73,39 +165,81 @@
         color: #fff;
     }
 
+    .btn-danger:hover { background: #b91c1c; }
+
     .btn-secondary {
-        background: #fff;
+        background: var(--white);
         color: var(--muted);
         border-color: var(--border);
     }
 
-    @media (max-width: 620px) {
-        .btn-danger,
-        .btn-secondary {
-            width: 100%;
-        }
+    .btn-secondary:hover { color: var(--text); background: var(--bg); }
+
+    @media (max-width: 600px) {
+        .form-actions { flex-direction: column; }
+        .btn { width: 100%; }
+        .card-body { padding: 18px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="confirm-card">
-    <h2 class="confirm-title"><i class="fas fa-trash"></i> Delete Announcement</h2>
-    <p class="confirm-copy">This will permanently remove the announcement from the public homepage.</p>
+<div class="confirm-shell">
 
-    <div class="announcement-box">
-        <strong>{{ announcement.title }}</strong>
-        <span>{{ announcement.content|truncatechars:180 }}</span>
+    <!-- ── Breadcrumb ── -->
+    <nav class="breadcrumb">
+        <a href="{% url 'kapitan_portal:announcement_list' %}">
+            <i class="fas fa-bullhorn"></i> Announcements
+        </a>
+        <i class="fas fa-chevron-right"></i>
+        <span>Delete</span>
+    </nav>
+
+    <!-- ── Confirm Card ── -->
+    <div class="confirm-card">
+        <div class="card-danger-head">
+            <div class="danger-icon"><i class="fas fa-trash"></i></div>
+            <div>
+                <h2>Delete Announcement</h2>
+                <p>This action cannot be undone</p>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <!-- Warning -->
+            <div class="warning-banner">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span>
+                    This will <strong>permanently remove</strong> the announcement from the public homepage.
+                    Residents will no longer be able to view it.
+                </span>
+            </div>
+
+            <!-- Announcement Preview -->
+            <div class="ann-preview">
+                <div class="ann-preview-title">
+                    {{ announcement.title }}
+                    {% if announcement.priority %}
+                        <span class="badge badge-{{ announcement.priority }}">{{ announcement.get_priority_display }}</span>
+                    {% endif %}
+                </div>
+                <div class="ann-preview-content">{{ announcement.content|truncatechars:200 }}</div>
+            </div>
+
+            <!-- Confirm Form -->
+            <form method="post" class="form-actions">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Yes, Delete Permanently
+                </button>
+                <a href="{% url 'kapitan_portal:announcement_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </form>
+
+        </div>
     </div>
 
-    <form method="post" class="actions">
-        {% csrf_token %}
-        <button type="submit" class="btn-danger">
-            <i class="fas fa-trash"></i> Delete
-        </button>
-        <a href="{% url 'kapitan_portal:announcement_list' %}" class="btn-secondary">
-            <i class="fas fa-times"></i> Cancel
-        </a>
-    </form>
 </div>
 {% endblock %}
