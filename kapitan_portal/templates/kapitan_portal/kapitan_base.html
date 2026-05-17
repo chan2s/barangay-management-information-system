@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>{% block title %}BIMS Kapitan Portal{% endblock %}</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'images/barangay_seal.jpg' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -218,9 +219,17 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden;
+            padding: 2px;
         }
 
         .brand-icon i { font-size: 20px; color: #1a1d23; }
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+        }
 
         .brand-text {
             font-size: 1rem;
@@ -509,7 +518,7 @@
 
     <aside class="kapitan-sidebar" id="kapitanSidebar">
         <div class="sidebar-brand">
-            <div class="brand-icon"><i class="fas fa-balance-scale"></i></div>
+            <div class="brand-icon"><img src="{% static 'images/barangay_seal.jpg' %}" alt="Barangay Seal"></div>
             <div class="brand-text">BIMS Kapitan<span>Barangay Poblacion</span></div>
         </div>
         <nav class="sidebar-nav">

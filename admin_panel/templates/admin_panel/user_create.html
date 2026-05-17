@@ -6,230 +6,317 @@
 
 {% block extra_css %}
 <style>
-    .form-container {
-        max-width: 800px;
+    *, *::before, *::after { box-sizing: border-box; }
+
+    .create-shell {
+        max-width: 820px;
         margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
-    
-    .form-card {
-        background: var(--white);
-        border-radius: var(--radius);
+
+    /* ── Page Header ── */
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #7c5e00;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 999px;
+        padding: 4px 12px;
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .page-heading {
+        font-size: 26px;
+        font-weight: 800;
+        margin: 0 0 4px;
+        letter-spacing: -0.03em;
+        color: var(--text);
+    }
+
+    .page-subtitle { color: var(--sub); font-size: 13px; margin: 0; }
+
+    /* ── Buttons ── */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 16px;
+        border-radius: 8px;
+        border: 1.5px solid transparent;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        text-decoration: none;
+        white-space: nowrap;
+        min-height: 38px;
+        transition: opacity 0.15s, background 0.15s, transform 0.1s;
+        letter-spacing: 0.01em;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .btn-primary:hover { opacity: 0.82; }
+
+    .btn-secondary {
+        background: #fff;
+        color: var(--text);
+        border-color: #d1d5db;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+    .btn-secondary:hover { background: #f9fafb; }
+
+    /* ── Section Panel ── */
+    .section-panel {
+        background: var(--surface);
         border: 1px solid var(--border);
+        border-radius: 12px;
         overflow: hidden;
     }
-    
-    .card-header {
-        padding: 20px 24px;
-        border-bottom: 2px solid var(--yellow);
+
+    .section-header {
+        padding: 14px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--surface);
     }
-    
-    .card-header h2 {
-        font-size: 1.2rem;
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
         font-weight: 700;
         margin: 0;
+        color: var(--text);
+    }
+
+    .section-title i { color: var(--muted); font-size: 15px; }
+    .section-body { padding: 20px; }
+
+    /* ── Form ── */
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .form-group { min-width: 0; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .field-label {
+        display: block;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 5px;
+    }
+
+    .required-star { color: #ef4444; margin-left: 2px; }
+
+    .input-control {
+        width: 100%;
+        min-height: 38px;
+        padding: 8px 12px;
+        border: 1.5px solid #d1d5db;
+        border-radius: 8px;
+        background: var(--bg);
+        font: inherit;
+        font-size: 13px;
+        color: var(--text);
+        transition: border-color 0.15s, box-shadow 0.15s;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .input-control:focus {
+        outline: none;
+        border-color: #d4a800;
+        box-shadow: 0 0 0 3px rgba(240,192,64,0.15);
+    }
+
+    .help-text {
+        font-size: 11px;
+        color: var(--muted);
+        margin-top: 5px;
+        line-height: 1.5;
+    }
+
+    /* ── Divider ── */
+    .section-divider {
         display: flex;
         align-items: center;
         gap: 10px;
-        color: var(--text);
+        margin: 4px 0 8px;
     }
-    
-    .card-header h2 i {
-        color: var(--yellow);
-    }
-    
-    .card-body {
-        padding: 24px;
-    }
-    
-    .form-group {
-        margin-bottom: 20px;
-    }
-    
-    .form-group label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--slate);
-        margin-bottom: 6px;
-    }
-    
-    .form-group label i {
-        margin-right: 6px;
-        color: var(--yellow);
-    }
-    
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 10px 14px;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius-sm);
-        font-size: 0.85rem;
-        font-family: 'Inter', sans-serif;
-        transition: all 0.2s;
-    }
-    
-    .form-group input:focus, .form-group select:focus {
-        outline: none;
-        border-color: var(--yellow);
-        box-shadow: 0 0 0 3px rgba(245, 211, 0, 0.1);
-    }
-    
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
-    
-    .help-text {
-        font-size: 0.7rem;
-        color: var(--muted);
-        margin-top: 5px;
-    }
-    
-    .btn-submit {
-        background: var(--charcoal);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: var(--radius-sm);
+
+    .section-divider span {
+        font-size: 10.5px;
         font-weight: 700;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: inline-flex;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        white-space: nowrap;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+
+    /* ── Form Actions ── */
+    .form-actions {
+        display: flex;
+        gap: 10px;
         align-items: center;
-        gap: 8px;
+        flex-wrap: wrap;
+        padding-top: 16px;
+        margin-top: 4px;
+        border-top: 1px solid var(--border);
     }
-    
-    .btn-submit:hover {
-        background: var(--yellow);
-        color: var(--charcoal);
-    }
-    
-    .btn-cancel {
-        background: transparent;
-        color: var(--slate);
-        border: 1px solid var(--border);
-        padding: 12px 24px;
-        border-radius: var(--radius-sm);
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s;
-    }
-    
-    .btn-cancel:hover {
-        background: var(--cream);
-        border-color: var(--yellow);
-        color: var(--charcoal);
-    }
-    
-    .required-star {
-        color: #ef4444;
-        margin-left: 3px;
-    }
-    
-    @media (max-width: 768px) {
-        .form-row {
-            grid-template-columns: 1fr;
-            gap: 0;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
+
+    @media (max-width: 700px) {
+        .form-grid { grid-template-columns: 1fr; }
+        .form-group.full { grid-column: auto; }
+        .page-heading { font-size: 22px; }
+        .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+        .form-actions { flex-direction: column; }
+        .section-body { padding: 16px; }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <div class="form-card">
-        <div class="card-header">
-            <h2>
-                <i class="fas fa-user-plus"></i>
-                Create New User
-            </h2>
+<div class="create-shell">
+
+    <!-- ── Page Header ── -->
+    <div class="page-header">
+        <div>
+            <div class="eyebrow"><i class="fas fa-user-plus"></i> User Management</div>
+            <h2 class="page-heading">Create New User</h2>
+            <p class="page-subtitle">Add a new staff account and assign a role.</p>
         </div>
-        
-        <div class="card-body">
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="form-row">
+        <div style="padding-top:6px;">
+            <a href="{% url 'admin_panel:user_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Users
+            </a>
+        </div>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- ── Account Info ── -->
+        <div class="section-panel" style="margin-bottom:16px;">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-id-card"></i> Account Information</h3>
+            </div>
+            <div class="section-body">
+                <div class="form-grid">
                     <div class="form-group">
-                        <label><i class="fas fa-user"></i> Username <span class="required-star">*</span></label>
-                        <input type="text" name="username" placeholder="Enter username" required>
-                        <div class="help-text">Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
+                        <label class="field-label" for="username">Username <span class="required-star">*</span></label>
+                        <input id="username" class="input-control" type="text" name="username" placeholder="e.g. juan_dela_cruz" required>
+                        <div class="help-text">150 characters or fewer. Letters, digits and @/./+/-/_ only.</div>
                     </div>
-                    
                     <div class="form-group">
-                        <label><i class="fas fa-envelope"></i> Email <span class="required-star">*</span></label>
-                        <input type="email" name="email" placeholder="user@example.com" required>
+                        <label class="field-label" for="email">Email <span class="required-star">*</span></label>
+                        <input id="email" class="input-control" type="email" name="email" placeholder="user@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label" for="first_name">First Name</label>
+                        <input id="first_name" class="input-control" type="text" name="first_name" placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label" for="last_name">Last Name</label>
+                        <input id="last_name" class="input-control" type="text" name="last_name" placeholder="Last name">
                     </div>
                 </div>
-                
-                <div class="form-row">
+            </div>
+        </div>
+
+        <!-- ── Password ── -->
+        <div class="section-panel" style="margin-bottom:16px;">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-lock"></i> Password</h3>
+            </div>
+            <div class="section-body">
+                <div class="form-grid">
                     <div class="form-group">
-                        <label><i class="fas fa-user"></i> First Name</label>
-                        <input type="text" name="first_name" placeholder="First name">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label><i class="fas fa-user"></i> Last Name</label>
-                        <input type="text" name="last_name" placeholder="Last name">
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Password <span class="required-star">*</span></label>
-                        <input type="password" name="password" placeholder="Enter password" required>
+                        <label class="field-label" for="password">Password <span class="required-star">*</span></label>
+                        <input id="password" class="input-control" type="password" name="password" placeholder="Enter password" required>
                         <div class="help-text">Minimum 8 characters. Cannot be too common or entirely numeric.</div>
                     </div>
-                    
                     <div class="form-group">
-                        <label><i class="fas fa-lock"></i> Confirm Password <span class="required-star">*</span></label>
-                        <input type="password" name="confirm_password" placeholder="Confirm password" required>
+                        <label class="field-label" for="confirm_password">Confirm Password <span class="required-star">*</span></label>
+                        <input id="confirm_password" class="input-control" type="password" name="confirm_password" placeholder="Confirm password" required>
                     </div>
                 </div>
-                
-                <div class="form-row">
+            </div>
+        </div>
+
+        <!-- ── Role & Staff Details ── -->
+        <div class="section-panel" style="margin-bottom:20px;">
+            <div class="section-header">
+                <h3 class="section-title"><i class="fas fa-user-shield"></i> Role &amp; Staff Details</h3>
+            </div>
+            <div class="section-body">
+                <div class="form-grid">
                     <div class="form-group">
-                        <label><i class="fas fa-tag"></i> Role</label>
-                        <select name="role">
+                        <label class="field-label" for="role">Role</label>
+                        <select id="role" class="input-control" name="role">
                             <option value="staff">Staff</option>
                             <option value="kapitan">Kapitan</option>
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    
                     <div class="form-group">
-                        <label><i class="fas fa-briefcase"></i> Position</label>
-                        <input type="text" name="position" placeholder="e.g., Barangay Secretary">
-                        <div class="help-text">Optional - for staff members</div>
+                        <label class="field-label" for="position">Position</label>
+                        <input id="position" class="input-control" type="text" name="position" placeholder="e.g., Barangay Secretary">
+                        <div class="help-text">Optional — for staff members.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="field-label" for="contact_number">Contact Number</label>
+                        <input id="contact_number" class="input-control" type="text" name="contact_number" placeholder="09123456789">
+                        <div class="help-text">Optional — 11-digit format.</div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-phone"></i> Contact Number</label>
-                    <input type="text" name="contact_number" placeholder="09123456789">
-                    <div class="help-text">Optional - format: 11 digits</div>
-                </div>
-                
-                <div style="margin-top: 24px; display: flex; gap: 16px;">
-                    <button type="submit" class="btn-submit">
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Create User
                     </button>
-                    <a href="{% url 'admin_panel:user_list' %}" class="btn-cancel">
+                    <a href="{% url 'admin_panel:user_list' %}" class="btn btn-secondary">
                         <i class="fas fa-times"></i> Cancel
                     </a>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
+
+    </form>
 </div>
 {% endblock %}

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>{% block title %}Admin Panel - BIMS{% endblock %}</title>
+    <link rel="icon" type="image/jpeg" href="{% static 'images/barangay_seal.jpg' %}">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -107,6 +108,15 @@
             font-size: 1.05rem;
             font-weight: 700;
             flex-shrink: 0;
+            overflow: hidden;
+            padding: 2px;
+        }
+
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: var(--radius-xs);
         }
 
         .brand-name {
@@ -465,7 +475,7 @@
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div class="brand-logo">
-                <div class="brand-icon"><i class="fas fa-landmark"></i></div>
+                <div class="brand-icon"><img src="{% static 'images/barangay_seal.jpg' %}" alt="Barangay Seal"></div>
                 <div class="brand-name">BIMS</div>
             </div>
             <div class="brand-sub">Barangay Poblacion Admin</div>
