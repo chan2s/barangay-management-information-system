@@ -92,6 +92,24 @@ class CertificateRequest(models.Model):
         return f"{self.request_id} - {self.full_name}"
 
 
+class VisitorLog(models.Model):
+    ip_address = models.GenericIPAddressField(blank=True, null=True, db_index=True)
+    user_agent = models.TextField(blank=True)
+    visited_path = models.CharField(max_length=2048)
+    timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['timestamp', 'ip_address']),
+        ]
+        verbose_name = 'Visitor Log'
+        verbose_name_plural = 'Visitor Logs'
+
+    def __str__(self):
+        return f"{self.ip_address or 'Unknown IP'} - {self.visited_path}"
+
+
 class CertificateTemplate(models.Model):
     template_name = models.CharField(max_length=200)
     template_type = models.CharField(max_length=50, db_index=True)

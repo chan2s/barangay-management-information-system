@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 from django.contrib import admin
-from .models import CertificateRequest, CertificateTemplate, CertificateTemplatePermission, CertificateTemplateVersion
+from .models import CertificateRequest, CertificateTemplate, CertificateTemplatePermission, CertificateTemplateVersion, VisitorLog
 
 
 class CertificateRequestAdmin(admin.ModelAdmin):
@@ -33,6 +33,15 @@ class CertificateRequestAdmin(admin.ModelAdmin):
 
 
 admin.site.register(CertificateRequest, CertificateRequestAdmin)
+
+
+@admin.register(VisitorLog)
+class VisitorLogAdmin(admin.ModelAdmin):
+    list_display = ['ip_address', 'visited_path', 'timestamp']
+    list_filter = ['timestamp']
+    search_fields = ['ip_address', 'visited_path', 'user_agent']
+    readonly_fields = ['ip_address', 'user_agent', 'visited_path', 'timestamp']
+    ordering = ['-timestamp']
 
 
 @admin.register(CertificateTemplate)

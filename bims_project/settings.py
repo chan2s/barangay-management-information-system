@@ -61,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'bims_project.middleware.SessionExpiredMiddleware',
+    'certificates.middleware.VisitorTrackingMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -186,6 +187,14 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'crissguillen200410@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'Barangay Poblacion BIMS <crissguillen200410@gmail.com>')
 EMAIL_TIMEOUT = 30
+ADMINS = [
+    ('BIMS Admin', os.getenv('ADMIN_EMAIL', EMAIL_HOST_USER)),
+]
+VISITOR_ALERT_EMAILS = [
+    email.strip()
+    for email in os.getenv('VISITOR_ALERT_EMAILS', '').split(',')
+    if email.strip()
+]
 
 # reCAPTCHA (Optional - get from Google)
 RECAPTCHA_PUBLIC_KEY = os.getenv('RECAPTCHA_PUBLIC_KEY', '')
