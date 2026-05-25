@@ -6,6 +6,13 @@ from django.db.models import Q
 from django.utils import timezone
 from datetime import datetime
 from .models import CertificateRequest
+from .services import (
+    CERTIFICATE_TEMPLATE_FILES,
+    active_certificate_template,
+    certificate_context,
+    rendered_requester_preview_sections,
+    rendered_template_sections,
+)
 from staff_module.audit import log_activity
 from staff_module.decorators import role_required
 import uuid
@@ -108,6 +115,7 @@ def submit_request(request):
             'proof_residency': proof_residency_file is not None,
             'photo': photo_file is not None,
         }
+        request.session[f'certificate_preview_{certificate.request_id}'] = True
         
         return render(request, 'certificates/confirmation.html', context)
 
@@ -169,6 +177,7 @@ def track_request(request):
             # First try to find by reference number only
             try:
                 certificate_request = CertificateRequest.objects.get(request_id=reference_number)
+                request.session[f'certificate_preview_{certificate_request.request_id}'] = True
                 messages.success(request, f'Request found!')
             except CertificateRequest.DoesNotExist:
                 # If not found and last name provided, try with both
@@ -178,6 +187,7 @@ def track_request(request):
                             request_id=reference_number,
                             full_name__icontains=last_name
                         )
+                        request.session[f'certificate_preview_{certificate_request.request_id}'] = True
                         messages.success(request, f'Request found!')
                     except CertificateRequest.DoesNotExist:
                         messages.error(request, f'No certificate request found with that reference number and name.')
@@ -338,49 +348,56 @@ def generate_certificate(request, request_id):
         messages.error(request, 'Only approved certificates can be generated.')
         return redirect('certificates:view_request', request_id=cert_request.id)
     
-    # Map display type
-    type_map = {
-        'clearance': 'Barangay Clearance',
-        'indigency': 'Certificate of Indigency',
-        'residency': 'Certificate of Residency',
-        'id': 'Barangay ID',
-    }
-    request_type_display = type_map.get(cert_request.request_type, 'Barangay Clearance')
+    request_type_display = cert_request.get_request_type_display()
     log_activity(request, 'certificate_generate', 'certificate', f'Generated {request_type_display} for request {cert_request.request_id}')
-    
-    context = {
-        'tracking_id': cert_request.request_id,
-        'request_type': request_type_display,
-        'full_name': cert_request.full_name,
-        'address': cert_request.address,
-        'purpose': cert_request.purpose,
-        'purok': cert_request.purok,
-        'current_date': timezone.now().strftime('%dth day of %B, %Y'),
-        'birthplace': cert_request.birthplace,
-        'weight': cert_request.weight,
-        'height': cert_request.height,
-        'emergency_name': cert_request.emergency_name,
-        'emergency_address': cert_request.emergency_address,
-        'emergency_contact': cert_request.emergency_contact,
-        'emergency_relationship': cert_request.emergency_relationship,
-        # ADD THESE LINES for Barangay ID
-        'gender': cert_request.gender,
-        'civil_status': cert_request.civil_status,
-        'dob': cert_request.date_of_birth.strftime('%B %d, %Y') if cert_request.date_of_birth else '',
-        'photo_url': cert_request.photo.url if cert_request.photo else None,
-    }
-    
-    # Render appropriate certificate
-    if cert_request.request_type == 'clearance':
-        return render(request, 'certificates/barangay_clearance.html', context)
-    elif cert_request.request_type == 'indigency':
-        return render(request, 'certificates/certificate_indigency.html', context)
-    elif cert_request.request_type == 'residency':
-        return render(request, 'certificates/certificate_residency.html', context)
-    elif cert_request.request_type == 'id':
-        return render(request, 'certificates/barangay_id.html', context)
-    
+
+    rendered = render_certificate_response(request, cert_request, preview_mode=False)
+    if rendered:
+        return rendered
+
     return redirect('certificates:request_list')
+
+
+def render_certificate_response(request, cert_request, preview_mode=False, requester_preview=False):
+    template = active_certificate_template(cert_request.request_type)
+    if template:
+        sections = (
+            rendered_requester_preview_sections(template, cert_request)
+            if requester_preview
+            else rendered_template_sections(template, cert_request)
+        )
+        context = {
+            'template': template,
+            'preview_mode': preview_mode,
+            'requester_preview': requester_preview,
+            **sections,
+        }
+        return render(request, 'certificates/dynamic_certificate.html', context)
+
+    template_name = CERTIFICATE_TEMPLATE_FILES.get(cert_request.request_type)
+    if not template_name:
+        return None
+
+    context = certificate_context(cert_request)
+    context['current_date'] = timezone.now().strftime('%dth day of %B, %Y')
+    context['preview_mode'] = preview_mode
+    context['requester_preview'] = requester_preview
+    return render(request, template_name, context)
+
+
+def preview_certificate(request, reference_number):
+    cert_request = get_object_or_404(CertificateRequest, request_id=reference_number)
+    session_key = f'certificate_preview_{cert_request.request_id}'
+
+    if not request.session.get(session_key):
+        messages.error(request, 'Track your request first before opening the certificate preview.')
+        return redirect('certificates:track_request')
+
+    rendered = render_certificate_response(request, cert_request, preview_mode=True, requester_preview=True)
+    if rendered:
+        return rendered
+    messages.error(request, 'Certificate preview is not available for this request type.')
+    return redirect('certificates:track_request')
 
 
 @login_required

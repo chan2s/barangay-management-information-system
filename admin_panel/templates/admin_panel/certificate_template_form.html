@@ -1,0 +1,470 @@
+{% extends 'admin_panel/admin_base.html' %}
+
+{% block title %}{% if template_obj %}Edit{% else %}New{% endif %} Certificate Template - BIMS{% endblock %}
+{% block nav_certificate_templates %}active{% endblock %}
+{% block topbar_title %}Document Template Editor{% endblock %}
+
+{% block content %}
+<style>
+    .content { padding: 0; background: #eef1f5; }
+    .document-shell { min-height: calc(100vh - var(--topbar-h)); }
+    .editor-top {
+        position: sticky;
+        top: var(--topbar-h);
+        z-index: 30;
+        background: rgba(255,255,255,0.96);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 12px 18px;
+    }
+    .editor-meta {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) 220px auto;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .form-control {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font: inherit;
+        background: #fff;
+    }
+    .editor-actions,
+    .asset-tools {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .btn {
+        border: none;
+        border-radius: 8px;
+        min-height: 38px;
+        padding: 9px 13px;
+        font-weight: 800;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        white-space: nowrap;
+    }
+    .btn-dark { background: var(--ink); color: #fff; }
+    .btn-light { background: #fff; color: var(--text); border: 1px solid var(--border); }
+    .btn-gold { background: var(--gold); color: var(--ink); }
+    .btn:disabled { opacity: 0.58; cursor: wait; }
+    .document-workspace {
+        padding: 28px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 280px;
+        gap: 18px;
+        align-items: start;
+    }
+    .paper-frame {
+        min-width: 0;
+        overflow: auto;
+        padding-bottom: 40px;
+    }
+    .paper {
+        width: 210mm;
+        min-height: 297mm;
+        margin: 0 auto;
+        background: #fff;
+        box-shadow: 0 18px 45px rgba(15,17,23,0.18);
+        border: 1px solid #d7dce3;
+        padding: 24mm 22mm;
+        transition: box-shadow 0.18s ease, transform 0.18s ease;
+    }
+    .paper:focus-within { box-shadow: 0 22px 60px rgba(15,17,23,0.24); }
+    .document-editor {
+        min-height: calc(297mm - 48mm);
+        font-family: "Times New Roman", Times, serif;
+        font-size: 12pt;
+        line-height: 1.6;
+        color: #111;
+    }
+    .document-editor h1,
+    .document-editor h2,
+    .document-editor h3 {
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 0;
+    }
+    .document-source { display: none !important; }
+    .side-panel {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+        position: sticky;
+        top: calc(var(--topbar-h) + 92px);
+    }
+    .side-head {
+        padding: 13px 14px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+        font-weight: 800;
+    }
+    .side-body { padding: 14px; }
+    .asset-preview {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .asset-preview img {
+        width: 48px;
+        height: 48px;
+        object-fit: contain;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+    }
+    .asset-empty {
+        width: 48px;
+        height: 48px;
+        border: 1px dashed var(--border);
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        color: var(--muted);
+    }
+    .asset-label { font-weight: 800; font-size: 0.86rem; }
+    .asset-note { color: var(--sub); font-size: 0.78rem; }
+    .file-row { margin: 10px 0 16px; }
+    .status-line { color: var(--sub); font-size: 0.84rem; margin-top: 8px; min-height: 20px; }
+    .errorlist { color: var(--red); list-style: none; margin: 5px 0 0; font-size: 0.82rem; }
+    .ck.ck-editor__top {
+        position: sticky !important;
+        top: calc(var(--topbar-h) + 104px);
+        z-index: 20;
+        box-shadow: 0 8px 18px rgba(15,17,23,0.08);
+    }
+    .ck.ck-editor__main > .ck-editor__editable {
+        border: none !important;
+        box-shadow: none !important;
+        min-height: calc(297mm - 48mm);
+        padding: 0 !important;
+    }
+    .ck-content .placeholder-token,
+    .placeholder-token {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #f0c040;
+        background: #fff8dd;
+        color: #6b4e00;
+        border-radius: 999px;
+        padding: 1px 7px;
+        margin: 0 2px;
+        font-family: Arial, sans-serif;
+        font-size: 0.78em;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+    @media print {
+        body { background: #fff; }
+        .sidebar, .topbar, .editor-top, .side-panel, .ck-editor__top { display: none !important; }
+        .admin-main { margin-left: 0 !important; }
+        .content, .document-workspace, .paper-frame { padding: 0 !important; display: block !important; background: #fff !important; }
+        .paper { width: auto; min-height: auto; box-shadow: none; border: none; padding: 0; }
+        @page { size: A4; margin: 18mm; }
+    }
+    @media (max-width: 1100px) {
+        .document-workspace { grid-template-columns: 1fr; }
+        .side-panel { position: static; }
+        .paper { width: min(210mm, 100%); padding: 18mm 14mm; }
+        .editor-meta { grid-template-columns: 1fr; }
+    }
+</style>
+
+<form id="templateForm" class="document-shell" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="editor-top">
+        {{ form.non_field_errors }}
+        <div class="editor-meta">
+            <div>
+                {{ form.template_name }}
+                {{ form.template_name.errors }}
+            </div>
+            <div>
+                {{ form.template_type }}
+                {{ form.template_type.errors }}
+            </div>
+            <div class="editor-actions">
+                <label class="btn btn-light" style="gap:6px;">{{ form.is_active }} Active</label>
+                <button type="button" class="btn btn-light" id="previewPdfBtn"><i class="fas fa-file-pdf"></i> Preview PDF</button>
+                {% if template_obj %}
+                    <a href="{% url 'admin_panel:certificate_template_preview' template_obj.id %}" target="_blank" class="btn btn-light"><i class="fas fa-eye"></i> Saved Preview</a>
+                {% endif %}
+                <button type="submit" class="btn btn-dark" id="saveBtn"><i class="fas fa-save"></i> Save</button>
+                <a href="{% url 'admin_panel:certificate_template_list' %}" class="btn btn-light"><i class="fas fa-arrow-left"></i> Back</a>
+            </div>
+        </div>
+
+        <div class="asset-tools">
+            <select id="variableSelect" class="form-control" style="max-width: 230px;">
+                <option value="">Insert Variable...</option>
+                {% for variable in available_variables %}
+                    <option value="{{ variable }}">{{ variable|title }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" class="btn btn-light" data-insert-asset="logo"><i class="fas fa-image"></i> Insert Logo</button>
+            <button type="button" class="btn btn-light" data-insert-asset="seal"><i class="fas fa-certificate"></i> Insert Seal</button>
+            <button type="button" class="btn btn-light" data-insert-asset="signature"><i class="fas fa-signature"></i> Insert Signature</button>
+            <span class="status-line" id="autosaveStatus"></span>
+        </div>
+    </div>
+
+    <div class="document-workspace">
+        <div class="paper-frame">
+            <div class="paper" id="paper">
+                {{ form.document_html }}
+                {{ form.document_html.errors }}
+                <div id="documentEditor" class="document-editor"></div>
+            </div>
+        </div>
+
+        <aside class="side-panel">
+            <div class="side-head">Certificate Assets</div>
+            <div class="side-body">
+                <div class="asset-preview">
+                    {% if template_obj.logo %}
+                        <img src="{{ template_obj.logo.url }}" alt="Logo" data-asset-url="logo">
+                    {% else %}
+                        <div class="asset-empty"><i class="fas fa-image"></i></div>
+                    {% endif %}
+                    <div><div class="asset-label">Barangay Logo</div><div class="asset-note">Upload, then insert into the page.</div></div>
+                </div>
+                <div class="file-row">{{ form.logo }}{{ form.logo.errors }}</div>
+
+                <div class="asset-preview">
+                    {% if template_obj.seal %}
+                        <img src="{{ template_obj.seal.url }}" alt="Seal" data-asset-url="seal">
+                    {% else %}
+                        <div class="asset-empty"><i class="fas fa-certificate"></i></div>
+                    {% endif %}
+                    <div><div class="asset-label">Barangay Seal</div><div class="asset-note">Used in certificate headers.</div></div>
+                </div>
+                <div class="file-row">{{ form.seal }}{{ form.seal.errors }}</div>
+
+                <div class="asset-preview">
+                    {% if template_obj.signature %}
+                        <img src="{{ template_obj.signature.url }}" alt="Signature" data-asset-url="signature">
+                    {% else %}
+                        <div class="asset-empty"><i class="fas fa-signature"></i></div>
+                    {% endif %}
+                    <div><div class="asset-label">Captain Signature</div><div class="asset-note">Resizable after inserting.</div></div>
+                </div>
+                <div class="file-row">{{ form.signature }}{{ form.signature.errors }}</div>
+
+                {% if template_obj %}
+                <label for="change_notes">Change Notes</label>
+                <input class="form-control" type="text" name="change_notes" id="change_notes" placeholder="Optional note">
+                {% endif %}
+            </div>
+        </aside>
+    </div>
+</form>
+
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+<script>
+(function() {
+    const sourceField = document.getElementById('id_document_html');
+    const editorHost = document.getElementById('documentEditor');
+    const form = document.getElementById('templateForm');
+    const saveBtn = document.getElementById('saveBtn');
+    const status = document.getElementById('autosaveStatus');
+    const draftKey = 'certificate-template-draft-' + ({{ template_obj.id|default:"0" }}) + '-' + document.getElementById('id_template_type').value;
+    const labels = {
+        tracking_id: 'TRACKING ID',
+        request_type: 'REQUEST TYPE',
+        full_name: 'FULL NAME',
+        address: 'ADDRESS',
+        age: 'AGE',
+        purpose: 'PURPOSE',
+        purok: 'PUROK',
+        current_date: 'CURRENT DATE',
+        birthplace: 'BIRTHPLACE',
+        weight: 'WEIGHT',
+        height: 'HEIGHT',
+        gender: 'GENDER',
+        civil_status: 'CIVIL STATUS',
+        dob: 'DATE OF BIRTH',
+        emergency_name: 'EMERGENCY NAME',
+        emergency_address: 'EMERGENCY ADDRESS',
+        emergency_contact: 'EMERGENCY CONTACT',
+        emergency_relationship: 'EMERGENCY RELATIONSHIP',
+        approved_by: 'APPROVED BY',
+        photo_url: 'PHOTO URL',
+        logo_url: 'LOGO URL',
+        seal_url: 'SEAL URL',
+        signature_url: 'SIGNATURE URL'
+    };
+    const assetUrls = {
+        logo: document.querySelector('[data-asset-url="logo"]')?.src || '',
+        seal: document.querySelector('[data-asset-url="seal"]')?.src || '',
+        signature: document.querySelector('[data-asset-url="signature"]')?.src || ''
+    };
+    let editor = null;
+
+    // Placeholder deserialization: stored Django variables are converted to
+    // visual non-code chips so admins never edit raw Django variable syntax.
+    function deserializePlaceholders(html) {
+        const open = '{' + '{';
+        const close = '}' + '}';
+        const pattern = new RegExp(open + '\\s*([a-zA-Z_][a-zA-Z0-9_]*)\\s*' + close, 'g');
+        return (html || '').replace(pattern, function(match, key) {
+            const label = labels[key] || key.toUpperCase();
+            return '<span class="placeholder-token" data-placeholder="' + key + '" contenteditable="false">[' + label + ']</span>';
+        });
+    }
+
+    // Placeholder serialization: visual chips are converted back to Django
+    // placeholders just before save/render, preserving server-side rendering.
+    function serializePlaceholders(html) {
+        const wrap = document.createElement('div');
+        wrap.innerHTML = html || '';
+        wrap.querySelectorAll('.placeholder-token[data-placeholder]').forEach(function(token) {
+            const key = token.getAttribute('data-placeholder');
+            token.replaceWith(document.createTextNode('{' + '{ ' + key + ' }' + '}'));
+        });
+        return wrap.innerHTML;
+    }
+
+    function insertHtml(html) {
+        if (!editor) return;
+        editor.model.change(function() {
+            const viewFragment = editor.data.processor.toView(html);
+            const modelFragment = editor.data.toModel(viewFragment);
+            editor.model.insertContent(modelFragment);
+        });
+    }
+
+    function setStatus(text) {
+        status.textContent = text;
+    }
+
+    function saveDraft() {
+        if (!editor) return;
+        localStorage.setItem(draftKey, editor.getData());
+        setStatus('Draft saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    }
+
+    function previewPdf() {
+        const html = editor ? editor.getData() : editorHost.innerHTML;
+        const preview = window.open('', '_blank');
+        preview.document.write(`<!doctype html><html><head><title>Certificate Print Preview</title><style>
+            body{margin:0;background:#e5e7eb;font-family:Arial,sans-serif;padding:24px}
+            .page{width:210mm;min-height:297mm;margin:0 auto;background:#fff;padding:24mm 22mm;box-shadow:0 18px 45px rgba(0,0,0,.2);font-family:"Times New Roman",serif;font-size:12pt;line-height:1.6;color:#111}
+            .placeholder-token{display:inline-flex;border:1px solid #f0c040;background:#fff8dd;color:#6b4e00;border-radius:999px;padding:1px 7px;font-family:Arial,sans-serif;font-size:.78em;font-weight:800}
+            img{max-width:100%;height:auto}
+            @media print{body{background:#fff;padding:0}.page{box-shadow:none;width:auto;min-height:auto;padding:0}@page{size:A4;margin:18mm}}
+        </style></head><body><div class="page">${html}</div><script>setTimeout(function(){window.print()},250)<\/script></body></html>`);
+        preview.document.close();
+    }
+
+    function bootstrapFallback() {
+        editorHost.contentEditable = 'true';
+        editorHost.innerHTML = deserializePlaceholders(localStorage.getItem(draftKey) || sourceField.value);
+        editor = {
+            getData: () => editorHost.innerHTML,
+            setData: data => editorHost.innerHTML = data,
+            model: { change: fn => fn() },
+            data: {
+                processor: { toView: html => html },
+                toModel: html => html,
+            }
+        };
+        setStatus('Basic editor loaded');
+    }
+
+    const initialData = deserializePlaceholders(localStorage.getItem(draftKey) || sourceField.value);
+    const CKEditorClass = window.CKEDITOR?.ClassicEditor || window.ClassicEditor;
+
+    if (CKEditorClass) {
+        CKEditorClass.create(editorHost, {
+            initialData: initialData,
+            toolbar: {
+                items: [
+                    'undo', 'redo', '|', 'heading', '|',
+                    'fontFamily', 'fontSize', '|',
+                    'bold', 'italic', 'underline', '|',
+                    'alignment', '|',
+                    'bulletedList', 'numberedList', '|',
+                    'insertTable', 'imageUpload', 'link', '|',
+                    'outdent', 'indent'
+                ],
+                shouldNotGroupWhenFull: true
+            },
+            image: {
+                resizeUnit: '%',
+                toolbar: [
+                    'imageTextAlternative', 'toggleImageCaption',
+                    'imageStyle:inline', 'imageStyle:block', 'imageStyle:side',
+                    'resizeImage'
+                ]
+            },
+            table: {
+                contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+            },
+            fontFamily: {
+                options: ['default', 'Times New Roman, Times, serif', 'Arial, Helvetica, sans-serif', 'Georgia, serif', 'Courier New, Courier, monospace']
+            },
+            fontSize: {
+                options: [10, 11, 12, 14, 16, 18, 20, 24, 28, 32]
+            },
+            htmlSupport: {
+                allow: [{ name: /.*/, attributes: true, classes: true, styles: true }]
+            },
+            removePlugins: ['AIAssistant', 'CKBox', 'CKFinder', 'EasyImage', 'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination', 'WProofreader', 'MathType', 'SlashCommand', 'Template']
+        }).then(function(instance) {
+            editor = instance;
+            setStatus('Editor ready');
+            setInterval(saveDraft, 4000);
+        }).catch(function() {
+            bootstrapFallback();
+            setInterval(saveDraft, 4000);
+        });
+    } else {
+        bootstrapFallback();
+        setInterval(saveDraft, 4000);
+    }
+
+    document.getElementById('variableSelect').addEventListener('change', function() {
+        if (!this.value) return;
+        const key = this.value;
+        insertHtml('<span class="placeholder-token" data-placeholder="' + key + '" contenteditable="false">[' + (labels[key] || key.toUpperCase()) + ']</span>');
+        this.value = '';
+    });
+
+    document.querySelectorAll('[data-insert-asset]').forEach(function(button) {
+        button.addEventListener('click', function() {
+            const asset = button.dataset.insertAsset;
+            const url = assetUrls[asset];
+            if (!url) {
+                if (window.toast) window.toast.warning('Upload and save this asset before inserting it.');
+                return;
+            }
+            const width = asset === 'signature' ? '180px' : '72px';
+            insertHtml('<img src="' + url + '" alt="' + asset + '" style="width:' + width + ';height:auto;">');
+        });
+    });
+
+    document.getElementById('previewPdfBtn').addEventListener('click', previewPdf);
+
+    form.addEventListener('submit', function() {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving';
+        sourceField.value = serializePlaceholders(editor ? editor.getData() : editorHost.innerHTML);
+        localStorage.removeItem(draftKey);
+    });
+})();
+</script>
+{% endblock %}

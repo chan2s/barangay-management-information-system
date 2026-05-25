@@ -17,7 +17,9 @@ from django.utils import timezone
 from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.conf import settings
 from Blotter_Module.models import Blotter
-from certificates.models import CertificateRequest
+from certificates.forms import CertificateTemplateForm
+from certificates.models import CertificateRequest, CertificateTemplate, CertificateTemplateVersion
+from certificates.services import default_template_payload, rendered_template_sections
 from staff_module.models import Announcement, Appointment, ActivityLog, SystemSetting
 from accounts.forms import ResidentForm
 from accounts.models import Resident, ResidentExportRequest
@@ -646,3 +648,153 @@ def user_has_role(user, roles):
     if user.is_superuser:
         return 'admin' in roles
     return hasattr(user, 'staff_profile') and user.staff_profile.role in roles
+
+
+@login_required
+@role_required(['admin'])
+def certificate_template_list(request):
+    templates = CertificateTemplate.objects.filter(is_deleted=False)
+    type_filter = request.GET.get('type', '')
+    if type_filter:
+        templates = templates.filter(template_type=type_filter)
+
+    context = {
+        'templates': templates.order_by('template_type', '-is_active', '-updated_at'),
+        'type_filter': type_filter,
+        'type_choices': CertificateRequest.CERTIFICATE_TYPES,
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+    }
+    return render(request, 'admin_panel/certificate_template_list.html', context)
+
+
+@login_required
+@role_required(['admin'])
+def certificate_template_create(request):
+    initial = {}
+    template_type = request.GET.get('type')
+    if template_type:
+        initial = default_template_payload(template_type)
+
+    if request.method == 'POST':
+        form = CertificateTemplateForm(request.POST, request.FILES)
+        if form.is_valid():
+            template = form.save(commit=False)
+            template.created_by = request.user
+            template.updated_by = request.user
+            template.save()
+            deactivate_other_certificate_templates(template)
+            log_activity(request, 'create', 'certificate_template', f'Created certificate template {template.template_name}')
+            messages.success(request, 'Certificate template created.')
+            return redirect('admin_panel:certificate_template_list')
+    else:
+        form = CertificateTemplateForm(initial=initial)
+
+    context = {
+        'form': form,
+        'template_obj': None,
+        'available_variables': certificate_template_variables(),
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+    }
+    return render(request, 'admin_panel/certificate_template_form.html', context)
+
+
+@login_required
+@role_required(['admin'])
+def certificate_template_edit(request, template_id):
+    template = get_object_or_404(CertificateTemplate, id=template_id, is_deleted=False)
+
+    if request.method == 'POST':
+        form = CertificateTemplateForm(request.POST, request.FILES, instance=template)
+        if form.is_valid():
+            latest_version = template.versions.order_by('-version_number').first()
+            next_version = latest_version.version_number + 1 if latest_version else 1
+            CertificateTemplateVersion.objects.create(
+                template=template,
+                version_number=next_version,
+                change_notes=request.POST.get('change_notes', '').strip(),
+                snapshot_header_html=template.header_html,
+                snapshot_body_html=template.body_html,
+                snapshot_footer_html=template.footer_html,
+                snapshot_document_html=template.document_html,
+                snapshot_logo=template.logo,
+                snapshot_seal=template.seal,
+                snapshot_signature=template.signature,
+                changed_by=request.user,
+            )
+            template = form.save(commit=False)
+            template.updated_by = request.user
+            template.save()
+            deactivate_other_certificate_templates(template)
+            log_activity(request, 'update', 'certificate_template', f'Updated certificate template {template.template_name}')
+            messages.success(request, 'Certificate template updated.')
+            return redirect('admin_panel:certificate_template_list')
+    else:
+        form = CertificateTemplateForm(instance=template)
+
+    context = {
+        'form': form,
+        'template_obj': template,
+        'versions': template.versions.all()[:10],
+        'available_variables': certificate_template_variables(),
+        'staff': request.user.staff_profile if hasattr(request.user, 'staff_profile') else None,
+    }
+    return render(request, 'admin_panel/certificate_template_form.html', context)
+
+
+@login_required
+@role_required(['admin'])
+def certificate_template_preview(request, template_id):
+    template = get_object_or_404(CertificateTemplate, id=template_id, is_deleted=False)
+    sample_request = CertificateRequest.objects.filter(request_type=template.template_type).order_by('-date_submitted').first()
+    if not sample_request:
+        sample_request = CertificateRequest(
+            request_id='REQ-PREVIEW',
+            request_type=template.template_type,
+            full_name='Juan Dela Cruz',
+            address='Barangay Poblacion, Santa Catalina, Negros Oriental',
+            age=35,
+            civil_status='single',
+            gender='male',
+            purpose='preview and validation',
+            purok='Purok 1',
+            approved_by='HON. WELMAR TA-ALA',
+        )
+    context = {
+        'template': template,
+        'preview_mode': True,
+        **rendered_template_sections(template, sample_request),
+    }
+    return render(request, 'certificates/dynamic_certificate.html', context)
+
+
+@login_required
+@role_required(['admin'])
+def certificate_template_delete(request, template_id):
+    template = get_object_or_404(CertificateTemplate, id=template_id, is_deleted=False)
+    if request.method == 'POST':
+        template.is_deleted = True
+        template.is_active = False
+        template.deleted_at = timezone.now()
+        template.updated_by = request.user
+        template.save()
+        log_activity(request, 'delete', 'certificate_template', f'Deleted certificate template {template.template_name}')
+        messages.success(request, 'Certificate template removed.')
+    return redirect('admin_panel:certificate_template_list')
+
+
+def deactivate_other_certificate_templates(template):
+    if template.is_active:
+        CertificateTemplate.objects.filter(
+            template_type=template.template_type,
+            is_deleted=False,
+            is_active=True,
+        ).exclude(id=template.id).update(is_active=False)
+
+
+def certificate_template_variables():
+    return [
+        'tracking_id', 'request_type', 'full_name', 'address', 'age', 'purpose', 'purok',
+        'current_date', 'birthplace', 'weight', 'height', 'gender', 'civil_status', 'dob',
+        'emergency_name', 'emergency_address', 'emergency_contact', 'emergency_relationship',
+        'approved_by', 'photo_url', 'logo_url', 'seal_url', 'signature_url',
+    ]

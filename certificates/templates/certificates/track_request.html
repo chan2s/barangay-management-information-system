@@ -106,6 +106,25 @@
         border-color: var(--yellow-mid);
         transform: translateY(-2px);
     }
+    .preview-actions {
+        margin-top: 18px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .btn-preview {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--yellow-mid);
+        color: var(--charcoal);
+        padding: 12px 18px;
+        border-radius: var(--radius-sm);
+        text-decoration: none;
+        font-weight: 800;
+        font-size: 0.9rem;
+        border: 2px solid var(--yellow-mid);
+    }
     
     .text-muted {
         color: var(--muted);
@@ -354,6 +373,7 @@
             {% csrf_token %}
             <div class="search-box">
                 <input type="text" name="reference_number" placeholder="Reference Number (e.g., REQ-XXXX)" required autofocus>
+                <input type="text" name="last_name" placeholder="Last Name">
                 <button type="submit" class="btn-search">
                     <i class="bi bi-search me-2"></i> Track Request
                 </button>
@@ -402,6 +422,13 @@
                 <span class="detail-value">{{ request.remarks }}</span>
             </div>
             {% endif %}
+
+            <div class="preview-actions">
+                <a class="btn-preview" href="{% url 'certificates:preview_certificate' request.request_id %}" target="_blank">
+                    <i class="bi bi-file-earmark-text"></i> Preview Request
+                </a>
+                <small class="text-muted">For viewing only. The preview is not valid for official use.</small>
+            </div>
             
             <div class="timeline">
                 <h4><i class="bi bi-clock-history me-2"></i> Request Timeline</h4>
@@ -433,13 +460,13 @@
                 </div>
                 
                 <div class="timeline-item">
-                    <div class="timeline-icon {% if request.status == 'completed' or request.status == 'released' %}completed{% endif %}">
+                    <div class="timeline-icon {% if request.status == 'approved' or request.status == 'released' %}completed{% endif %}">
                         <i class="bi bi-file-text"></i>
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-title">Certificate Generated</div>
                         <div class="timeline-date">
-                            {% if request.status == 'completed' or request.status == 'released' %}
+                            {% if request.status == 'approved' or request.status == 'released' %}
                                 Certificate ready
                             {% else %}
                                 Waiting for approval

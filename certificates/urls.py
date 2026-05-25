@@ -11,6 +11,7 @@ urlpatterns = [
     path('process/<int:request_id>/', views.process_request, name='process_request'),
     path('release/<int:request_id>/', views.release_request, name='release_request'),
     path('track/', views.track_request, name='track_request'),
+    path('preview/<str:reference_number>/', views.preview_certificate, name='preview_certificate'),
     path('generate/<int:request_id>/', views.generate_certificate, name='generate_certificate'),
     path('generate/clearance/<int:request_id>/', views.generate_clearance, name='generate_clearance'),
     path('generate/residency/<int:request_id>/', views.generate_residency, name='generate_residency'),

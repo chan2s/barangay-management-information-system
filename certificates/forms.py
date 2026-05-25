@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import CertificateRequest
+from .models import CertificateRequest, CertificateTemplate
+from .services import sanitize_certificate_html
 import re
 
 class CertificateRequestForm(forms.ModelForm):
@@ -65,3 +66,31 @@ class TrackRequestForm(forms.Form):
             'placeholder': 'Enter your last name'
         })
     )
+
+
+class CertificateTemplateForm(forms.ModelForm):
+    class Meta:
+        model = CertificateTemplate
+        fields = [
+            'template_name', 'template_type', 'document_html',
+            'logo', 'seal', 'signature', 'is_active'
+        ]
+        widgets = {
+            'template_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'template_type': forms.Select(attrs={'class': 'form-control'}, choices=CertificateRequest.CERTIFICATE_TYPES),
+            'document_html': forms.Textarea(attrs={'class': 'document-source', 'rows': 4}),
+            'logo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'seal': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'signature': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def clean_template_type(self):
+        template_type = self.cleaned_data['template_type']
+        valid_types = [value for value, _label in CertificateRequest.CERTIFICATE_TYPES]
+        if template_type not in valid_types:
+            raise ValidationError('Select a valid certificate type.')
+        return template_type
+
+    def clean_document_html(self):
+        return sanitize_certificate_html(self.cleaned_data.get('document_html', ''))

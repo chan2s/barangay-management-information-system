@@ -658,6 +658,10 @@
             </a>
 
             {% if user.is_superuser or user.staff_profile.role == 'admin' %}
+            <a href="{% url 'admin_panel:certificate_template_list' %}" class="nav-link {% block nav_certificate_templates %}{% endblock %}">
+                <i class="fas fa-file-signature"></i> Certificate Templates
+            </a>
+
             <div class="nav-section-label">System</div>
             <a href="{% url 'admin_panel:audit_log' %}" class="nav-link">
                 <i class="fas fa-history"></i> Audit Log

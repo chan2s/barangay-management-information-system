@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ template.template_name }} - BIMS</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #d8d8d8;
+            font-family: "Times New Roman", Times, serif;
+            color: #111;
+        }
+        .preview-banner {
+            max-width: 820px;
+            margin: 0 auto 12px;
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fed7aa;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .preview-warning {
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            color: #b91c1c;
+            border: 2px solid #b91c1c;
+            padding: 8px 10px;
+            margin-bottom: 18px;
+        }
+        .certificate {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            padding: 24mm 22mm;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12pt;
+            line-height: 1.6;
+        }
+        .certificate.preview::after {
+            content: "FOR VIEWING ONLY";
+            position: absolute;
+            inset: 44% 0 auto;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 56px;
+            font-weight: 900;
+            color: rgba(220, 38, 38, 0.1);
+            transform: rotate(-18deg);
+            pointer-events: none;
+        }
+        .requester-preview .signature-block,
+        .requester-preview .signature-section,
+        .requester-preview .attested-block,
+        .requester-preview .certificate-footer,
+        .requester-preview .footer,
+        .requester-preview .kapitan-sig,
+        .requester-preview .signature {
+            display: none !important;
+        }
+        .certificate-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .certificate-header h2 { margin: 2px 0; text-transform: uppercase; font-size: 18px; }
+        .seal { width: 72px; height: 72px; object-fit: contain; border-radius: 50%; }
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            text-decoration: underline;
+            font-size: 22px;
+            margin: 24px 0;
+        }
+        p { font-size: 16px; line-height: 1.65; text-align: justify; margin: 12px 0; }
+        img { max-width: 100%; height: auto; }
+        .signature-block {
+            width: 45%;
+            margin: 46px 0 0 auto;
+            text-align: center;
+            font-size: 15px;
+        }
+        .signature { max-width: 210px; max-height: 70px; display: block; margin: 0 auto 4px; object-fit: contain; }
+        .signature-line { border-top: 1px solid #111; margin: 40px auto 6px; width: 85%; }
+        .signature-block .signature + .signature-line { margin-top: 2px; }
+        .signature-block span { display: block; margin-top: 2px; }
+        .certificate-footer {
+            margin-top: 28px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #333;
+        }
+        .actions {
+            max-width: 820px;
+            margin: 16px auto 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-family: Arial, sans-serif;
+        }
+        .btn {
+            border: none;
+            border-radius: 6px;
+            min-height: 38px;
+            padding: 9px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            background: #111827;
+            color: #fff;
+            text-decoration: none;
+        }
+        @media print {
+            body { background: #fff; padding: 0; }
+            .certificate { box-shadow: none; max-width: 100%; min-height: auto; padding: 0; }
+            .actions, .preview-banner { display: none !important; }
+            @page { size: A4 portrait; margin: 18mm; }
+        }
+    </style>
+</head>
+<body>
+    {% if requester_preview %}
+    <div class="preview-banner">For viewing only. This preview is not valid for official use and does not include the Kapitan signature or release logs.</div>
+    {% elif preview_mode %}
+    <div class="preview-banner">Preview only. Verify the applicant details before release.</div>
+    {% endif %}
+
+    <main class="certificate {% if preview_mode %}preview{% endif %} {% if requester_preview %}requester-preview{% endif %}">
+        {% if requester_preview %}
+        <div class="preview-warning">For Viewing Only - Not Valid For Official Use</div>
+        {% endif %}
+        {{ document_html|default:header_html }}
+    </main>
+
+    <div class="actions">
+        {% if not preview_mode %}
+        <button class="btn" type="button" onclick="window.print()">Print Certificate</button>
+        {% endif %}
+        <button class="btn" type="button" onclick="history.back()">Back</button>
+    </div>
+</body>
+</html>

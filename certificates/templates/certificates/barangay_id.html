@@ -358,6 +358,42 @@
         .btn-pdf   { background: var(--red);  color: white; }
         .btn-back  { background: var(--gold); color: #0a2b3e; text-decoration: none; display: inline-block; }
         .btn:hover { opacity: 0.88; transform: translateY(-2px); }
+        .preview-banner {
+            max-width: 760px;
+            margin: 0 auto 12px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 6px;
+            color: #9a3412;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 14px;
+        }
+        .preview-warning {
+            border: 1.5px solid #b91c1c;
+            color: #b91c1c;
+            font-family: Arial, sans-serif;
+            font-size: 2.3mm;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            padding: 1mm;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .id-card-front.preview::after,
+        .id-card-back.preview::after {
+            content: "FOR VIEWING ONLY";
+            position: absolute;
+            inset: 45% 0 auto;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 8mm;
+            font-weight: 900;
+            color: rgba(220, 38, 38, 0.13);
+            transform: rotate(-18deg);
+            pointer-events: none;
+        }
 
         @media print {
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -384,11 +420,19 @@
     </style>
 </head>
 <body>
+    {% if requester_preview %}
+    <div class="preview-banner">
+        For viewing only. This preview is not valid for official use and does not include the Kapitan signature or release logs.
+    </div>
+    {% endif %}
 
     <!-- ══════════════════ FRONT ══════════════════ -->
-    <div class="id-card-front" id="frontSide">
+    <div class="id-card-front {% if requester_preview %}preview{% endif %}" id="frontSide">
         <div class="front-side">
             <div class="top-stripe"></div>
+            {% if requester_preview %}
+            <div class="preview-warning">For Viewing Only</div>
+            {% endif %}
 
             <div class="header">
                 <div class="republic">Republic of the Philippines</div>
@@ -436,9 +480,12 @@
     </div>
 
     <!-- ══════════════════ BACK ══════════════════ -->
-    <div class="id-card-back" id="backSide">
+    <div class="id-card-back {% if requester_preview %}preview{% endif %}" id="backSide">
         <div class="back-side">
             <div class="top-stripe"></div>
+            {% if requester_preview %}
+            <div class="preview-warning">For Viewing Only</div>
+            {% endif %}
 
             <div class="back-header">
                 <div class="back-brgy">BARANGAY POBLACION</div>
@@ -465,6 +512,7 @@
                 <div class="emergency-row"><span class="info-label">Relationship:</span> {{ emergency_relationship|default:"_________________" }}</div>
             </div>
 
+            {% if not requester_preview %}
             <div class="attested-block">
                 <div class="attested-label">Attested:</div>
                 <!-- Kapitan signature SVG -->
@@ -488,12 +536,15 @@
             </div>
 
             <div class="date-issued">Date Issued: {{ current_date|default:"________________" }}</div>
+            {% endif %}
 
             <div class="bottom-stripe"></div>
         </div>
     </div>
 
     <div class="no-print">
+        {% if preview_mode %}<button class="btn btn-back" onclick="history.back()">Preview Only - Back</button><style>.btn-print,.btn-pdf{display:none!important;}</style>{% endif %}
+        {% if requester_preview %}<style>.btn-print,.btn-pdf{display:none!important;}</style>{% endif %}
         <button class="btn btn-print" onclick="window.print()">🖨️ Print ID Card</button>
         <button class="btn btn-pdf" onclick="printToPDF()">📄 Export to PDF</button>
         <a href="{% url 'certificates:request_list' %}" class="btn btn-back">← Back</a>

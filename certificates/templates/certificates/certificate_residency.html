@@ -113,10 +113,42 @@
         .btn-pdf   { background: #dc3545; color: white; }
         .btn-back  { background: #d4af37; color: #0a2b3e; }
         .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+        .preview-warning {
+            border: 2px solid #b91c1c;
+            color: #b91c1c;
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            margin-bottom: 18px;
+            padding: 8px 10px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .certificate.preview::after {
+            content: "FOR VIEWING ONLY";
+            position: absolute;
+            inset: 44% 0 auto;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 48px;
+            font-weight: 900;
+            color: rgba(220, 38, 38, 0.1);
+            transform: rotate(-18deg);
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
-    <div class="certificate" id="certificateContent">
+    {% if requester_preview %}
+    <div style="max-width: 850px; margin: 0 auto 12px; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; color: #9a3412; font-family: Arial, sans-serif; font-size: 13px; font-weight: 700; padding: 10px 14px;">
+        For viewing only. This preview is not valid for official use and does not include the Kapitan signature or release logs.
+    </div>
+    {% endif %}
+    <div class="certificate {% if requester_preview %}preview{% endif %}" id="certificateContent">
+        {% if requester_preview %}
+        <div class="preview-warning">For Viewing Only - Not Valid For Official Use</div>
+        {% endif %}
         <div class="header">
             <div class="logo-section">
                 <div class="barangay-seal">
@@ -154,6 +186,7 @@
             <p>Given this <strong>{{ current_date }}</strong> at the Office of the Punong Barangay, Barangay Poblacion, Santa Catalina, Negros Oriental, Philippines.</p>
         </div>
 
+        {% if not requester_preview %}
         <div class="signature-section">
             <!--
               SAMPLE SIGNATURE — replace with real image for production:
@@ -193,9 +226,12 @@
         <div class="footer">
             <p>Tracking ID: <strong>{{ tracking_id }}</strong> | Issued on: {{ current_date }}</p>
         </div>
+        {% endif %}
     </div>
 
     <div class="no-print">
+        {% if preview_mode %}<button class="btn btn-back" onclick="history.back()">Preview Only - Back</button><style>.btn-print,.btn-pdf{display:none!important;}</style>{% endif %}
+        {% if requester_preview %}<style>.btn-print,.btn-pdf{display:none!important;}</style>{% endif %}
         <button class="btn btn-print" onclick="window.print()">🖨️ Print Certificate</button>
         <button class="btn btn-pdf"   onclick="printToPDF()">📄 Export to PDF</button>
         <button class="btn btn-back"  onclick="window.location.href='{% url 'certificates:request_form' %}'">← Back to Form</button>
