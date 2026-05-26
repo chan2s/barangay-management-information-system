@@ -846,7 +846,7 @@ select.form-control {
       </div>
 
       <div class="form-body">
-        <form id="certForm" method="post" enctype="multipart/form-data" action="{% url 'certificates:submit_request' %}">
+        <form id="certForm" method="post" enctype="multipart/form-data" action="{% url 'certificates:submit_request' %}" data-no-loading="true">
           {% csrf_token %}
           <input type="hidden" id="requestType" name="requestType">
 
@@ -921,7 +921,7 @@ select.form-control {
                 </div>
                 <div class="form-group">
                   <label>Contact Number</label>
-                  <input type="tel" class="form-control" name="contactNumber" id="contactNumber" placeholder="09123456789">
+                  <input type="tel" class="form-control numeric-only" name="contactNumber" id="contactNumber" placeholder="09123456789" inputmode="numeric" pattern="[0-9]*" maxlength="11">
                 </div>
               </div>
               <div class="form-row">
@@ -931,7 +931,7 @@ select.form-control {
                 </div>
                 <div class="form-group">
                   <label>Age (auto-computed)</label>
-                  <input type="text" class="form-control" name="age" id="age" readonly>
+                  <input type="number" class="form-control" name="age" id="age" readonly min="0" max="130">
                 </div>
               </div>
               <div class="form-row">
@@ -999,7 +999,7 @@ select.form-control {
               </div>
               <div class="form-group">
                 <label>Years of Residency in Barangay</label>
-                <input type="text" class="form-control" name="years_residency" placeholder="e.g., 5 years">
+                <input type="number" class="form-control" name="years_residency" id="years_residency" placeholder="e.g., 5" min="0" step="1" inputmode="numeric">
               </div>
             </div>
             <!-- Indigency -->
@@ -1011,7 +1011,7 @@ select.form-control {
               </div>
               <div class="form-group">
                 <label>Monthly Family Income <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-                <input type="text" class="form-control" name="monthly_income" placeholder="e.g., ₱5,000">
+                <input type="number" class="form-control" name="monthly_income" id="monthly_income" placeholder="e.g., 5000" min="0" step="0.01" inputmode="decimal">
               </div>
             </div>
             <!-- Barangay ID -->
@@ -1024,12 +1024,12 @@ select.form-control {
                 </div>
                 <div class="form-group">
                   <label>Weight (kg)</label>
-                  <input type="text" class="form-control" name="weight" id="weight" placeholder="e.g., 55">
+                  <input type="number" class="form-control" name="weight" id="weight" placeholder="e.g., 55" min="0" step="0.1" inputmode="decimal">
                 </div>
               </div>
               <div class="form-group">
-                <label>Height</label>
-                <input type="text" class="form-control" name="height" id="height" placeholder="e.g., 5'4&quot;">
+                <label>Height (cm)</label>
+                <input type="number" class="form-control" name="height" id="height" placeholder="e.g., 163" min="0" step="0.1" inputmode="decimal">
               </div>
               <div class="section-head" style="margin-top:24px"><div class="icon">📞</div>Emergency Contact</div>
               <div class="form-group">
@@ -1043,7 +1043,7 @@ select.form-control {
               <div class="form-row">
                 <div class="form-group">
                   <label>Contact Number</label>
-                  <input type="tel" class="form-control" name="emergency_contact" id="emergency_contact" placeholder="Contact number">
+                  <input type="tel" class="form-control numeric-only" name="emergency_contact" id="emergency_contact" placeholder="Contact number" inputmode="numeric" pattern="[0-9]*" maxlength="11">
                 </div>
                 <div class="form-group">
                   <label>Relationship</label>
@@ -1095,7 +1095,7 @@ select.form-control {
               <div class="review-grid" id="reviewContent"></div>
 
               <div class="consent-box">
-                <input type="checkbox" id="dataConsent">
+                <input type="checkbox" id="dataConsent" name="data_consent" required>
                 <div class="ct">
                   <strong>Data Privacy Consent</strong><br>
                   I hereby certify that all information provided is true and correct. I authorize the Barangay to collect and process my personal information for certificate issuance, in accordance with the Data Privacy Act of 2012 (RA 10173).
@@ -1224,6 +1224,31 @@ select.form-control {
   }
 
   /* ── File uploads ──────────────────────────────── */
+  function keepDigits(value) {
+    return value.replace(/\D/g, '');
+  }
+
+  function keepDecimal(value) {
+    const cleaned = value.replace(/[^0-9.]/g, '');
+    const parts = cleaned.split('.');
+    return parts.length > 1 ? parts[0] + '.' + parts.slice(1).join('') : cleaned;
+  }
+
+  function enforceNumericInput(selector, cleaner) {
+    document.querySelectorAll(selector).forEach(input => {
+      input.addEventListener('input', function () {
+        const cleanValue = cleaner(this.value);
+        if (this.value !== cleanValue) this.value = cleanValue;
+      });
+      input.addEventListener('keydown', function (event) {
+        if (['e', 'E', '+', '-'].includes(event.key)) event.preventDefault();
+      });
+    });
+  }
+
+  enforceNumericInput('.numeric-only, #years_residency', keepDigits);
+  enforceNumericInput('#monthly_income, #weight, #height', keepDecimal);
+
   function setupUpload(zoneId, inputId, nameId) {
     const zone = $(zoneId), input = $(inputId), nameEl = $(nameId);
     if (!zone || !input) return;
@@ -1427,8 +1452,21 @@ select.form-control {
       const consent = $('dataConsent');
       if (!consent || !consent.checked) {
         e.preventDefault();
+        if (window.globalLoading) window.globalLoading.hide();
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'âœ“ Submit Application';
+        }
         toast('Please check the Data Privacy Consent before submitting.');
+        if (consent) consent.focus();
         return false;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span> Submitting';
+      }
+      if (window.globalLoading) {
+        window.globalLoading.show('Submitting request', 'Please wait while BIMS records your certificate application.');
       }
       if (window.toast) {
         window.toast.info('Submitting your request...', 'Processing');

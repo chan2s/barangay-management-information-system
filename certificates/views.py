@@ -26,6 +26,9 @@ def request_form(request):
 def submit_request(request):
     """Process certificate request submission and show confirmation"""
     if request.method == 'POST':
+        if request.POST.get('data_consent') != 'on':
+            messages.error(request, 'Please check the Data Privacy Consent before submitting your certificate request.')
+            return redirect('certificates:request_form')
         
         print("FILES RECEIVED:", request.FILES)
         print("POST DATA:", request.POST)
@@ -71,6 +74,40 @@ def submit_request(request):
         emergency_address_value = request.POST.get('emergency_address', '')
         emergency_contact_value = request.POST.get('emergency_contact', '')
         emergency_relationship_value = request.POST.get('emergency_relationship', '')
+        years_residency_value = request.POST.get('years_residency', '')
+        monthly_income_value = request.POST.get('monthly_income', '')
+
+        def is_digits(value):
+            return not value or value.isdigit()
+
+        def is_decimal(value):
+            if not value:
+                return True
+            try:
+                float(value)
+            except ValueError:
+                return False
+            return all(char.isdigit() or char == '.' for char in value) and value.count('.') <= 1
+
+        numeric_errors = []
+        if not is_digits(contact_number_value):
+            numeric_errors.append('Contact Number')
+        if not is_digits(age_value):
+            numeric_errors.append('Age')
+        if not is_digits(years_residency_value):
+            numeric_errors.append('Years of Residency')
+        if not is_decimal(monthly_income_value):
+            numeric_errors.append('Monthly Family Income')
+        if not is_decimal(weight_value):
+            numeric_errors.append('Weight')
+        if not is_decimal(height_value):
+            numeric_errors.append('Height')
+        if not is_digits(emergency_contact_value):
+            numeric_errors.append('Emergency Contact Number')
+
+        if numeric_errors:
+            messages.error(request, f"Please enter numbers only for: {', '.join(numeric_errors)}.")
+            return redirect('certificates:request_form')
 
         # Handle file uploads
         valid_id_file = request.FILES.get('valid_id')
