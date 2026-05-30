@@ -302,7 +302,7 @@
     max-height: 96px; /* ~3 lines collapsed */
   }
 
-  .ann-content-wrap.expanded { max-height: 2000px; }
+  .ann-content-wrap.expanded { max-height: none; }
 
   /* Fade-out gradient on collapsed state */
   .ann-fade {
@@ -367,8 +367,9 @@
   /* Image (inside expanded content) */
   .announcement-image {
     width: 100%;
-    max-height: 220px;
-    object-fit: cover;
+    height: auto;
+    max-height: none;
+    object-fit: contain;
     display: block;
     margin-top: 14px;
     border-radius: 0 0 0 0;
@@ -820,6 +821,27 @@
     var card  = btn.closest('.announcement-card');
     var wrap  = card.querySelector('[data-ann-wrap]');
     var label = btn.querySelector('.ann-toggle-label');
+    var collapsedHeight = 96;
+
+    function expandedHeight() {
+      return wrap.scrollHeight + 'px';
+    }
+
+    function expandWrap() {
+      wrap.classList.add('expanded');
+      wrap.style.maxHeight = expandedHeight();
+    }
+
+    function collapseWrap() {
+      wrap.classList.remove('expanded');
+      wrap.style.maxHeight = collapsedHeight + 'px';
+    }
+
+    function refreshExpandedHeight() {
+      if (wrap.classList.contains('expanded')) {
+        wrap.style.maxHeight = expandedHeight();
+      }
+    }
 
     // If content is short enough, hide the toggle entirely
     // We check after a tiny delay so the DOM has painted
@@ -830,10 +852,18 @@
 
       if (totalH <= 100) {
         // Short content — expand immediately, hide button
-        wrap.classList.add('expanded');
+        expandWrap();
         btn.style.display = 'none';
         var fade = wrap.querySelector('.ann-fade');
         if (fade) fade.style.display = 'none';
+      }
+    });
+
+    wrap.querySelectorAll('img').forEach(function(img) {
+      if (img.complete) {
+        refreshExpandedHeight();
+      } else {
+        img.addEventListener('load', refreshExpandedHeight, { once: true });
       }
     });
 
@@ -841,14 +871,14 @@
       var expanded = wrap.classList.contains('expanded');
 
       if (expanded) {
-        wrap.classList.remove('expanded');
+        collapseWrap();
         btn.classList.remove('expanded');
         btn.setAttribute('aria-expanded', 'false');
         label.textContent = 'Read full announcement';
         // Smooth scroll back to card top if it scrolled off
         card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       } else {
-        wrap.classList.add('expanded');
+        expandWrap();
         btn.classList.add('expanded');
         btn.setAttribute('aria-expanded', 'true');
         label.textContent = 'Show less';

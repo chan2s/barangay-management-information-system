@@ -1227,14 +1227,26 @@
 
             const skeletonOverlay = document.getElementById('kapitanSkeletonOverlay');
             const skeletonStartedAt = Date.now();
+            let skeletonHideTimer = null;
             window.kapitanSkeleton = {
                 show: function() {
+                    clearTimeout(skeletonHideTimer);
                     skeletonOverlay.classList.add('open');
                 },
                 hide: function() {
+                    clearTimeout(skeletonHideTimer);
                     skeletonOverlay.classList.remove('open');
                 }
             };
+
+            function hideSkeletonSoon() {
+                const elapsed = Date.now() - skeletonStartedAt;
+                const remaining = Math.max(0, 350 - elapsed);
+                clearTimeout(skeletonHideTimer);
+                skeletonHideTimer = setTimeout(function() {
+                    window.kapitanSkeleton.hide();
+                }, remaining);
+            }
 
             const modal = document.getElementById('kapitanConfirmModal');
             const modalCard = document.getElementById('kapitanConfirmCard');
@@ -1408,17 +1420,15 @@
 
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', normalizeConfirmTriggers);
+                document.addEventListener('DOMContentLoaded', hideSkeletonSoon);
             } else {
                 normalizeConfirmTriggers();
+                hideSkeletonSoon();
             }
 
-            window.addEventListener('load', function() {
-                const elapsed = Date.now() - skeletonStartedAt;
-                const remaining = Math.max(0, 350 - elapsed);
-                setTimeout(function() {
-                    window.kapitanSkeleton.hide();
-                }, remaining);
-            });
+            window.addEventListener('load', hideSkeletonSoon);
+            window.addEventListener('pageshow', hideSkeletonSoon);
+            setTimeout(hideSkeletonSoon, 2500);
         })();
     </script>
     
